@@ -4,6 +4,7 @@ import { OrbitControls, OrthographicCamera } from '@react-three/drei'
 import ProvinceMesh from './ProvinceMesh'
 import DistrictMesh from './DistrictMesh'
 import MapTooltip from './MapTooltip'
+import { normalizeName } from '../../services/locationApi'
 
 const MAP_ERROR = 'Map boundary file not found. Please add the GeoJSON file to frontend/public/maps.'
 const CAMERA_POSITION = [0, -0.2, 12]
@@ -44,6 +45,8 @@ export default function SriLanka3DMap({
   mode,
   selectedFeatureName,
   selectedProvinceFeature,
+  districtRecords = [],
+  showAllDistricts = false,
   onProvinceClick,
   onDistrictClick,
 }) {
@@ -95,15 +98,20 @@ export default function SriLanka3DMap({
       const selectedProvinceName = selectedProvinceFeature?.properties?.shapeName
       const provincePropertyKeys = ['province', 'provinceName', 'admin1Name', 'adm1Name', 'ADM1_EN', 'shapeProvince']
       const filterKey = provincePropertyKeys.find(key => allDistrictFeatures.some(feature => feature.properties?.[key]))
-      const features = filterKey && selectedProvinceName
+      const districtNameSet = new Set(districtRecords.map(district => normalizeName(district.name_english)))
+      const features = showAllDistricts
+        ? allDistrictFeatures
+        : filterKey && selectedProvinceName
         ? allDistrictFeatures.filter(feature => feature.properties?.[filterKey] === selectedProvinceName)
-        // TODO: District GeoJSON currently has no province/admin property, so all districts are shown.
+        : districtNameSet.size
+          ? allDistrictFeatures.filter(feature => districtNameSet.has(normalizeName(feature.properties?.shapeName)))
+          // TODO: District GeoJSON currently has no province/admin property, so the API district list is used to filter boundaries.
         : allDistrictFeatures
 
       return districtGeoJson ? { ...districtGeoJson, features } : null
     }
     return provinceGeoJson
-  }, [districtGeoJson, mode, provinceGeoJson, selectedProvinceFeature])
+  }, [districtGeoJson, districtRecords, mode, provinceGeoJson, selectedProvinceFeature, showAllDistricts])
 
   const features = activeGeoJson?.features || []
 
@@ -125,9 +133,8 @@ export default function SriLanka3DMap({
 
   return (
     <div className="location-map-canvas">
-      <Canvas shadows dpr={[1, 1.75]} camera={{ position: CAMERA_POSITION, zoom: CAMERA_ZOOM }}>
+      <Canvas shadows dpr={[1, 1.75]} gl={{ alpha: true }} camera={{ position: CAMERA_POSITION, zoom: CAMERA_ZOOM }}>
         <Suspense fallback={null}>
-          <color attach="background" args={['#f4efe7']} />
           <ambientLight intensity={1.25} />
           <directionalLight
             castShadow
@@ -148,15 +155,14 @@ export default function SriLanka3DMap({
             onHover={showTooltip}
             onLeave={() => setTooltip(null)}
           />
-          <mesh receiveShadow position={[0, 0, -0.12]}>
-            <planeGeometry args={[13, 14]} />
-            <shadowMaterial transparent opacity={0.18} />
-          </mesh>
           <OrbitControls
+            enabled={false}
             enablePan={false}
+            enableRotate={false}
+            enableZoom={false}
             target={[0, 0, 0]}
-            minZoom={48}
-            maxZoom={105}
+            minZoom={CAMERA_ZOOM}
+            maxZoom={CAMERA_ZOOM}
             minPolarAngle={0.72}
             maxPolarAngle={1.26}
             rotateSpeed={0.3}

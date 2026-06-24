@@ -8,6 +8,7 @@ export const normalizeName = (name = '') => {
     .replace('district', '')
     .replaceAll('-', '')
     .replaceAll(' ', '')
+    .replace('monaragala', 'moneragala')
     .trim()
 }
 

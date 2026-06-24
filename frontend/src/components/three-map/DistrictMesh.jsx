@@ -73,7 +73,7 @@ export default function DistrictMesh({ feature, projection, color, selected, onC
         setHovered(false)
         onLeave()
       }}
-      onClick={event => {
+      onPointerDown={event => {
         event.stopPropagation()
         onClick(feature)
       }}

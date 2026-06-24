@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import SriLanka3DMap from '../components/three-map/SriLanka3DMap'
-import LocationPathPanel from '../components/location/LocationPathPanel'
 import LocationListPanel from '../components/location/LocationListPanel'
 import LocationResultTable from '../components/location/LocationResultTable'
 import { locationApi, normalizeName } from '../services/locationApi'
@@ -13,6 +12,7 @@ export default function LocationSearch() {
   const [mode, setMode] = useState('province')
   const [query, setQuery] = useState('')
   const [provinces, setProvinces] = useState([])
+  const [allDistricts, setAllDistricts] = useState([])
   const [districts, setDistricts] = useState([])
   const [dsList, setDsList] = useState([])
   const [gnList, setGnList] = useState([])
@@ -35,7 +35,15 @@ export default function LocationSearch() {
     async function loadProvinces() {
       try {
         const data = await locationApi.provinces()
-        if (mounted) setProvinces(data)
+        if (!mounted) return
+        setProvinces(data)
+
+        const districtGroups = await Promise.all(
+          data.map(province => locationApi.districts(province.id)
+            .then(items => items.map(item => ({ ...item, province_id: item.province_id || province.id })))
+            .catch(() => []))
+        )
+        if (mounted) setAllDistricts(districtGroups.flat())
       } catch (error) {
         if (mounted) setApiError(friendlyApiError)
       }
@@ -64,13 +72,13 @@ export default function LocationSearch() {
     setDsList([])
     setGnList([])
     setVillages([])
-    setMode('district')
     setApiError('')
     setLoadingPanel(true)
 
     try {
       const data = await locationApi.districts(province.id)
       setDistricts(data)
+      setMode('district')
     } catch (error) {
       setApiError(friendlyApiError)
     } finally {
@@ -80,10 +88,15 @@ export default function LocationSearch() {
 
   const handleDistrictClick = async feature => {
     const districtName = feature.properties?.shapeName || ''
-    const district = matchApiRecord(districts, districtName, 'district')
-    if (!district) return
+    const district = matchApiRecord(allDistricts.length ? allDistricts : districts, districtName, 'district')
+    if (!district) {
+      setApiError(`"${districtName}" could not be matched with the district records from the API.`)
+      return
+    }
 
-    setSelected(current => ({ ...current, district, districtFeature: feature, ds: null, gn: null }))
+    const districtProvince = provinces.find(province => String(province.id) === String(district.province_id)) || selected.province
+
+    setSelected(current => ({ ...current, province: districtProvince, district, districtFeature: feature, ds: null, gn: null }))
     setDsList([])
     setGnList([])
     setVillages([])
@@ -225,43 +238,11 @@ export default function LocationSearch() {
   return (
     <div className="location-search-page">
       <motion.section
-        className="location-hero"
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
+        className={`location-dashboard ${selected.district ? 'location-dashboard--with-side' : ''}`}
+        layout
+        transition={{ duration: 0.22, ease: 'easeOut' }}
       >
-        <div>
-          <span className="location-hero__eyebrow">Life Location Code Search</span>
-          <h1>Explore Sri Lanka through an interactive 3D administrative map</h1>
-          <p>Click a province, drill into districts, then browse DS divisions, GN divisions, and village records from the official location API.</p>
-        </div>
-
-        <div className="location-search-box">
-          <label htmlFor="location-search-input">Search location records</label>
-          <div>
-            <input
-              id="location-search-input"
-              type="search"
-              placeholder="Search province, district, DS, GN, or village"
-              value={query}
-              onChange={event => setQuery(event.target.value)}
-            />
-            <button type="button" onClick={() => setQuery('')}>Clear search</button>
-          </div>
-          {query && (
-            <div className="location-search-matches">
-              {searchMatches.length ? searchMatches.map(match => (
-                <span key={`${match.type}-${match.record.id}`}>
-                  {match.type}: {match.record.name_english}
-                </span>
-              )) : <span>No loaded records match this search.</span>}
-            </div>
-          )}
-        </div>
-      </motion.section>
-
-      <section className="location-dashboard">
-        <div className="location-map-card">
+        <motion.div className="location-map-card" layout transition={{ duration: 0.22, ease: 'easeOut' }}>
           <div className="location-map-card__header">
             <span>{mode === 'province' ? 'National province layer' : 'District boundary layer'}</span>
             <h2>{mode === 'province' ? '3D Sri Lanka Province Map' : `${selected.province?.name_english || 'Sri Lanka'} District Map`}</h2>
@@ -270,31 +251,42 @@ export default function LocationSearch() {
             mode={mode}
             selectedFeatureName={mode === 'district' ? selected.districtFeature?.properties?.shapeName : selected.provinceFeature?.properties?.shapeName}
             selectedProvinceFeature={selected.provinceFeature}
+            districtRecords={allDistricts}
+            showAllDistricts
             onProvinceClick={handleProvinceClick}
             onDistrictClick={handleDistrictClick}
           />
-        </div>
+          {selected.district && (
+            <div className="location-map-actions">
+              <button type="button" onClick={backToProvince}>Back to province map</button>
+              <button type="button" onClick={backToDistrict}>Back to district map</button>
+              <button type="button" onClick={resetSelection}>Reset selection</button>
+            </div>
+          )}
+        </motion.div>
 
-        <aside className="location-side">
-          <LocationPathPanel
-            selected={selected}
-            mode={mode}
-            onBackProvince={backToProvince}
-            onBackDistrict={backToDistrict}
-            onReset={resetSelection}
-          />
-          <LocationListPanel
-            title={filteredListConfig.title}
-            eyebrow={filteredListConfig.eyebrow}
-            items={filteredListConfig.items}
-            loading={loadingPanel}
-            error={apiError}
-            selectedId={filteredListConfig.selectedId}
-            onSelect={filteredListConfig.onSelect}
-            emptyText={filteredListConfig.emptyText}
-          />
-        </aside>
-      </section>
+        <motion.aside
+          className="location-side"
+          aria-hidden={!selected.district}
+          animate={{ opacity: selected.district ? 1 : 0 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
+          {selected.district && (
+            <>
+              <LocationListPanel
+                title={filteredListConfig.title}
+                eyebrow={filteredListConfig.eyebrow}
+                items={filteredListConfig.items}
+                loading={loadingPanel}
+                error={apiError}
+                selectedId={filteredListConfig.selectedId}
+                onSelect={filteredListConfig.onSelect}
+                emptyText={filteredListConfig.emptyText}
+              />
+            </>
+          )}
+        </motion.aside>
+      </motion.section>
 
       {(selected.gn || villages.length > 0 || loadingVillages) && (
         <LocationResultTable villages={villages} loading={loadingVillages} />
