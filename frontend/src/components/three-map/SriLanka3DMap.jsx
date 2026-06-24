@@ -9,9 +9,10 @@ import { normalizeName } from '../../services/locationApi'
 const MAP_ERROR = 'Map boundary file not found. Please add the GeoJSON file to frontend/public/maps.'
 const CAMERA_POSITION = [0, -0.2, 12]
 const CAMERA_ZOOM = 72
-const MAP_VIEWPORT_FILL = 0.78
+const MAP_VIEWPORT_FILL = 0.7
 const MAP_GROUP_SCALE = 1
 const MAP_GROUP_ROTATION = [-0.16, 0, 0.015]
+const MAP_GROUP_POSITION = [0, 0.08, 0]
 
 const provinceColors = ['#7a2d35', '#8f3d46', '#b9913e', '#2d5f84', '#2f6d54', '#7f741f', '#9a313a', '#605c98', '#167a7d']
 const districtColors = ['#82343d', '#98444e', '#c19a45', '#356f96', '#38775a', '#887729', '#a63d45', '#7068a8']
@@ -230,7 +231,7 @@ function MapScene({
   if (!projection) return null
 
   return (
-    <group rotation={MAP_GROUP_ROTATION} position={[0, 0, 0]} scale={[MAP_GROUP_SCALE, MAP_GROUP_SCALE, 1]}>
+    <group rotation={MAP_GROUP_ROTATION} position={MAP_GROUP_POSITION} scale={[MAP_GROUP_SCALE, MAP_GROUP_SCALE, 1]}>
       {features.map((feature, index) => {
         const name = feature.properties?.shapeName
         const selected = selectedFeatureName === name || selectedProvinceFeature?.properties?.shapeName === name

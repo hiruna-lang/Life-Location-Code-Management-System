@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import SriLanka3DMap from '../components/three-map/SriLanka3DMap'
-import LocationListPanel from '../components/location/LocationListPanel'
 import LocationResultTable from '../components/location/LocationResultTable'
 import { locationApi, normalizeName } from '../services/locationApi'
 import './LocationSearch.css'
@@ -10,7 +9,6 @@ const friendlyApiError = 'Unable to load location data right now. Please check t
 
 export default function LocationSearch() {
   const [mode, setMode] = useState('province')
-  const [query, setQuery] = useState('')
   const [provinces, setProvinces] = useState([])
   const [allDistricts, setAllDistricts] = useState([])
   const [districts, setDistricts] = useState([])
@@ -62,11 +60,7 @@ export default function LocationSearch() {
     return match
   }
 
-  const handleProvinceClick = async feature => {
-    const provinceName = feature.properties?.shapeName || ''
-    const province = matchApiRecord(provinces, provinceName, 'province')
-    if (!province) return
-
+  const selectProvince = async (province, feature = null) => {
     setSelected({ province, provinceFeature: feature, district: null, districtFeature: null, ds: null, gn: null })
     setDistricts([])
     setDsList([])
@@ -86,14 +80,14 @@ export default function LocationSearch() {
     }
   }
 
-  const handleDistrictClick = async feature => {
-    const districtName = feature.properties?.shapeName || ''
-    const district = matchApiRecord(allDistricts.length ? allDistricts : districts, districtName, 'district')
-    if (!district) {
-      setApiError(`"${districtName}" could not be matched with the district records from the API.`)
-      return
-    }
+  const handleProvinceClick = async feature => {
+    const provinceName = feature.properties?.shapeName || ''
+    const province = matchApiRecord(provinces, provinceName, 'province')
+    if (!province) return
+    await selectProvince(province, feature)
+  }
 
+  const selectDistrict = async (district, feature = null) => {
     const districtProvince = provinces.find(province => String(province.id) === String(district.province_id)) || selected.province
 
     setSelected(current => ({ ...current, province: districtProvince, district, districtFeature: feature, ds: null, gn: null }))
@@ -111,6 +105,16 @@ export default function LocationSearch() {
     } finally {
       setLoadingPanel(false)
     }
+  }
+
+  const handleDistrictClick = async feature => {
+    const districtName = feature.properties?.shapeName || ''
+    const district = matchApiRecord(allDistricts.length ? allDistricts : districts, districtName, 'district')
+    if (!district) {
+      setApiError(`"${districtName}" could not be matched with the district records from the API.`)
+      return
+    }
+    await selectDistrict(district, feature)
   }
 
   const handleDsClick = async ds => {
@@ -167,78 +171,10 @@ export default function LocationSearch() {
     setVillages([])
   }
 
-  const activeList = selected.district
-    ? selected.ds
-      ? gnList
-      : dsList
-    : []
-
-  const listConfig = selected.district
-    ? selected.ds
-      ? {
-          title: 'GN divisions',
-          eyebrow: selected.ds.name_english,
-          items: gnList,
-          selectedId: selected.gn?.id,
-          onSelect: handleGnClick,
-          emptyText: 'No GN divisions found for this DS division.',
-        }
-      : {
-          title: 'Divisional Secretariats',
-          eyebrow: selected.district.name_english,
-          items: dsList,
-          selectedId: selected.ds?.id,
-          onSelect: handleDsClick,
-          emptyText: 'No Divisional Secretariats found for this district.',
-        }
-    : {
-        title: 'Next step',
-        eyebrow: 'Map selection',
-        items: [],
-        selectedId: null,
-        onSelect: () => {},
-        emptyText: selected.province ? 'Select a district from the 3D map.' : 'Select a province from the 3D national map.',
-      }
-
-  const filteredListConfig = useMemo(() => {
-    const term = normalizeName(query)
-    if (!term || !listConfig.items.length) return listConfig
-
-    return {
-      ...listConfig,
-      items: listConfig.items.filter(item => {
-        return [item.name_english, item.name_sinhala, item.name_tamil]
-          .filter(Boolean)
-          .some(value => normalizeName(value).includes(term))
-      }),
-    }
-  }, [listConfig, query])
-
-  const searchMatches = useMemo(() => {
-    const term = normalizeName(query)
-    if (!term) return []
-
-    const groups = [
-      ['Province', provinces],
-      ['District', districts],
-      ['DS', dsList],
-      ['GN', gnList],
-      ['Village', villages],
-    ]
-
-    return groups.flatMap(([type, records]) => records
-      .filter(record => [record.name_english, record.name_sinhala, record.name_tamil]
-        .filter(Boolean)
-        .some(value => normalizeName(value).includes(term)))
-      .slice(0, 4)
-      .map(record => ({ type, record })))
-      .slice(0, 12)
-  }, [districts, dsList, gnList, provinces, query, villages])
-
   return (
     <div className="location-search-page">
       <motion.section
-        className={`location-dashboard ${selected.district ? 'location-dashboard--with-side' : ''}`}
+        className="location-dashboard"
         layout
         transition={{ duration: 0.22, ease: 'easeOut' }}
       >
@@ -265,32 +201,68 @@ export default function LocationSearch() {
           )}
         </motion.div>
 
-        <motion.aside
-          className="location-side"
-          aria-hidden={!selected.district}
-          animate={{ opacity: selected.district ? 1 : 0 }}
-          transition={{ duration: 0.18, ease: 'easeOut' }}
-        >
-          {selected.district && (
-            <>
-              <LocationListPanel
-                title={filteredListConfig.title}
-                eyebrow={filteredListConfig.eyebrow}
-                items={filteredListConfig.items}
-                loading={loadingPanel}
-                error={apiError}
-                selectedId={filteredListConfig.selectedId}
-                onSelect={filteredListConfig.onSelect}
-                emptyText={filteredListConfig.emptyText}
-              />
-            </>
-          )}
-        </motion.aside>
+        <section className="location-hierarchy-card">
+          {apiError && <div className="location-panel-error">{apiError}</div>}
+          {loadingPanel && <div className="location-panel-empty">Loading next administrative level...</div>}
+
+          <div className="location-hierarchy-grid">
+            <HierarchyColumn
+              title="Provinces"
+              items={provinces}
+              selectedId={selected.province?.id}
+              onSelect={selectProvince}
+              emptyText="No provinces loaded."
+            />
+            <HierarchyColumn
+              title="Districts"
+              items={districts}
+              selectedId={selected.district?.id}
+              onSelect={selectDistrict}
+              emptyText={selected.province ? 'No districts found.' : 'Select a province first.'}
+            />
+            <HierarchyColumn
+              title="Divisional Secretariats"
+              items={dsList}
+              selectedId={selected.ds?.id}
+              onSelect={handleDsClick}
+              emptyText={selected.district ? 'No DS divisions found.' : 'Select a district first.'}
+            />
+            <HierarchyColumn
+              title="GN Divisions"
+              items={gnList}
+              selectedId={selected.gn?.id}
+              onSelect={handleGnClick}
+              emptyText={selected.ds ? 'No GN divisions found.' : 'Select a DS division first.'}
+            />
+          </div>
+        </section>
       </motion.section>
 
       {(selected.gn || villages.length > 0 || loadingVillages) && (
         <LocationResultTable villages={villages} loading={loadingVillages} />
       )}
+    </div>
+  )
+}
+
+function HierarchyColumn({ title, items, selectedId, onSelect, emptyText }) {
+  return (
+    <div className="location-hierarchy-column">
+      <div className="location-hierarchy-column__title">{title}</div>
+      <div className="location-hierarchy-column__body">
+        {items.length === 0 && <div className="location-hierarchy-empty">{emptyText}</div>}
+        {items.map(item => (
+          <button
+            type="button"
+            key={item.id}
+            className={String(selectedId) === String(item.id) ? 'is-selected' : ''}
+            onClick={() => onSelect(item)}
+          >
+            <strong>{item.name_english || item.name || 'Unnamed area'}</strong>
+            {(item.name_sinhala || item.name_tamil) && <span>{item.name_sinhala || item.name_tamil}</span>}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
