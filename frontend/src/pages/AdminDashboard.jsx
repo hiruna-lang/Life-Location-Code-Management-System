@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [stats, setStats]   = useState(null)
   const [status, setStatus] = useState([])
   const [logs, setLogs]     = useState([])
+  const [users, setUsers]   = useState([])
   const [filter, setFilter] = useState({ province_id:'', district_id:'', before_date:'' })
   const [provinces, setProvs] = useState([])
   const [loading, setLoading] = useState(true)
@@ -17,9 +18,10 @@ export default function AdminDashboard() {
       api.get('/dashboard/stats'),
       api.get('/dashboard/verification-status'),
       api.get('/dashboard/recent-logs'),
+      api.get('/admin/users'),
       api.get('/provinces'),
-    ]).then(([s, vs, l, p]) => {
-      setStats(s.data); setStatus(vs.data); setLogs(l.data); setProvs(p.data)
+    ]).then(([s, vs, l, u, p]) => {
+      setStats(s.data); setStatus(vs.data); setLogs(l.data); setUsers(u.data); setProvs(p.data)
     }).finally(() => setLoading(false))
   }, [])
 
@@ -46,6 +48,15 @@ export default function AdminDashboard() {
     { key:'verified_by_name', label:'By' },
   ]
 
+  const userCols = [
+    { key:'name', label:'Name', render:r=><span style={{fontWeight:700,color:'var(--primary)'}}>{r.name}</span> },
+    { key:'email', label:'Email' },
+    { key:'role', label:'Role', render:r=><span className="role-badge">{r.role}</span> },
+    { key:'is_active', label:'Status', render:r=><StatusBadge status={r.is_active ? 'active' : 'disabled'} /> },
+    { key:'ds', label:'Assigned DS', render:r=>r.active_ds_assignment?.divisional_secretariat?.name_english || '-' },
+    { key:'created_at', label:'Created', render:r=>r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' },
+  ]
+
   return (
     <div>
       <h2 style={{marginBottom:20, color:'var(--primary)', fontWeight:700}}>📊 Admin Dashboard</h2>
@@ -59,6 +70,15 @@ export default function AdminDashboard() {
         <StatCard label="Villages"        value={stats?.villages}        icon="🏡" color="#16a085" />
         <StatCard label="Verified DS"     value={stats?.verified_ds}     icon="✅" color="var(--success)" />
         <StatCard label="Unverified DS"   value={stats?.non_verified_ds} icon="⏳" color="var(--accent)" />
+      </div>
+
+      {/* User accounts */}
+      <div style={{background:'var(--surface)', borderRadius:'var(--radius)', padding:20, boxShadow:'var(--shadow)', marginBottom:24}}>
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, flexWrap:'wrap', gap:8}}>
+          <h3 style={{color:'var(--primary)', fontSize:15}}>All User Accounts</h3>
+          <span style={{fontSize:12, color:'var(--text-muted)', fontWeight:700}}>{users.length} accounts</span>
+        </div>
+        <Table columns={userCols} data={users} emptyMsg="No user accounts found." />
       </div>
 
       {/* Verification status table */}

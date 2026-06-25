@@ -11,7 +11,13 @@ class AdminController extends Controller
 {
     public function users()
     {
-        return response()->json(User::with('activeDsAssignment.divisionalSecretariat')->get());
+        return response()->json(
+            User::query()
+                ->with('activeDsAssignment.divisionalSecretariat')
+                ->orderBy('role')
+                ->orderBy('name')
+                ->get()
+        );
     }
 
     public function createUser(Request $request)

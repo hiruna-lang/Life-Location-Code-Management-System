@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !$this->validPassword($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -70,5 +70,14 @@ class AuthController extends Controller
             'role'  => $user->role,
             'ds_id' => $dsId,
         ]);
+    }
+
+    private function validPassword(string $plainPassword, string $hashedPassword): bool
+    {
+        if (password_get_info($hashedPassword)['algoName'] !== 'bcrypt') {
+            return false;
+        }
+
+        return Hash::check($plainPassword, $hashedPassword);
     }
 }
