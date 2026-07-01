@@ -87,6 +87,11 @@ export default function DistrictMesh({
     bevelSize: 0.014,
     bevelSegments: 2,
   }), [shapes])
+  const ashColor = useMemo(() => {
+    const muted = new THREE.Color(color)
+    muted.lerp(new THREE.Color('#d6d5cf'), 0.82)
+    return `#${muted.getHexString()}`
+  }, [color])
 
   useFrame(() => {
     if (!meshRef.current) return
@@ -95,12 +100,10 @@ export default function DistrictMesh({
   })
 
   const fillColor = dimmed
-    ? '#d8d7d1'
-    : selected || hovered
+    ? ashColor
+    : selected
       ? '#d9aa4d'
-      : provincePeer
-        ? '#b78c35'
-        : color
+      : color
 
   return (
     <mesh
@@ -127,8 +130,8 @@ export default function DistrictMesh({
     >
       <meshStandardMaterial
         color={fillColor}
-        roughness={dimmed ? 0.82 : 0.48}
-        metalness={dimmed ? 0.01 : 0.05}
+        roughness={dimmed ? 0.68 : 0.48}
+        metalness={dimmed ? 0.02 : 0.05}
         emissive={!dimmed && (hovered || selected) ? '#331517' : '#000000'}
         emissiveIntensity={!dimmed && (hovered || selected) ? 0.08 : 0}
         transparent={false}
@@ -136,9 +139,9 @@ export default function DistrictMesh({
       />
       <lineSegments geometry={outlineGeometry} renderOrder={4} raycast={() => null}>
         <lineBasicMaterial
-          color={dimmed ? '#aaa8a0' : selected ? '#3f2116' : '#6e4b18'}
+          color={dimmed ? '#8f8a7e' : selected ? '#3f2116' : '#6e4b18'}
           transparent
-          opacity={dimmed ? 0.68 : 0.95}
+          opacity={dimmed ? 0.55 : 0.95}
           depthTest={false}
         />
       </lineSegments>
