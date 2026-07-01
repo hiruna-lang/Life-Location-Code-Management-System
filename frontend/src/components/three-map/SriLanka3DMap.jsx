@@ -1,7 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, OrthographicCamera } from '@react-three/drei'
-import ProvinceMesh from './ProvinceMesh'
 import DistrictMesh from './DistrictMesh'
 import MapTooltip from './MapTooltip'
 import { normalizeName } from '../../services/locationApi'
@@ -9,12 +8,11 @@ import { normalizeName } from '../../services/locationApi'
 const MAP_ERROR = 'Map boundary file not found. Please add the GeoJSON file to frontend/public/maps.'
 const CAMERA_POSITION = [0, -0.2, 12]
 const CAMERA_ZOOM = 72
-const MAP_VIEWPORT_FILL = 0.7
+const MAP_VIEWPORT_FILL = 0.86
 const MAP_GROUP_SCALE = 1
 const MAP_GROUP_ROTATION = [-0.16, 0, 0.015]
 const MAP_GROUP_POSITION = [0, 0.08, 0]
 
-const provinceColors = ['#7a2d35', '#8f3d46', '#b9913e', '#2d5f84', '#2f6d54', '#7f741f', '#9a313a', '#605c98', '#167a7d']
 const districtColors = ['#82343d', '#98444e', '#c19a45', '#356f96', '#38775a', '#887729', '#a63d45', '#7068a8']
 
 const getGeoBounds = geoJson => {
@@ -43,15 +41,12 @@ const getGeoBounds = geoJson => {
 }
 
 export default function SriLanka3DMap({
-  mode,
   selectedFeatureName,
-  selectedProvinceFeature,
+  selectedProvinceId,
   districtRecords = [],
   showAllDistricts = false,
-  onProvinceClick,
   onDistrictClick,
 }) {
-  const [provinceGeoJson, setProvinceGeoJson] = useState(null)
   const [districtGeoJson, setDistrictGeoJson] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -64,22 +59,15 @@ export default function SriLanka3DMap({
       setLoading(true)
       setError('')
       try {
-        const [provinceResponse, districtResponse] = await Promise.all([
-          fetch('/maps/sri_lanka_provinces.geojson'),
-          fetch('/maps/sri_lanka_districts.geojson'),
-        ])
+        const districtResponse = await fetch('/maps/sri_lanka_districts.geojson')
 
-        if (!provinceResponse.ok || !districtResponse.ok) {
+        if (!districtResponse.ok) {
           throw new Error(MAP_ERROR)
         }
 
-        const [provinceData, districtData] = await Promise.all([
-          provinceResponse.json(),
-          districtResponse.json(),
-        ])
+        const districtData = await districtResponse.json()
 
         if (mounted) {
-          setProvinceGeoJson(provinceData)
           setDistrictGeoJson(districtData)
         }
       } catch (err) {
@@ -94,33 +82,30 @@ export default function SriLanka3DMap({
   }, [])
 
   const activeGeoJson = useMemo(() => {
-    if (mode === 'district') {
-      const allDistrictFeatures = districtGeoJson?.features || []
-      const selectedProvinceName = selectedProvinceFeature?.properties?.shapeName
-      const provincePropertyKeys = ['province', 'provinceName', 'admin1Name', 'adm1Name', 'ADM1_EN', 'shapeProvince']
-      const filterKey = provincePropertyKeys.find(key => allDistrictFeatures.some(feature => feature.properties?.[key]))
-      const districtNameSet = new Set(districtRecords.map(district => normalizeName(district.name_english)))
-      const features = showAllDistricts
-        ? allDistrictFeatures
-        : filterKey && selectedProvinceName
-        ? allDistrictFeatures.filter(feature => feature.properties?.[filterKey] === selectedProvinceName)
-        : districtNameSet.size
-          ? allDistrictFeatures.filter(feature => districtNameSet.has(normalizeName(feature.properties?.shapeName)))
-          // TODO: District GeoJSON currently has no province/admin property, so the API district list is used to filter boundaries.
-        : allDistrictFeatures
+    const allDistrictFeatures = districtGeoJson?.features || []
+    const districtNameSet = new Set(districtRecords.map(district => normalizeName(district.name_english)))
+    const features = showAllDistricts || !districtNameSet.size
+      ? allDistrictFeatures
+      : allDistrictFeatures.filter(feature => districtNameSet.has(normalizeName(feature.properties?.shapeName)))
 
-      return districtGeoJson ? { ...districtGeoJson, features } : null
-    }
-    return provinceGeoJson
-  }, [districtGeoJson, districtRecords, mode, provinceGeoJson, selectedProvinceFeature, showAllDistricts])
+    return districtGeoJson ? { ...districtGeoJson, features } : null
+  }, [districtGeoJson, districtRecords, showAllDistricts])
+
+  const districtProvinceByName = useMemo(() => {
+    return districtRecords.reduce((lookup, district) => {
+      lookup.set(normalizeName(district.name_english), district.province_id)
+      return lookup
+    }, new Map())
+  }, [districtRecords])
 
   const features = activeGeoJson?.features || []
 
   const showTooltip = (feature, event) => {
+    const mapBounds = event.currentTarget.getBoundingClientRect()
     setTooltip({
       name: feature.properties?.shapeName || 'Administrative area',
-      x: event.clientX,
-      y: event.clientY,
+      x: event.clientX - mapBounds.left,
+      y: event.clientY - mapBounds.top,
     })
   }
 
@@ -148,10 +133,9 @@ export default function SriLanka3DMap({
           <MapScene
             activeGeoJson={activeGeoJson}
             features={features}
-            mode={mode}
             selectedFeatureName={selectedFeatureName}
-            selectedProvinceFeature={selectedProvinceFeature}
-            onProvinceClick={onProvinceClick}
+            selectedProvinceId={selectedProvinceId}
+            districtProvinceByName={districtProvinceByName}
             onDistrictClick={onDistrictClick}
             onHover={showTooltip}
             onLeave={() => setTooltip(null)}
@@ -179,10 +163,9 @@ export default function SriLanka3DMap({
 function MapScene({
   activeGeoJson,
   features,
-  mode,
   selectedFeatureName,
-  selectedProvinceFeature,
-  onProvinceClick,
+  selectedProvinceId,
+  districtProvinceByName,
   onDistrictClick,
   onHover,
   onLeave,
@@ -234,20 +217,21 @@ function MapScene({
     <group rotation={MAP_GROUP_ROTATION} position={MAP_GROUP_POSITION} scale={[MAP_GROUP_SCALE, MAP_GROUP_SCALE, 1]}>
       {features.map((feature, index) => {
         const name = feature.properties?.shapeName
-        const selected = selectedFeatureName === name || selectedProvinceFeature?.properties?.shapeName === name
-        const MeshComponent = mode === 'district' ? DistrictMesh : ProvinceMesh
-        const color = mode === 'district'
-          ? districtColors[index % districtColors.length]
-          : provinceColors[index % provinceColors.length]
+        const selected = normalizeName(selectedFeatureName) === normalizeName(name)
+        const featureProvinceId = districtProvinceByName.get(normalizeName(name))
+        const inSelectedProvince = selectedProvinceId && String(featureProvinceId) === String(selectedProvinceId)
+        const dimmed = Boolean(selectedProvinceId) && !inSelectedProvince
 
         return (
-          <MeshComponent
+          <DistrictMesh
             key={`${name}-${index}`}
             feature={feature}
             projection={projection}
-            color={color}
+            color={districtColors[index % districtColors.length]}
             selected={selected}
-            onClick={mode === 'district' ? onDistrictClick : onProvinceClick}
+            provincePeer={inSelectedProvince && !selected}
+            dimmed={dimmed}
+            onClick={onDistrictClick}
             onHover={onHover}
             onLeave={onLeave}
           />

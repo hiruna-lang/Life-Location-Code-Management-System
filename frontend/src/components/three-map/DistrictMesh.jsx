@@ -37,10 +37,49 @@ const createShapes = (feature, projection) => {
   })
 }
 
-export default function DistrictMesh({ feature, projection, color, selected, onClick, onHover, onLeave }) {
+const createOutlineGeometry = (feature, projection) => {
+  const geometry = feature.geometry
+  const positions = []
+  if (!geometry) return new THREE.BufferGeometry()
+
+  const polygons = geometry.type === 'Polygon'
+    ? [geometry.coordinates]
+    : geometry.type === 'MultiPolygon'
+      ? geometry.coordinates
+      : []
+
+  polygons.forEach(polygon => {
+    polygon.forEach(ring => {
+      if (!ring?.length) return
+      ring.forEach((point, index) => {
+        const nextPoint = ring[(index + 1) % ring.length]
+        const [x1, y1] = projection(point)
+        const [x2, y2] = projection(nextPoint)
+        positions.push(x1, y1, 0.225, x2, y2, 0.225)
+      })
+    })
+  })
+
+  const outlineGeometry = new THREE.BufferGeometry()
+  outlineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  return outlineGeometry
+}
+
+export default function DistrictMesh({
+  feature,
+  projection,
+  color,
+  selected,
+  provincePeer = false,
+  dimmed = false,
+  onClick,
+  onHover,
+  onLeave,
+}) {
   const meshRef = useRef(null)
   const [hovered, setHovered] = useState(false)
   const shapes = useMemo(() => createShapes(feature, projection), [feature, projection])
+  const outlineGeometry = useMemo(() => createOutlineGeometry(feature, projection), [feature, projection])
   const geometry = useMemo(() => new THREE.ExtrudeGeometry(shapes, {
     depth: 0.2,
     bevelEnabled: true,
@@ -51,16 +90,24 @@ export default function DistrictMesh({ feature, projection, color, selected, onC
 
   useFrame(() => {
     if (!meshRef.current) return
-    const targetZ = selected ? 0.1 : hovered ? 0.06 : 0
+    const targetZ = dimmed ? 0 : selected ? 0.13 : hovered ? 0.08 : provincePeer ? 0.04 : 0
     meshRef.current.position.z += (targetZ - meshRef.current.position.z) * 0.18
   })
+
+  const fillColor = dimmed
+    ? '#d8d7d1'
+    : selected || hovered
+      ? '#d9aa4d'
+      : provincePeer
+        ? '#b78c35'
+        : color
 
   return (
     <mesh
       ref={meshRef}
       geometry={geometry}
-      castShadow
-      receiveShadow
+      castShadow={!dimmed}
+      receiveShadow={!dimmed}
       onPointerMove={event => {
         event.stopPropagation()
         document.body.style.cursor = 'pointer'
@@ -79,12 +126,22 @@ export default function DistrictMesh({ feature, projection, color, selected, onC
       }}
     >
       <meshStandardMaterial
-        color={selected || hovered ? '#d9aa4d' : color}
-        roughness={0.48}
-        metalness={0.05}
-        emissive={hovered ? '#331517' : '#000000'}
-        emissiveIntensity={hovered ? 0.08 : 0}
+        color={fillColor}
+        roughness={dimmed ? 0.82 : 0.48}
+        metalness={dimmed ? 0.01 : 0.05}
+        emissive={!dimmed && (hovered || selected) ? '#331517' : '#000000'}
+        emissiveIntensity={!dimmed && (hovered || selected) ? 0.08 : 0}
+        transparent={false}
+        opacity={1}
       />
+      <lineSegments geometry={outlineGeometry} renderOrder={4} raycast={() => null}>
+        <lineBasicMaterial
+          color={dimmed ? '#aaa8a0' : selected ? '#3f2116' : '#6e4b18'}
+          transparent
+          opacity={dimmed ? 0.68 : 0.95}
+          depthTest={false}
+        />
+      </lineSegments>
     </mesh>
   )
 }

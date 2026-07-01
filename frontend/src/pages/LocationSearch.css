@@ -29,21 +29,28 @@
 
 .location-map-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 14px;
+  flex-direction: column;
+  gap: 8px;
+  width: 150px;
+  padding-top: 78px;
+}
+
+.location-map-actions.is-hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .location-map-actions button {
-  min-height: 42px;
-  min-width: 190px;
-  padding: 9px 16px;
+  min-height: 38px;
+  width: 100%;
+  padding: 8px 12px;
   color: #fff;
   background: #712b31;
   border: 1px solid #712b31;
   border-radius: 6px;
+  box-shadow: 0 10px 24px rgba(23,44,69,.14);
   font-weight: 800;
+  line-height: 1.18;
 }
 
 .location-map-actions button:hover {
@@ -63,7 +70,7 @@
 
 .location-dashboard {
   display: grid;
-  grid-template-columns: minmax(360px, 400px) minmax(0, 1fr);
+  grid-template-columns: minmax(580px, 620px) minmax(0, 1fr);
   column-gap: 18px;
   align-items: start;
   justify-content: start;
@@ -89,11 +96,35 @@
 }
 
 .location-map-card__header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
+  display: grid;
+  grid-template-columns: 150px minmax(390px, 440px);
+  column-gap: 14px;
+  align-items: end;
+  justify-content: start;
   margin-bottom: 16px;
+}
+
+.location-map-card__header span,
+.location-map-card__header h2 {
+  grid-column: 2;
+  text-align: center;
+}
+
+.location-map-stage {
+  display: grid;
+  grid-template-columns: 150px minmax(390px, 440px);
+  column-gap: 14px;
+  align-items: start;
+  justify-content: start;
+  min-height: 650px;
+}
+
+.location-map-stage .location-map-canvas {
+  grid-column: 2;
+}
+
+.location-map-stage .location-map-actions + .location-map-canvas {
+  grid-column: 2;
 }
 
 .location-map-card__header h2,
@@ -114,7 +145,8 @@
 
 .location-map-canvas {
   position: relative;
-  width: min(440px, 100%);
+  width: 100%;
+  max-width: 440px;
   height: 650px;
   overflow: hidden;
   background: transparent;
@@ -131,9 +163,9 @@
 }
 
 .location-map-tooltip {
-  position: fixed;
+  position: absolute;
   z-index: 999;
-  transform: translate(14px, 14px);
+  transform: translate(12px, -50%);
   pointer-events: none;
   padding: 8px 11px;
   color: #fff;
@@ -341,6 +373,10 @@
 }
 
 .location-hierarchy-column button {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-height: 78px;
   width: 100%;
   padding: 10px 12px;
   color: #172c45;
@@ -348,27 +384,46 @@
   border: 0;
   border-bottom: 1px solid #eee8e2;
   text-align: left;
+  transition: background .14s ease, box-shadow .14s ease, color .14s ease;
 }
 
-.location-hierarchy-column button:hover,
-.location-hierarchy-column button.is-selected {
+.location-hierarchy-column button:hover {
   background: #fff8e8;
   box-shadow: inset 4px 0 0 #c49a42;
+}
+
+.location-hierarchy-column button.is-selected {
+  color: #101f32;
+  background: #fff1c8;
+  box-shadow:
+    inset 7px 0 0 #b77a12,
+    inset 0 0 0 2px rgba(183,122,18,.32),
+    0 8px 18px rgba(23,44,69,.08);
 }
 
 .location-hierarchy-column button strong,
 .location-hierarchy-column button span {
   display: block;
+  min-width: 0;
 }
 
 .location-hierarchy-column button strong {
   font-weight: 800;
 }
 
+.location-hierarchy-column button.is-selected strong {
+  font-weight: 900;
+}
+
 .location-hierarchy-column button span {
   margin-top: 2px;
   color: #637080;
   font-size: 11px;
+}
+
+.location-hierarchy-column button.is-selected span {
+  color: #4b5564;
+  font-weight: 800;
 }
 
 .location-hierarchy-empty {
@@ -430,6 +485,10 @@
     row-gap: 18px;
   }
 
+  .location-map-card {
+    width: min(620px, 100%);
+  }
+
   .location-hierarchy-card {
     position: static;
     max-height: none;
@@ -475,9 +534,34 @@
     height: 560px;
   }
 
+  .location-map-stage {
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+    min-height: 560px;
+  }
+
+  .location-map-stage .location-map-canvas,
+  .location-map-stage .location-map-actions + .location-map-canvas {
+    grid-column: 1;
+  }
+
+  .location-map-actions {
+    flex-direction: row;
+    width: 100%;
+    padding-top: 0;
+  }
+
+  .location-map-actions button {
+    min-width: 0;
+  }
+
   .location-map-card__header {
-    align-items: flex-start;
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .location-map-card__header span,
+  .location-map-card__header h2 {
+    grid-column: 1;
   }
 }
