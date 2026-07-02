@@ -5,11 +5,16 @@ import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
 
 export default function AdminDashboard() {
-  const [stats, setStats]   = useState(null)
+  const [stats, setStats] = useState(null)
   const [status, setStatus] = useState([])
-  const [logs, setLogs]     = useState([])
-  const [users, setUsers]   = useState([])
-  const [filter, setFilter] = useState({ province_id:'', district_id:'', before_date:'' })
+  const [logs, setLogs] = useState([])
+  const [users, setUsers] = useState([])
+  const [dsOptions, setDsOptions] = useState([])
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'officer', ds_id: '' })
+  const [creatingUser, setCreatingUser] = useState(false)
+  const [accountMsg, setAccountMsg] = useState('')
+  const [accountError, setAccountError] = useState('')
+  const [filter, setFilter] = useState({ province_id: '', district_id: '', before_date: '' })
   const [provinces, setProvs] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -19,9 +24,10 @@ export default function AdminDashboard() {
       api.get('/dashboard/verification-status'),
       api.get('/dashboard/recent-logs'),
       api.get('/admin/users'),
+      api.get('/divisional-secretariats'),
       api.get('/provinces'),
-    ]).then(([s, vs, l, u, p]) => {
-      setStats(s.data); setStatus(vs.data); setLogs(l.data); setUsers(u.data); setProvs(p.data)
+    ]).then(([s, vs, l, u, ds, p]) => {
+      setStats(s.data); setStatus(vs.data); setLogs(l.data); setUsers(u.data); setDsOptions(ds.data); setProvs(p.data)
     }).finally(() => setLoading(false))
   }, [])
 
@@ -30,76 +36,173 @@ export default function AdminDashboard() {
     setStatus(data)
   }
 
-  if (loading) return <div style={{padding:40, textAlign:'center'}}>⏳ Loading dashboard…</div>
+  const createAccount = async event => {
+    event.preventDefault()
+    setAccountMsg('')
+    setAccountError('')
+    setCreatingUser(true)
+
+    try {
+      const payload = {
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password,
+        role: newUser.role,
+        ds_id: newUser.role === 'officer' ? newUser.ds_id : null,
+      }
+      const { data } = await api.post('/admin/users', payload)
+      const { data: refreshedUsers } = await api.get('/admin/users')
+      setUsers(refreshedUsers)
+      setNewUser({ name: '', email: '', password: '', role: 'officer', ds_id: '' })
+      setAccountMsg(`${data.user.name} account created.`)
+    } catch (error) {
+      const errors = error.response?.data?.errors
+      setAccountError(errors ? Object.values(errors).flat().join(' ') : (error.response?.data?.message || 'Unable to create account.'))
+    } finally {
+      setCreatingUser(false)
+    }
+  }
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>⏳ Loading dashboard…</div>
 
   const logCols = [
-    { key:'created_at', label:'Time', render:r=>new Date(r.created_at).toLocaleString() },
-    { key:'action',     label:'Action', render:r=><span style={{fontWeight:600,color:'var(--primary)'}}>{r.action}</span> },
-    { key:'user',       label:'User', render:r=>r.user?.name||'—' },
-    { key:'description',label:'Description' },
+    { key: 'created_at', label: 'Time', render: r => new Date(r.created_at).toLocaleString() },
+    { key: 'action', label: 'Action', render: r => <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{r.action}</span> },
+    { key: 'user', label: 'User', render: r => r.user?.name || '—' },
+    { key: 'description', label: 'Description' },
   ]
 
   const statusCols = [
-    { key:'province_name', label:'Province' },
-    { key:'district_name', label:'District' },
-    { key:'ds_name',       label:'DS Division' },
-    { key:'status',        label:'Status', render:r=><StatusBadge status={r.status} /> },
-    { key:'final_at',      label:'Verified At', render:r=>r.final_at?new Date(r.final_at).toLocaleDateString():'—' },
-    { key:'verified_by_name', label:'By' },
+    { key: 'province_name', label: 'Province' },
+    { key: 'district_name', label: 'District' },
+    { key: 'ds_name', label: 'DS Division' },
+    { key: 'status', label: 'Status', render: r => <StatusBadge status={r.status} /> },
+    { key: 'final_at', label: 'Verified At', render: r => r.final_at ? new Date(r.final_at).toLocaleDateString() : '—' },
+    { key: 'verified_by_name', label: 'By' },
   ]
 
   const userCols = [
-    { key:'name', label:'Name', render:r=><span style={{fontWeight:700,color:'var(--primary)'}}>{r.name}</span> },
-    { key:'email', label:'Email' },
-    { key:'role', label:'Role', render:r=><span className="role-badge">{r.role}</span> },
-    { key:'is_active', label:'Status', render:r=><StatusBadge status={r.is_active ? 'active' : 'disabled'} /> },
-    { key:'ds', label:'Assigned DS', render:r=>r.active_ds_assignment?.divisional_secretariat?.name_english || '-' },
-    { key:'created_at', label:'Created', render:r=>r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' },
+    { key: 'name', label: 'Name', render: r => <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{r.name}</span> },
+    { key: 'email', label: 'Email' },
+    { key: 'role', label: 'Role', render: r => <span className="role-badge">{r.role === 'admin' ? 'System Administrator' : 'Divisional Secretary'}</span> },
+    { key: 'is_active', label: 'Status', render: r => <StatusBadge status={r.is_active ? 'active' : 'disabled'} /> },
+    { key: 'ds', label: 'Assigned DS', render: r => r.active_ds_assignment?.divisional_secretariat?.name_english || '-' },
+    { key: 'created_at', label: 'Created', render: r => r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' },
   ]
 
   return (
     <div>
-      <h2 style={{marginBottom:20, color:'var(--primary)', fontWeight:700}}>📊 Admin Dashboard</h2>
+      <h2 style={{ marginBottom: 20, color: 'var(--primary)', fontWeight: 700 }}>📊 Admin Dashboard</h2>
 
       {/* Stats grid */}
-      <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:16, marginBottom:28}}>
-        <StatCard label="Provinces"       value={stats?.provinces}       icon="🌏" color="var(--primary)" />
-        <StatCard label="Districts"       value={stats?.districts}       icon="🏙️" color="var(--info)" />
-        <StatCard label="DS Divisions"    value={stats?.ds_divisions}    icon="🏛️" color="#8e44ad" />
-        <StatCard label="GN Divisions"    value={stats?.gn_divisions}    icon="🏘️" color="var(--warning)" />
-        <StatCard label="Villages"        value={stats?.villages}        icon="🏡" color="#16a085" />
-        <StatCard label="Verified DS"     value={stats?.verified_ds}     icon="✅" color="var(--success)" />
-        <StatCard label="Unverified DS"   value={stats?.non_verified_ds} icon="⏳" color="var(--accent)" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+        <StatCard label="Provinces" value={stats?.provinces} icon="🌏" color="var(--primary)" />
+        <StatCard label="Districts" value={stats?.districts} icon="🏙️" color="var(--info)" />
+        <StatCard label="DS Divisions" value={stats?.ds_divisions} icon="🏛️" color="#8e44ad" />
+        <StatCard label="GN Divisions" value={stats?.gn_divisions} icon="🏘️" color="var(--warning)" />
+        <StatCard label="Villages" value={stats?.villages} icon="🏡" color="#16a085" />
+        <StatCard label="Verified DS" value={stats?.verified_ds} icon="✅" color="var(--success)" />
+        <StatCard label="Unverified DS" value={stats?.non_verified_ds} icon="⏳" color="var(--accent)" />
       </div>
 
-      {/* User accounts */}
-      <div style={{background:'var(--surface)', borderRadius:'var(--radius)', padding:20, boxShadow:'var(--shadow)', marginBottom:24}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, flexWrap:'wrap', gap:8}}>
-          <h3 style={{color:'var(--primary)', fontSize:15}}>All User Accounts</h3>
-          <span style={{fontSize:12, color:'var(--text-muted)', fontWeight:700}}>{users.length} accounts</span>
+      {/* User accounts - Navbar/Header */}
+      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginBottom: 24 }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 14,
+          flexWrap: 'nowrap',        // ← Key change
+          gap: 12,
+          minWidth: 0
+        }}>
+          <h3 style={{ color: 'var(--primary)', fontSize: 15, margin: 0, whiteSpace: 'nowrap' }}>
+            All User Accounts
+          </h3>
+          <span style={{
+            fontSize: 12,
+            color: 'var(--text-muted)',
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+            flexShrink: 0
+          }}>
+            {users.length} accounts
+          </span>
         </div>
+
+        {/* Rest of user creation form remains the same */}
+        <form onSubmit={createAccount} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, alignItems: 'end', marginBottom: 18, padding: 14, border: '1px solid var(--border)', borderRadius: 8, background: '#faf9f8' }}>
+          {/* ... existing form fields ... */}
+          <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+            Account type
+            <select value={newUser.role} onChange={e => setNewUser(p => ({ ...p, role: e.target.value, ds_id: e.target.value === 'admin' ? '' : p.ds_id }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required>
+              <option value="officer">Divisional Secretary</option>
+              <option value="admin">System Administrator</option>
+            </select>
+          </label>
+          <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+            Name
+            <input value={newUser.name} onChange={e => setNewUser(p => ({ ...p, name: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required />
+          </label>
+          <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+            Email
+            <input type="email" value={newUser.email} onChange={e => setNewUser(p => ({ ...p, email: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required />
+          </label>
+          <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+            Password
+            <input type="password" minLength={8} value={newUser.password} onChange={e => setNewUser(p => ({ ...p, password: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required />
+          </label>
+          {newUser.role === 'officer' && (
+            <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+              Divisional Secretariat
+              <select value={newUser.ds_id} onChange={e => setNewUser(p => ({ ...p, ds_id: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required>
+                <option value="">Select DS</option>
+                {dsOptions.map(ds => <option key={ds.id} value={ds.id}>{ds.name_english}</option>)}
+              </select>
+            </label>
+          )}
+          <button type="submit" disabled={creatingUser} style={{ padding: '9px 14px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
+            {creatingUser ? 'Creating...' : 'Create Account'}
+          </button>
+        </form>
+
+        {accountMsg && <div style={{ background: '#eafaf1', border: '1px solid #82e0aa', color: '#1e8449', padding: '9px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountMsg}</div>}
+        {accountError && <div style={{ background: '#fdedec', border: '1px solid #f1948a', color: '#c0392b', padding: '9px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountError}</div>}
         <Table columns={userCols} data={users} emptyMsg="No user accounts found." />
       </div>
 
-      {/* Verification status table */}
-      <div style={{background:'var(--surface)', borderRadius:'var(--radius)', padding:20, boxShadow:'var(--shadow)', marginBottom:24}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, flexWrap:'wrap', gap:8}}>
-          <h3 style={{color:'var(--primary)', fontSize:15}}>DS Verification Status</h3>
-          <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
-            <select style={{padding:'6px 10px', border:'1px solid var(--border)', borderRadius:6, fontSize:12}} value={filter.province_id} onChange={e=>setFilter(p=>({...p,province_id:e.target.value}))}>
+      {/* Verification status - Navbar/Header */}
+      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginBottom: 24 }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 14,
+          flexWrap: 'nowrap',        // ← Key change
+          gap: 12,
+          minWidth: 0
+        }}>
+          <h3 style={{ color: 'var(--primary)', fontSize: 15, margin: 0, whiteSpace: 'nowrap' }}>
+            DS Verification Status
+          </h3>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'nowrap', alignItems: 'center' }}>
+            <select style={{ padding: '6px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12, flexShrink: 0 }} value={filter.province_id} onChange={e => setFilter(p => ({ ...p, province_id: e.target.value }))}>
               <option value="">All Provinces</option>
-              {provinces.map(x=><option key={x.id} value={x.id}>{x.name_english}</option>)}
+              {provinces.map(x => <option key={x.id} value={x.id}>{x.name_english}</option>)}
             </select>
-            <input type="date" style={{padding:'6px 10px', border:'1px solid var(--border)', borderRadius:6, fontSize:12}} value={filter.before_date} onChange={e=>setFilter(p=>({...p,before_date:e.target.value}))} />
-            <button onClick={applyFilter} style={{padding:'6px 14px', background:'var(--primary)', color:'#fff', border:'none', borderRadius:6, fontSize:12, fontWeight:600}}>Apply</button>
+            <input type="date" style={{ padding: '6px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12, flexShrink: 0 }} value={filter.before_date} onChange={e => setFilter(p => ({ ...p, before_date: e.target.value }))} />
+            <button onClick={applyFilter} style={{ padding: '6px 14px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+              Apply
+            </button>
           </div>
         </div>
         <Table columns={statusCols} data={status} />
       </div>
 
       {/* Recent logs */}
-      <div style={{background:'var(--surface)', borderRadius:'var(--radius)', padding:20, boxShadow:'var(--shadow)'}}>
-        <h3 style={{color:'var(--primary)', fontSize:15, marginBottom:14}}>Recent Verification Logs</h3>
+      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)' }}>
+        <h3 style={{ color: 'var(--primary)', fontSize: 15, marginBottom: 14 }}>Recent Verification Logs</h3>
         <Table columns={logCols} data={logs} />
       </div>
     </div>

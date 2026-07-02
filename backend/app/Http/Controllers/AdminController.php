@@ -27,7 +27,7 @@ class AdminController extends Controller
             'email'    => 'required|email|unique:users',
             'password' => 'required|string|min:8',
             'role'     => 'required|in:admin,officer',
-            'ds_id'    => 'nullable|integer',
+            'ds_id'    => 'required_if:role,officer|nullable|integer|exists:divisional_secretariat,id',
         ]);
 
         $user = User::create([
@@ -58,7 +58,7 @@ class AdminController extends Controller
             'password' => 'nullable|string|min:8',
             'role'     => 'sometimes|in:admin,officer',
             'is_active'=> 'sometimes|boolean',
-            'ds_id'    => 'nullable|integer',
+            'ds_id'    => 'required_if:role,officer|nullable|integer|exists:divisional_secretariat,id',
         ]);
 
         $data = $request->only(['name', 'email', 'role', 'is_active']);
