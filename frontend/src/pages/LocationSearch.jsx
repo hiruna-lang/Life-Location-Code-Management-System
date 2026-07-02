@@ -26,6 +26,15 @@ export default function LocationSearch() {
   const [apiError, setApiError] = useState('')
   const resultTableRef = useRef(null)
 
+  const loadAllDistrictsFor = async provinceList => {
+    const districtGroups = await Promise.all(
+      provinceList.map(province => locationApi.districts(province.id)
+        .then(items => items.map(item => ({ ...item, province_id: item.province_id || province.id })))
+        .catch(() => []))
+    )
+    return districtGroups.flat()
+  }
+
   useEffect(() => {
     let mounted = true
 
@@ -35,13 +44,8 @@ export default function LocationSearch() {
         if (!mounted) return
         setProvinces(data)
 
-        const districtGroups = await Promise.all(
-          data.map(province => locationApi.districts(province.id)
-            .then(items => items.map(item => ({ ...item, province_id: item.province_id || province.id })))
-            .catch(() => []))
-        )
+        const loadedDistricts = await loadAllDistrictsFor(data)
         if (mounted) {
-          const loadedDistricts = districtGroups.flat()
           setAllDistricts(loadedDistricts)
           setDistricts(loadedDistricts)
         }
@@ -105,7 +109,21 @@ export default function LocationSearch() {
 
   const handleDistrictClick = async feature => {
     const districtName = feature.properties?.shapeName || ''
-    const district = matchApiRecord(allDistricts.length ? allDistricts : districts, districtName, 'district')
+    let records = allDistricts.length ? allDistricts : districts
+    let district = matchApiRecord(records, districtName, 'district')
+
+    if (!district && provinces.length) {
+      try {
+        records = await loadAllDistrictsFor(provinces)
+        setAllDistricts(records)
+        if (!selected.province) setDistricts(records)
+        district = matchApiRecord(records, districtName, 'district')
+      } catch (error) {
+        setApiError(friendlyApiError)
+        return
+      }
+    }
+
     if (!district) {
       setApiError(`"${districtName}" could not be matched with the district records from the API.`)
       return
