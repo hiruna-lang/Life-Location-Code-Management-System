@@ -5,6 +5,8 @@ const colors = {
   draft:   { bg:'#eaf4fb', color:'#2980b9', border:'#85c1e9' },
   final:   { bg:'#eafaf1', color:'#1e8449', border:'#82e0aa' },
   locked:  { bg:'#fdedec', color:'#c0392b', border:'#f1948a' },
+  active:  { bg:'#eafaf1', color:'#1e8449', border:'#82e0aa' },
+  disabled:{ bg:'#fdedec', color:'#c0392b', border:'#f1948a' },
 }
 
 export default function StatusBadge({ status }) {

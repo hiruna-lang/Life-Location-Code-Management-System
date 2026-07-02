@@ -14,6 +14,8 @@ auth.json
 node_modules/
 frontend/node_modules/
 frontend/dist/
+frontend/.npm-cache/
+backend/.npm-cache/
 frontend/vite-output.log
 frontend/vite-error.log
 npm-debug.log*
@@ -33,7 +35,7 @@ backend/public/storage
 backend/.phpunit.cache/
 backend/.phpunit.result.cache
 
-# Local installer binaries
+# Local installer binaries 
 composer.phar
 composer-setup.php
 

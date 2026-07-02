@@ -22,6 +22,8 @@ class VerificationController extends Controller
             return response()->json(['message' => 'No DS division assigned.'], 403);
         }
 
+        $ds = DivisionalSecretariat::find($dsId);
+
         $gns = GramaNiladhariDivision::where('divisional_secretariat_id', $dsId)
             ->orderBy('name_english')
             ->get();
@@ -33,6 +35,7 @@ class VerificationController extends Controller
 
         return response()->json([
             'ds_id'        => $dsId,
+            'ds_name'      => $ds?->name_english,
             'gn_divisions' => $gns,
             'status'       => $verification->status,
         ]);

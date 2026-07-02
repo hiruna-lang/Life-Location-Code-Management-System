@@ -76,7 +76,7 @@ export default function Layout({ children, admin = false }) {
             {user ? (
               <>
                 <span className="account-name">{user.name}</span>
-                <span className="role-badge">{user.role}</span>
+                <span className="role-badge">{user.role === 'admin' ? 'System Administrator' : 'Divisional Secretary'}</span>
                 <button className="nav-account-button" onClick={handleLogout}>{t('signOut')}</button>
               </>
             ) : (

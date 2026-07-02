@@ -19,7 +19,7 @@ export default function DSVerificationDashboard() {
       const { data } = await api.get('/verification/my-gn-divisions')
       setGns(data.gn_divisions)
       setStatus(data.status)
-      setDsInfo({ ds_id: data.ds_id })
+      setDsInfo({ ds_id: data.ds_id, ds_name: data.ds_name })
     } finally { setLoading(false) }
   }
 
@@ -52,9 +52,9 @@ export default function DSVerificationDashboard() {
     <div>
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:12, marginBottom:20}}>
         <div>
-          <h2 style={{color:'var(--primary)', fontWeight:700}}>✅ DS Verification Dashboard</h2>
+          <h2 style={{color:'var(--primary)', fontWeight:700}}>Divisional Secretary Dashboard</h2>
           <p style={{color:'var(--text-muted)', fontSize:13, marginTop:4}}>
-            Logged in as <strong>{user?.name}</strong> · DS ID: {dsInfo?.ds_id || '—'}
+            Logged in as <strong>{user?.name}</strong> · {dsInfo?.ds_name || 'Assigned divisional secretariat'} · DS ID: {dsInfo?.ds_id || '-'}
           </p>
         </div>
         <div style={{display:'flex', gap:10, flexWrap:'wrap', alignItems:'center'}}>
@@ -76,7 +76,7 @@ export default function DSVerificationDashboard() {
       )}
 
       <div style={{background:'var(--surface)', borderRadius:'var(--radius)', padding:20, boxShadow:'var(--shadow)'}}>
-        <h4 style={{marginBottom:14, color:'var(--primary)'}}>GN Divisions ({gns.length})</h4>
+        <h4 style={{marginBottom:14, color:'var(--primary)'}}>Grama Niladhari Divisions ({gns.length})</h4>
         <Table columns={cols} data={gns} loading={loading} emptyMsg="No GN divisions assigned." />
       </div>
     </div>

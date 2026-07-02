@@ -11,7 +11,13 @@ class AdminController extends Controller
 {
     public function users()
     {
-        return response()->json(User::with('activeDsAssignment.divisionalSecretariat')->get());
+        return response()->json(
+            User::query()
+                ->with('activeDsAssignment.divisionalSecretariat')
+                ->orderBy('role')
+                ->orderBy('name')
+                ->get()
+        );
     }
 
     public function createUser(Request $request)
@@ -21,7 +27,7 @@ class AdminController extends Controller
             'email'    => 'required|email|unique:users',
             'password' => 'required|string|min:8',
             'role'     => 'required|in:admin,officer',
-            'ds_id'    => 'nullable|integer',
+            'ds_id'    => 'required_if:role,officer|nullable|integer|exists:divisional_secretariat,id',
         ]);
 
         $user = User::create([
@@ -52,7 +58,7 @@ class AdminController extends Controller
             'password' => 'nullable|string|min:8',
             'role'     => 'sometimes|in:admin,officer',
             'is_active'=> 'sometimes|boolean',
-            'ds_id'    => 'nullable|integer',
+            'ds_id'    => 'required_if:role,officer|nullable|integer|exists:divisional_secretariat,id',
         ]);
 
         $data = $request->only(['name', 'email', 'role', 'is_active']);
