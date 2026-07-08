@@ -52,16 +52,20 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
+        if (!$user->isOfficer()) {
+            return response()->json(['message' => 'Only Divisional Secretary accounts can be edited here.'], 403);
+        }
+
         $request->validate([
             'name'     => 'sometimes|string|max:255',
             'email'    => "sometimes|email|unique:users,email,{$id}",
             'password' => 'nullable|string|min:8',
-            'role'     => 'sometimes|in:admin,officer',
+            'role'     => 'sometimes|in:officer',
             'is_active'=> 'sometimes|boolean',
-            'ds_id'    => 'required_if:role,officer|nullable|integer|exists:divisional_secretariat,id',
+            'ds_id'    => 'required|integer|exists:divisional_secretariat,id',
         ]);
 
-        $data = $request->only(['name', 'email', 'role', 'is_active']);
+        $data = $request->only(['name', 'email', 'is_active']);
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -82,6 +86,11 @@ class AdminController extends Controller
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
+
+        if (!$user->isOfficer()) {
+            return response()->json(['message' => 'Only Divisional Secretary accounts can be deleted here.'], 403);
+        }
+
         $user->tokens()->delete();
         $user->delete();
         return response()->json(['message' => 'User deleted.']);

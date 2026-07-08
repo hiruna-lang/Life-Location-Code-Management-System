@@ -11,10 +11,12 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([])
   const [dsOptions, setDsOptions] = useState([])
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'officer', ds_id: '' })
+  const [editingUser, setEditingUser] = useState(null)
   const [creatingUser, setCreatingUser] = useState(false)
+  const [savingUser, setSavingUser] = useState(false)
   const [accountMsg, setAccountMsg] = useState('')
   const [accountError, setAccountError] = useState('')
-  const [filter, setFilter] = useState({ province_id: '', district_id: '', before_date: '' })
+  const [filter, setFilter] = useState({ province_id: '', district_id: '', before_date: '', ds_search: '' })
   const [provinces, setProvs] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -36,6 +38,11 @@ export default function AdminDashboard() {
     setStatus(data)
   }
 
+  const refreshUsers = async () => {
+    const { data } = await api.get('/admin/users')
+    setUsers(data)
+  }
+
   const createAccount = async event => {
     event.preventDefault()
     setAccountMsg('')
@@ -51,8 +58,7 @@ export default function AdminDashboard() {
         ds_id: newUser.role === 'officer' ? newUser.ds_id : null,
       }
       const { data } = await api.post('/admin/users', payload)
-      const { data: refreshedUsers } = await api.get('/admin/users')
-      setUsers(refreshedUsers)
+      await refreshUsers()
       setNewUser({ name: '', email: '', password: '', role: 'officer', ds_id: '' })
       setAccountMsg(`${data.user.name} account created.`)
     } catch (error) {
@@ -63,7 +69,92 @@ export default function AdminDashboard() {
     }
   }
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>⏳ Loading dashboard…</div>
+  const startEdit = user => {
+    setAccountMsg('')
+    setAccountError('')
+    setEditingUser({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: '',
+      role: 'officer',
+      ds_id: user.active_ds_assignment?.divisional_secretariat_id || '',
+      is_active: user.is_active,
+    })
+  }
+
+  const cancelEdit = () => {
+    setEditingUser(null)
+    setAccountError('')
+  }
+
+  const saveEdit = async event => {
+    event.preventDefault()
+    setAccountMsg('')
+    setAccountError('')
+    setSavingUser(true)
+
+    try {
+      const payload = {
+        name: editingUser.name,
+        email: editingUser.email,
+        role: 'officer',
+        ds_id: editingUser.ds_id,
+        is_active: editingUser.is_active,
+      }
+      if (editingUser.password) payload.password = editingUser.password
+
+      const { data } = await api.put(`/admin/users/${editingUser.id}`, payload)
+      await refreshUsers()
+      setEditingUser(null)
+      setAccountMsg(data.message || 'Account updated.')
+    } catch (error) {
+      const errors = error.response?.data?.errors
+      setAccountError(errors ? Object.values(errors).flat().join(' ') : (error.response?.data?.message || 'Unable to update account.'))
+    } finally {
+      setSavingUser(false)
+    }
+  }
+
+  const toggleActive = async user => {
+    setAccountMsg('')
+    setAccountError('')
+    try {
+      const { data } = await api.put(`/admin/users/${user.id}`, {
+        name: user.name,
+        email: user.email,
+        role: 'officer',
+        ds_id: user.active_ds_assignment?.divisional_secretariat_id,
+        is_active: !user.is_active,
+      })
+      await refreshUsers()
+      setAccountMsg(data.message || 'Account updated.')
+    } catch (error) {
+      setAccountError(error.response?.data?.message || 'Unable to update account status.')
+    }
+  }
+
+  const deleteAccount = async user => {
+    if (!window.confirm(`Delete ${user.name}? This cannot be undone.`)) return
+
+    setAccountMsg('')
+    setAccountError('')
+    try {
+      const { data } = await api.delete(`/admin/users/${user.id}`)
+      await refreshUsers()
+      setAccountMsg(data.message || 'Account deleted.')
+    } catch (error) {
+      setAccountError(error.response?.data?.message || 'Unable to delete account.')
+    }
+  }
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading dashboard...</div>
+
+  const filteredStatus = status.filter(row => {
+    const search = filter.ds_search.trim().toLowerCase()
+    if (!search) return true
+    return (row.ds_name || '').toLowerCase().includes(search)
+  })
 
   const logCols = [
     { key: 'created_at', label: 'Time', render: r => new Date(r.created_at).toLocaleString() },
@@ -88,6 +179,15 @@ export default function AdminDashboard() {
     { key: 'is_active', label: 'Status', render: r => <StatusBadge status={r.is_active ? 'active' : 'disabled'} /> },
     { key: 'ds', label: 'Assigned DS', render: r => r.active_ds_assignment?.divisional_secretariat?.name_english || '-' },
     { key: 'created_at', label: 'Created', render: r => r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' },
+    { key: 'actions', label: 'Actions', render: r => r.role === 'officer' ? (
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <button onClick={() => startEdit(r)} style={{ padding: '5px 9px', border: '1px solid var(--border)', background: '#fff', color: 'var(--primary)', borderRadius: 5, fontWeight: 700, fontSize: 12 }}>Edit</button>
+        <button onClick={() => toggleActive(r)} style={{ padding: '5px 9px', border: 'none', background: r.is_active ? 'var(--warning)' : 'var(--success)', color: '#fff', borderRadius: 5, fontWeight: 700, fontSize: 12 }}>
+          {r.is_active ? 'Deactivate' : 'Activate'}
+        </button>
+        <button onClick={() => deleteAccount(r)} style={{ padding: '5px 9px', border: 'none', background: 'var(--accent)', color: '#fff', borderRadius: 5, fontWeight: 700, fontSize: 12 }}>Delete</button>
+      </div>
+    ) : '-' },
   ]
 
   return (
@@ -112,7 +212,7 @@ export default function AdminDashboard() {
           alignItems: 'center',
           justifyContent: 'space-between',
           marginBottom: 14,
-          flexWrap: 'nowrap',        // ← Key change
+          flexWrap: 'wrap',
           gap: 12,
           minWidth: 0
         }}>
@@ -166,6 +266,42 @@ export default function AdminDashboard() {
           </button>
         </form>
 
+        {editingUser && (
+          <form onSubmit={saveEdit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, alignItems: 'end', marginBottom: 18, padding: 14, border: '1px solid var(--info)', borderRadius: 8, background: '#eaf4fb' }}>
+            <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+              Name
+              <input value={editingUser.name} onChange={e => setEditingUser(p => ({ ...p, name: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required />
+            </label>
+            <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+              Email
+              <input type="email" value={editingUser.email} onChange={e => setEditingUser(p => ({ ...p, email: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required />
+            </label>
+            <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+              New password
+              <input type="password" minLength={8} value={editingUser.password} onChange={e => setEditingUser(p => ({ ...p, password: e.target.value }))} placeholder="Leave blank to keep current" style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} />
+            </label>
+            <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
+              Divisional Secretariat
+              <select value={editingUser.ds_id} onChange={e => setEditingUser(p => ({ ...p, ds_id: e.target.value }))} style={{ padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} required>
+                <option value="">Select DS</option>
+                {dsOptions.map(ds => <option key={ds.id} value={ds.id}>{ds.name_english}</option>)}
+              </select>
+            </label>
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, fontWeight: 700, color: 'var(--primary)', minHeight: 34 }}>
+              <input type="checkbox" checked={editingUser.is_active} onChange={e => setEditingUser(p => ({ ...p, is_active: e.target.checked }))} />
+              Active account
+            </label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="submit" disabled={savingUser} style={{ padding: '9px 14px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
+                {savingUser ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button type="button" onClick={cancelEdit} style={{ padding: '9px 14px', background: '#fff', color: 'var(--primary)', border: '1px solid var(--border)', borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
         {accountMsg && <div style={{ background: '#eafaf1', border: '1px solid #82e0aa', color: '#1e8449', padding: '9px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountMsg}</div>}
         {accountError && <div style={{ background: '#fdedec', border: '1px solid #f1948a', color: '#c0392b', padding: '9px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountError}</div>}
         <Table columns={userCols} data={users} emptyMsg="No user accounts found." />
@@ -178,7 +314,7 @@ export default function AdminDashboard() {
           alignItems: 'center',
           justifyContent: 'space-between',
           marginBottom: 14,
-          flexWrap: 'nowrap',        // ← Key change
+          flexWrap: 'nowrap',       
           gap: 12,
           minWidth: 0
         }}>
@@ -186,7 +322,8 @@ export default function AdminDashboard() {
             DS Verification Status
           </h3>
 
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'nowrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <input type="search" placeholder="Search DS division" style={{ padding: '6px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12, minWidth: 180 }} value={filter.ds_search} onChange={e => setFilter(p => ({ ...p, ds_search: e.target.value }))} />
             <select style={{ padding: '6px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 12, flexShrink: 0 }} value={filter.province_id} onChange={e => setFilter(p => ({ ...p, province_id: e.target.value }))}>
               <option value="">All Provinces</option>
               {provinces.map(x => <option key={x.id} value={x.id}>{x.name_english}</option>)}
@@ -197,7 +334,7 @@ export default function AdminDashboard() {
             </button>
           </div>
         </div>
-        <Table columns={statusCols} data={status} />
+        <Table columns={statusCols} data={filteredStatus} />
       </div>
 
       {/* Recent logs */}
