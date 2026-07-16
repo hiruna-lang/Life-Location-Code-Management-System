@@ -12,9 +12,13 @@ const publicLinks = [
 
 const adminLinks = [
   { to: '/admin', labelKey: 'dashboard', adminOnly: true, end: true },
-  { to: '/verify', labelKey: 'verification' },
   { to: '/admin/reports', labelKey: 'reports', adminOnly: true },
   { to: '/admin/api-logs', labelKey: 'apiLogs', adminOnly: true },
+]
+
+const officerLinks = [
+  { to: '/ds-dashboard', label: 'DS Dashboard', end: true },
+  { to: '/ds-gn-verification', label: 'GN Division Verification' },
 ]
 
 export default function Layout({ children, admin = false }) {
@@ -61,9 +65,14 @@ export default function Layout({ children, admin = false }) {
             <span>{t('menu')}</span><span aria-hidden="true">☰</span>
           </button>
           <div className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
-            {publicLinks.map(link => (
+            {publicLinks.filter(link => !(user?.role === 'officer' && link.to === '/same-gn')).map(link => (
               <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
                 {t(link.labelKey)}
+              </NavLink>
+            ))}
+            {user && user.role === 'officer' && officerLinks.map(link => (
+              <NavLink key={link.to} to={link.to} end={link.end} className={navClass} onClick={() => setMenuOpen(false)}>
+                {link.label}
               </NavLink>
             ))}
             {user && adminLinks.filter(link => !link.adminOnly || user.role === 'admin').map(link => (

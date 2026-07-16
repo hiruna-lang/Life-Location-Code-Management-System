@@ -16,7 +16,7 @@ export default function Login() {
     setError('')
     try {
       const user = await login(form.email, form.password)
-      navigate(user.role === 'admin' ? '/admin' : '/verify')
+      navigate(user.role === 'admin' ? '/admin' : '/ds-dashboard')
     } catch (err) {
       setError(err.response?.data?.message || t('loginError'))
     }

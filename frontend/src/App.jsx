@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
 
@@ -9,6 +9,7 @@ import SameGnDifferentDs       from './pages/SameGnDifferentDs'
 import Login                   from './pages/Login'
 import AdminDashboard          from './pages/AdminDashboard'
 import DSVerificationDashboard from './pages/DSVerificationDashboard'
+import GNDivisionVerification  from './pages/GNDivisionVerification'
 import GNEdit                  from './pages/GNEdit'
 import Reports                 from './pages/Reports'
 import ApiLogs                 from './pages/ApiLogs'
@@ -20,6 +21,11 @@ function RequireAuth({ children, role }) {
   if (!user) return <Navigate to="/login" replace />
   if (role && user.role !== role) return <Navigate to="/" replace />
   return children
+}
+
+function LegacyGNRedirect() {
+  const { gnId } = useParams()
+  return <Navigate to={`/ds-gn-verification/gn/${gnId}`} replace />
 }
 
 export default function App() {
@@ -52,16 +58,23 @@ export default function App() {
           }/>
 
           {/* Officer */}
-          <Route path="/verify" element={
+          <Route path="/ds-dashboard" element={
             <RequireAuth>
               <Layout admin><DSVerificationDashboard /></Layout>
             </RequireAuth>
           }/>
-          <Route path="/verify/gn/:gnId" element={
+          <Route path="/ds-gn-verification" element={
+            <RequireAuth>
+              <Layout admin><GNDivisionVerification /></Layout>
+            </RequireAuth>
+          }/>
+          <Route path="/verify" element={<Navigate to="/ds-dashboard" replace />} />
+          <Route path="/ds-gn-verification/gn/:gnId" element={
             <RequireAuth>
               <Layout admin><GNEdit /></Layout>
             </RequireAuth>
           }/>
+          <Route path="/verify/gn/:gnId" element={<LegacyGNRedirect />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
