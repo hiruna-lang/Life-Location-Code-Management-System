@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import api from '../api/axios'
 import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
@@ -13,7 +13,15 @@ export default function Reports() {
   const [filter, setFilter]     = useState({ province_id:'', district_id:'', ds_search:'' })
   const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading]   = useState(false)
-  const [searched, setSearched] = useState(false)
+  const logsRef = useRef(null)
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const { data } = await api.get('/dashboard/verification-status', { params: filter })
+      setStatus(data)
+    } finally { setLoading(false) }
+  }
 
   useEffect(() => { api.get('/provinces').then(r=>setProvs(r.data)) }, [])
   useEffect(() => { api.get('/dashboard/recent-logs').then(r=>setLogs(r.data)) }, [])
@@ -21,14 +29,7 @@ export default function Reports() {
     setFilter(p=>({...p,district_id:''})); setDists([])
     if (filter.province_id) api.get('/districts',{params:{province_id:filter.province_id}}).then(r=>setDists(r.data))
   }, [filter.province_id])
-
-  const load = async () => {
-    setLoading(true); setSearched(true)
-    try {
-      const { data } = await api.get('/dashboard/verification-status', { params: filter })
-      setStatus(data)
-    } finally { setLoading(false) }
-  }
+  useEffect(() => { load() }, [])
 
   const filteredStatus = status.filter(row => {
     const search = filter.ds_search.trim().toLowerCase()
@@ -94,24 +95,22 @@ export default function Reports() {
           <div style={{fontSize:11,fontWeight:700,marginBottom:5,color:'var(--text-muted)',textTransform:'uppercase'}}>DS Division</div>
           <input type="search" placeholder="Search DS division" style={sel} value={filter.ds_search} onChange={e=>setFilter(p=>({...p,ds_search:e.target.value}))} />
         </div>
-        <button onClick={load} style={{padding:'9px 20px',background:'var(--primary)',color:'#fff',border:'none',borderRadius:6,fontWeight:700,height:37}}>Generate Report</button>
+        <div style={{ marginLeft: 'auto' }}>
+          <button onClick={() => logsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} style={{padding:'9px 20px',background:'var(--primary)',color:'#fff',border:'none',borderRadius:6,fontWeight:700,height:37,whiteSpace:'nowrap'}}>View Verification Logs</button>
+        </div>
       </div>
 
-      {searched && (
-        <>
-          <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
-            {[['Total',counts.total,'#1E3A5F'],['Pending',counts.pending,'#d68910'],['Draft',counts.draft,'#2980b9'],['Verified',counts.final,'#27ae60'],['Locked',counts.locked,'#c0392b']].map(([l,v,c])=>(
-              <div key={l} style={{background:c,color:'#fff',borderRadius:8,padding:'10px 20px',minWidth:100,textAlign:'center'}}>
-                <div style={{fontSize:22,fontWeight:800}}>{v}</div>
-                <div style={{fontSize:11,fontWeight:600,opacity:.85}}>{l}</div>
-              </div>
-            ))}
+      <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
+        {[['Total',counts.total,'#1E3A5F'],['Pending',counts.pending,'#d68910'],['Draft',counts.draft,'#2980b9'],['Verified',counts.final,'#27ae60'],['Locked',counts.locked,'#c0392b']].map(([l,v,c])=>(
+          <div key={l} style={{background:c,color:'#fff',borderRadius:8,padding:'10px 20px',minWidth:100,textAlign:'center'}}>
+            <div style={{fontSize:22,fontWeight:800}}>{v}</div>
+            <div style={{fontSize:11,fontWeight:600,opacity:.85}}>{l}</div>
           </div>
-          <Table columns={cols} data={filteredStatus} loading={loading} emptyMsg="No results." />
-        </>
-      )}
+        ))}
+      </div>
+      <Table columns={cols} data={filteredStatus} loading={loading} emptyMsg="No results." />
 
-      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginTop: 24 }}>
+      <div ref={logsRef} style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginTop: 24 }}>
         <h3 style={{ color: 'var(--primary)', fontSize: 15, marginBottom: 14 }}>Recent Verification Logs</h3>
         <Table columns={logCols} data={logs} emptyMsg="No logs found." />
       </div>
