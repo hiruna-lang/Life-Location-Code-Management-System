@@ -9,11 +9,14 @@ export default function Reports() {
   const [provinces, setProvs]   = useState([])
   const [districts, setDists]   = useState([])
   const [status, setStatus]     = useState([])
-  const [filter, setFilter]     = useState({ province_id:'', district_id:'', before_date:'' })
+  const [logs, setLogs]         = useState([])
+  const [filter, setFilter]     = useState({ province_id:'', district_id:'', ds_search:'' })
+  const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading]   = useState(false)
   const [searched, setSearched] = useState(false)
 
   useEffect(() => { api.get('/provinces').then(r=>setProvs(r.data)) }, [])
+  useEffect(() => { api.get('/dashboard/recent-logs').then(r=>setLogs(r.data)) }, [])
   useEffect(() => {
     setFilter(p=>({...p,district_id:''})); setDists([])
     if (filter.province_id) api.get('/districts',{params:{province_id:filter.province_id}}).then(r=>setDists(r.data))
@@ -27,6 +30,13 @@ export default function Reports() {
     } finally { setLoading(false) }
   }
 
+  const filteredStatus = status.filter(row => {
+    const search = filter.ds_search.trim().toLowerCase()
+    if (search && !(row.ds_name || '').toLowerCase().includes(search)) return false
+    if (statusFilter !== 'all' && row.status !== statusFilter) return false
+    return true
+  })
+
   const cols = [
     { key:'province_name', label:'Province' },
     { key:'district_name', label:'District' },
@@ -34,6 +44,13 @@ export default function Reports() {
     { key:'status',        label:'Status', render:r=><StatusBadge status={r.status} /> },
     { key:'final_at',      label:'Verified At', render:r=>r.final_at?new Date(r.final_at).toLocaleDateString():'—' },
     { key:'verified_by_name', label:'Verified By' },
+  ]
+
+  const logCols = [
+    { key: 'created_at', label: 'Time', render: r => new Date(r.created_at).toLocaleString() },
+    { key: 'action', label: 'Action', render: r => <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{r.action}</span> },
+    { key: 'user', label: 'User', render: r => r.user?.name || '—' },
+    { key: 'description', label: 'Description' },
   ]
 
   const counts = {
@@ -46,7 +63,7 @@ export default function Reports() {
 
   return (
     <div>
-      <h2 style={{marginBottom:20, color:'var(--primary)', fontWeight:700}}>📋 Verification Reports</h2>
+      <h2 style={{marginBottom:20, color:'var(--primary)', fontWeight:700}}>Verification Reports</h2>
 
       <div style={{background:'var(--surface)',borderRadius:'var(--radius)',padding:'16px 20px',boxShadow:'var(--shadow)',marginBottom:20,display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end'}}>
         <div>
@@ -64,8 +81,18 @@ export default function Reports() {
           </select>
         </div>
         <div>
-          <div style={{fontSize:11,fontWeight:700,marginBottom:5,color:'var(--text-muted)',textTransform:'uppercase'}}>Not Verified Before</div>
-          <input type="date" style={sel} value={filter.before_date} onChange={e=>setFilter(p=>({...p,before_date:e.target.value}))} />
+          <div style={{fontSize:11,fontWeight:700,marginBottom:5,color:'var(--text-muted)',textTransform:'uppercase'}}>Status</div>
+          <select style={sel} value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
+            <option value="all">Total</option>
+            <option value="pending">Pending</option>
+            <option value="draft">Draft</option>
+            <option value="final">Verified</option>
+            <option value="locked">Locked</option>
+          </select>
+        </div>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,marginBottom:5,color:'var(--text-muted)',textTransform:'uppercase'}}>DS Division</div>
+          <input type="search" placeholder="Search DS division" style={sel} value={filter.ds_search} onChange={e=>setFilter(p=>({...p,ds_search:e.target.value}))} />
         </div>
         <button onClick={load} style={{padding:'9px 20px',background:'var(--primary)',color:'#fff',border:'none',borderRadius:6,fontWeight:700,height:37}}>Generate Report</button>
       </div>
@@ -80,9 +107,14 @@ export default function Reports() {
               </div>
             ))}
           </div>
-          <Table columns={cols} data={status} loading={loading} emptyMsg="No results." />
+          <Table columns={cols} data={filteredStatus} loading={loading} emptyMsg="No results." />
         </>
       )}
+
+      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginTop: 24 }}>
+        <h3 style={{ color: 'var(--primary)', fontSize: 15, marginBottom: 14 }}>Recent Verification Logs</h3>
+        <Table columns={logCols} data={logs} emptyMsg="No logs found." />
+      </div>
     </div>
   )
 }

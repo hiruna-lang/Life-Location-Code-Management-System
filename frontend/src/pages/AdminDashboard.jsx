@@ -6,8 +6,6 @@ import StatusBadge from '../components/StatusBadge';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
-  const [status, setStatus] = useState([]);
-  const [logs, setLogs] = useState([]);
   const [users, setUsers] = useState([]);
   const [dsOptions, setDsOptions] = useState([]);
   const [newUser, setNewUser] = useState({ 
@@ -22,47 +20,20 @@ export default function AdminDashboard() {
   const [savingUser, setSavingUser] = useState(false);
   const [accountMsg, setAccountMsg] = useState('');
   const [accountError, setAccountError] = useState('');
-  const [filter, setFilter] = useState({ 
-    province_id: '', 
-    district_id: '', 
-    before_date: '', 
-    ds_search: '' 
-  });
-  const [userRoleFilter, setUserRoleFilter] = useState('all'); // New: Role filter
-  const [provinces, setProvs] = useState([]);
-  const [districts, setDists] = useState([]);
+  const [userRoleFilter, setUserRoleFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       api.get('/dashboard/stats'),
-      api.get('/dashboard/verification-status'),
-      api.get('/dashboard/recent-logs'),
       api.get('/admin/users'),
       api.get('/divisional-secretariats'),
-      api.get('/provinces'),
-    ]).then(([s, vs, l, u, ds, p]) => {
+    ]).then(([s, u, ds]) => {
       setStats(s.data);
-      setStatus(vs.data);
-      setLogs(l.data);
       setUsers(u.data);
       setDsOptions(ds.data);
-      setProvs(p.data);
     }).finally(() => setLoading(false));
   }, []);
-
-  useEffect(() => {
-    setFilter(p => ({ ...p, district_id: '' }));
-    setDists([]);
-    if (filter.province_id) {
-      api.get('/districts', { params: { province_id: filter.province_id } }).then(r => setDists(r.data));
-    }
-  }, [filter.province_id]);
-
-  const applyFilter = async () => {
-    const { data } = await api.get('/dashboard/verification-status', { params: filter });
-    setStatus(data);
-  };
 
   const refreshUsers = async () => {
     const { data } = await api.get('/admin/users');
@@ -184,28 +155,6 @@ export default function AdminDashboard() {
   };
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading dashboard...</div>;
-
-  const filteredStatus = status.filter(row => {
-    const search = filter.ds_search.trim().toLowerCase();
-    if (!search) return true;
-    return (row.ds_name || '').toLowerCase().includes(search);
-  });
-
-  const logCols = [
-    { key: 'created_at', label: 'Time', render: r => new Date(r.created_at).toLocaleString() },
-    { key: 'action', label: 'Action', render: r => <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{r.action}</span> },
-    { key: 'user', label: 'User', render: r => r.user?.name || '—' },
-    { key: 'description', label: 'Description' },
-  ];
-
-  const statusCols = [
-    { key: 'province_name', label: 'Province' },
-    { key: 'district_name', label: 'District' },
-    { key: 'ds_name', label: 'DS Division' },
-    { key: 'status', label: 'Status', render: r => <StatusBadge status={r.status} /> },
-    { key: 'final_at', label: 'Verified At', render: r => r.final_at ? new Date(r.final_at).toLocaleDateString() : '—' },
-    { key: 'verified_by_name', label: 'By' },
-  ];
 
   const userCols = [
     { key: 'name', label: 'Name', render: r => <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{r.name}</span> },
@@ -472,33 +421,6 @@ export default function AdminDashboard() {
         {accountError && <div style={{ background: '#fdedec', border: '1px solid #f1948a', color: '#c0392b', padding: '10px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountError}</div>}
 
         <Table columns={userCols} data={filteredUsers} emptyMsg="No user accounts found." />
-      </div>
-
-      {/* Verification Status */}
-      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 12 }}>
-          <h3 style={{ color: 'var(--primary)', fontSize: 15, margin: 0 }}>DS Verification Status</h3>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input type="search" placeholder="Search DS division" style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13, minWidth: 200 }} value={filter.ds_search} onChange={e => setFilter(p => ({ ...p, ds_search: e.target.value }))} />
-            <select style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} value={filter.province_id} onChange={e => setFilter(p => ({ ...p, province_id: e.target.value }))}>
-              <option value="">All Provinces</option>
-              {provinces.map(x => <option key={x.id} value={x.id}>{x.name_english}</option>)}
-            </select>
-            <select style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} value={filter.district_id} onChange={e => setFilter(p => ({ ...p, district_id: e.target.value }))} disabled={!filter.province_id}>
-              <option value="">All Districts</option>
-              {districts.map(x => <option key={x.id} value={x.id}>{x.name_english}</option>)}
-            </select>
-            <input type="date" style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} value={filter.before_date} onChange={e => setFilter(p => ({ ...p, before_date: e.target.value }))} />
-            <button onClick={applyFilter} style={{ padding: '7px 14px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600 }}>Apply Filter</button>
-          </div>
-        </div>
-        <Table columns={statusCols} data={filteredStatus} />
-      </div>
-
-      {/* Recent Logs */}
-      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)' }}>
-        <h3 style={{ color: 'var(--primary)', fontSize: 15, marginBottom: 14 }}>Recent Verification Logs</h3>
-        <Table columns={logCols} data={logs} />
       </div>
     </div>
   );
