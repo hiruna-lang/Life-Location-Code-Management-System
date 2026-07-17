@@ -302,6 +302,7 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
             onClick={() => onSelect(province)}
           >
             <strong>{localizedName(province) || province.name || 'Unnamed area'}</strong>
+            {getLocationCode(province) && <span className="province-code">Code: {getLocationCode(province)}</span>}
           </button>
         )
       })}
@@ -311,10 +312,24 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
 
 function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, localizedName }) {
   const bodyRef = useRef(null)
+  const [searchTerm, setSearchTerm] = useState('')
   const selectedItem = selectedId ? items.find(item => String(item.id) === String(selectedId)) : null
-  const visibleItems = selectedItem
-    ? [selectedItem, ...items.filter(item => String(item.id) !== String(selectedId))]
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const filteredItems = normalizedSearch
+    ? items.filter(item => {
+      const code = getLocationCode(item)
+      return [
+        localizedName(item),
+        item.name_english,
+        item.name_sinhala,
+        item.name_tamil,
+        code,
+      ].some(value => String(value || '').toLowerCase().includes(normalizedSearch))
+    })
     : items
+  const visibleItems = selectedItem && filteredItems.some(item => String(item.id) === String(selectedId))
+    ? [selectedItem, ...filteredItems.filter(item => String(item.id) !== String(selectedId))]
+    : filteredItems
 
   useEffect(() => {
     if (!bodyRef.current || !selectedId) return
@@ -327,10 +342,21 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
   return (
     <div className="location-hierarchy-column">
       <div className="location-hierarchy-column__title">{title}</div>
+      <div className="location-hierarchy-search">
+        <input
+          type="search"
+          value={searchTerm}
+          onChange={event => setSearchTerm(event.target.value)}
+          placeholder={`Search ${title}`}
+          aria-label={`Search ${title}`}
+        />
+      </div>
       <div className="location-hierarchy-column__body" ref={bodyRef}>
         {items.length === 0 && <div className="location-hierarchy-empty">{emptyText}</div>}
+        {items.length > 0 && visibleItems.length === 0 && <div className="location-hierarchy-empty">No matching records.</div>}
         {visibleItems.map(item => {
           const isSelected = String(selectedId) === String(item.id)
+          const locationCode = getLocationCode(item)
           return (
             <button
               type="button"
@@ -339,10 +365,22 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
               onClick={() => onSelect(item)}
             >
               <strong>{localizedName(item) || item.name || 'Unnamed area'}</strong>
+              {locationCode && <span className="location-code">Life Location Code: {locationCode}</span>}
             </button>
           )
         })}
       </div>
     </div>
   )
+}
+
+function getLocationCode(item) {
+  return item.lifecode
+    || item.code
+    || item.province_code
+    || item.district_code
+    || item.divisional_secretariat_code
+    || item.grama_niladhari_division_code
+    || item.village_code
+    || ''
 }

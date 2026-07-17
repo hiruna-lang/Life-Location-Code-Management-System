@@ -155,9 +155,11 @@
 .location-province-row button {
   display: grid;
   align-content: center;
-  min-height: 40px;
-  max-width: 128px;
-  padding: 6px 10px;
+  gap: 3px;
+  min-height: 48px;
+  min-width: 104px;
+  max-width: 136px;
+  padding: 7px 11px;
   color: #172c45;
   background:
     linear-gradient(180deg, var(--province-color) 0 4px, rgba(255,255,255,.94) 4px 100%);
@@ -165,7 +167,7 @@
   border-radius: 6px;
   box-shadow: 0 6px 16px rgba(23,44,69,.07);
   font-size: 12px;
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
   transition: background .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease;
 }
@@ -187,17 +189,26 @@
 
 .location-province-row button strong {
   font-weight: 900;
+  line-height: 1.12;
 }
 
 .location-province-row button span {
-  margin-top: 2px;
-  color: #637080;
-  font-size: 10px;
+  justify-self: center;
+  color: color-mix(in srgb, var(--province-color) 76%, #172c45);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .location-province-row button:hover span,
 .location-province-row button.is-selected span {
-  color: rgba(255,255,255,.82);
+  color: rgba(255,255,255,.85);
 }
 
 .location-map-canvas {
@@ -422,10 +433,40 @@
   text-transform: uppercase;
 }
 
+.location-hierarchy-search {
+  padding: 9px 10px;
+  background: #fff;
+  border-bottom: 1px solid #e4ded9;
+}
+
+.location-hierarchy-search input {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  color: #172c45;
+  background: #fbf8f3;
+  border: 1px solid #d8d2cc;
+  border-radius: 6px;
+  outline: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.location-hierarchy-search input::placeholder {
+  color: #758294;
+  font-weight: 700;
+}
+
+.location-hierarchy-search input:focus {
+  background: #fff;
+  border-color: #712b31;
+  box-shadow: 0 0 0 3px rgba(113,43,49,.1);
+}
+
 .location-hierarchy-column__body {
   display: grid;
   align-content: start;
-  height: 470px;
+  height: 426px;
   overflow: auto;
 }
 
@@ -478,9 +519,30 @@
   font-size: 11px;
 }
 
+.location-hierarchy-column button .location-code {
+  width: max-content;
+  max-width: 100%;
+  margin-top: 7px;
+  padding: 2px 7px;
+  color: #4e1920;
+  background: rgba(234,216,170,.55);
+  border: 1px solid rgba(196,154,66,.48);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .2px;
+  overflow-wrap: anywhere;
+}
+
 .location-hierarchy-column button.is-selected span {
   color: #4b5564;
   font-weight: 800;
+}
+
+.location-hierarchy-column button.is-selected .location-code {
+  color: #172c45;
+  background: rgba(255,255,255,.7);
+  border-color: rgba(183,122,18,.5);
 }
 
 .location-hierarchy-empty {
@@ -556,7 +618,7 @@
   }
 
   .location-hierarchy-column__body {
-    height: 340px;
+    height: 296px;
   }
 
   .location-side {
@@ -632,6 +694,6 @@
   }
 
   .location-province-row button {
-    flex: 0 0 118px;
+    flex: 0 0 116px;
   }
 }

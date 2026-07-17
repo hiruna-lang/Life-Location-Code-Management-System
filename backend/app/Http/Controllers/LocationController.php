@@ -13,7 +13,7 @@ class LocationController extends Controller
 {
     public function provinces()
     {
-        $provinces = Province::orderBy('name_english')->get(['id', 'name_english', 'name_sinhala', 'name_tamil']);
+        $provinces = Province::orderBy('name_english')->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'province_code', 'lifecode']);
         return response()->json($provinces);
     }
 
@@ -23,7 +23,7 @@ class LocationController extends Controller
         if ($request->filled('province_id')) {
             $query->where('province_id', $request->province_id);
         }
-        return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'province_id']));
+        return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'district_code', 'lifecode', 'province_id']));
     }
 
     public function divisionalSecretariats(Request $request)
@@ -32,7 +32,7 @@ class LocationController extends Controller
         if ($request->filled('district_id')) {
             $query->where('district_id', $request->district_id);
         }
-        return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'district_id']));
+        return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'divisional_secretariat_code', 'lifecode', 'district_id']));
     }
 
     public function gnDivisions(Request $request)
