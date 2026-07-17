@@ -143,6 +143,63 @@
   color: #712b31;
 }
 
+.location-province-row {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.location-province-row button {
+  display: grid;
+  align-content: center;
+  min-height: 40px;
+  max-width: 128px;
+  padding: 6px 10px;
+  color: #172c45;
+  background:
+    linear-gradient(180deg, var(--province-color) 0 4px, rgba(255,255,255,.94) 4px 100%);
+  border: 1px solid color-mix(in srgb, var(--province-color) 35%, #ded7cf);
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(23,44,69,.07);
+  font-size: 12px;
+  line-height: 1.1;
+  text-align: center;
+  transition: background .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+
+.location-province-row button:hover,
+.location-province-row button.is-selected {
+  color: #fff;
+  background: var(--province-color);
+  border-color: var(--province-color);
+  box-shadow: 0 8px 18px rgba(23,44,69,.1);
+  transform: translateY(-1px);
+}
+
+.location-province-row button strong,
+.location-province-row button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.location-province-row button strong {
+  font-weight: 900;
+}
+
+.location-province-row button span {
+  margin-top: 2px;
+  color: #637080;
+  font-size: 10px;
+}
+
+.location-province-row button:hover span,
+.location-province-row button.is-selected span {
+  color: rgba(255,255,255,.82);
+}
+
 .location-map-canvas {
   position: relative;
   width: 100%;
@@ -341,7 +398,7 @@
 
 .location-hierarchy-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
   gap: 8px;
   align-items: stretch;
 }
@@ -561,7 +618,20 @@
   }
 
   .location-map-card__header span,
-  .location-map-card__header h2 {
+  .location-map-card__header h2,
+  .location-province-row {
     grid-column: 1;
+  }
+
+  .location-province-row {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .location-province-row button {
+    flex: 0 0 118px;
   }
 }

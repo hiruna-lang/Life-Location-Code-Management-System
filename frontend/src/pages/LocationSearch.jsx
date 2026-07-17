@@ -3,11 +3,14 @@ import { motion } from 'framer-motion'
 import SriLanka3DMap from '../components/three-map/SriLanka3DMap'
 import LocationResultTable from '../components/location/LocationResultTable'
 import { locationApi, normalizeName } from '../services/locationApi'
+import { useLanguage } from '../context/LanguageContext'
 import './LocationSearch.css'
 
 const friendlyApiError = 'Unable to load location data right now. Please check the Laravel API and try again.'
+const provinceButtonColors = ['#2f628f', '#2f6f4e', '#a96f15', '#9f252d', '#6a65a8', '#168b8b', '#7d8b16', '#8a4f2a', '#712b31']
 
 export default function LocationSearch() {
+  const { t, localizedName } = useLanguage()
   const [provinces, setProvinces] = useState([])
   const [allDistricts, setAllDistricts] = useState([])
   const [districts, setDistricts] = useState([])
@@ -206,6 +209,8 @@ export default function LocationSearch() {
     setVillages([])
   }
 
+  const selectedProvinceName = selected.province ? localizedName(selected.province) : ''
+
   return (
     <div className="location-search-page">
       <motion.section
@@ -216,12 +221,18 @@ export default function LocationSearch() {
         <motion.div className="location-map-card" layout transition={{ duration: 0.22, ease: 'easeOut' }}>
           <div className="location-map-card__header">
             <span>District boundary layer</span>
-            <h2>{selected.province?.name_english ? `${selected.province.name_english} District Map` : 'Sri Lanka District Map'}</h2>
+            <h2>{selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}</h2>
+            <ProvinceButtonRow
+              provinces={provinces}
+              selectedId={selected.province?.id}
+              onSelect={selectProvince}
+              localizedName={localizedName}
+            />
           </div>
           <div className="location-map-stage">
             <div className={`location-map-actions${selected.district ? '' : ' is-hidden'}`}>
-              <button type="button" onClick={backToDistrict} disabled={!selected.district}>Back to district map</button>
-              <button type="button" onClick={resetSelection} disabled={!selected.district}>Reset selection</button>
+              <button type="button" onClick={backToDistrict} disabled={!selected.district}>{t('backToDistrictMap')}</button>
+              <button type="button" onClick={resetSelection} disabled={!selected.district}>{t('resetSelection')}</button>
             </div>
             <SriLanka3DMap
               selectedFeatureName={selected.districtFeature?.properties?.shapeName || selected.district?.name_english}
@@ -239,32 +250,28 @@ export default function LocationSearch() {
 
           <div className="location-hierarchy-grid">
             <HierarchyColumn
-              title="Provinces"
-              items={provinces}
-              selectedId={selected.province?.id}
-              onSelect={selectProvince}
-              emptyText="No provinces loaded."
-            />
-            <HierarchyColumn
-              title="Districts"
+              title={t('district')}
               items={districts}
               selectedId={selected.district?.id}
               onSelect={selectDistrict}
               emptyText="No districts loaded."
+              localizedName={localizedName}
             />
             <HierarchyColumn
-              title="Divisional Secretariats"
+              title={t('ds')}
               items={dsList}
               selectedId={selected.ds?.id}
               onSelect={handleDsClick}
               emptyText={selected.district ? 'No DS divisions found.' : 'Select a district first.'}
+              localizedName={localizedName}
             />
             <HierarchyColumn
-              title="GN Divisions"
+              title={t('gn')}
               items={gnList}
               selectedId={selected.gn?.id}
               onSelect={handleGnClick}
               emptyText={selected.ds ? 'No GN divisions found.' : 'Select a DS division first.'}
+              localizedName={localizedName}
             />
           </div>
         </section>
@@ -279,7 +286,30 @@ export default function LocationSearch() {
   )
 }
 
-function HierarchyColumn({ title, items, selectedId, onSelect, emptyText }) {
+function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
+  if (provinces.length === 0) return null
+
+  return (
+    <div className="location-province-row" aria-label="Select province">
+      {provinces.map((province, index) => {
+        const isSelected = String(selectedId) === String(province.id)
+        return (
+          <button
+            type="button"
+            key={province.id}
+            className={isSelected ? 'is-selected' : ''}
+            style={{ '--province-color': provinceButtonColors[index % provinceButtonColors.length] }}
+            onClick={() => onSelect(province)}
+          >
+            <strong>{localizedName(province) || province.name || 'Unnamed area'}</strong>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, localizedName }) {
   const bodyRef = useRef(null)
   const selectedItem = selectedId ? items.find(item => String(item.id) === String(selectedId)) : null
   const visibleItems = selectedItem
@@ -308,8 +338,7 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText }) {
               className={isSelected ? 'is-selected' : ''}
               onClick={() => onSelect(item)}
             >
-              <strong>{item.name_english || item.name || 'Unnamed area'}</strong>
-              {(item.name_sinhala || item.name_tamil) && <span>{item.name_sinhala || item.name_tamil}</span>}
+              <strong>{localizedName(item) || item.name || 'Unnamed area'}</strong>
             </button>
           )
         })}

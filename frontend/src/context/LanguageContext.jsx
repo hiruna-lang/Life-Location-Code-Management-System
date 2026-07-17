@@ -74,6 +74,8 @@ const translations = {
     loginError: 'The email address or password is incorrect.',
     loadingRecords: 'Loading records…',
     noData: 'No data found.',
+    backToDistrictMap: 'Back to district map',
+    resetSelection: 'Reset selection',
   },
   si: {
     officialService: 'නිල ලයිෆ් ස්ථාන කේත සේවාව',
@@ -148,6 +150,8 @@ const translations = {
     loginError: 'විද්‍යුත් තැපැල් ලිපිනය හෝ මුරපදය වැරදිය.',
     loadingRecords: 'වාර්තා පූරණය වෙමින්…',
     noData: 'දත්ත හමු නොවීය.',
+    backToDistrictMap: 'දිස්ත්‍රික් සිතියමට ආපසු',
+    resetSelection: 'තේරීම යළි සකසන්න',
   },
   ta: {
     officialService: 'அதிகாரப்பூர்வ லைஃப் இருப்பிடக் குறியீட்டு சேவை',
@@ -222,6 +226,8 @@ const translations = {
     loginError: 'மின்னஞ்சல் முகவரி அல்லது கடவுச்சொல் தவறானது.',
     loadingRecords: 'பதிவுகள் ஏற்றப்படுகின்றன…',
     noData: 'தரவு எதுவும் கிடைக்கவில்லை.',
+    backToDistrictMap: 'மாவட்ட வரைபடத்திற்குத் திரும்பு',
+    resetSelection: 'தேர்வை மீட்டமை',
   },
 }
 
