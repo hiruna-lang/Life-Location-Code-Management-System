@@ -28,7 +28,9 @@ export default function AdminDashboard() {
     before_date: '', 
     ds_search: '' 
   });
+  const [userRoleFilter, setUserRoleFilter] = useState('all'); // New: Role filter
   const [provinces, setProvs] = useState([]);
+  const [districts, setDists] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,6 +51,14 @@ export default function AdminDashboard() {
     }).finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    setFilter(p => ({ ...p, district_id: '' }));
+    setDists([]);
+    if (filter.province_id) {
+      api.get('/districts', { params: { province_id: filter.province_id } }).then(r => setDists(r.data));
+    }
+  }, [filter.province_id]);
+
   const applyFilter = async () => {
     const { data } = await api.get('/dashboard/verification-status', { params: filter });
     setStatus(data);
@@ -58,6 +68,14 @@ export default function AdminDashboard() {
     const { data } = await api.get('/admin/users');
     setUsers(data);
   };
+
+  // Filter users by role
+  const filteredUsers = users.filter(user => {
+    if (userRoleFilter === 'all') return true;
+    if (userRoleFilter === 'admin') return user.role === 'admin';
+    if (userRoleFilter === 'officer') return user.role === 'officer';
+    return true;
+  });
 
   const createAccount = async (event) => {
     event.preventDefault();
@@ -226,7 +244,29 @@ export default function AdminDashboard() {
       <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
           <h3 style={{ color: 'var(--primary)', fontSize: 15, margin: 0 }}>All User Accounts</h3>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 700 }}>{users.length} accounts</span>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+              {filteredUsers.length} accounts
+            </span>
+
+            {/* New Role Filter */}
+            <select 
+              value={userRoleFilter} 
+              onChange={e => setUserRoleFilter(e.target.value)}
+              style={{ 
+                padding: '6px 10px', 
+                border: '1px solid var(--border)', 
+                borderRadius: 6, 
+                fontSize: 13,
+                background: 'white'
+              }}
+            >
+              <option value="all">All Accounts</option>
+              <option value="admin">System Administrator</option>
+              <option value="officer">Divisional Secretary</option>
+            </select>
+          </div>
         </div>
 
         {/* Create Account Form */}
@@ -367,7 +407,6 @@ export default function AdminDashboard() {
               </select>
             </label>
 
-            {/* Checkbox - Fixed positioning */}
             <label style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -376,7 +415,7 @@ export default function AdminDashboard() {
               fontWeight: 700, 
               color: 'var(--primary)',
               padding: '8px 0',
-              gridColumn: '1 / -1'   // Full width for checkbox
+              gridColumn: '1 / -1'
             }}>
               <input 
                 type="checkbox" 
@@ -432,10 +471,10 @@ export default function AdminDashboard() {
         {accountMsg && <div style={{ background: '#eafaf1', border: '1px solid #82e0aa', color: '#1e8449', padding: '10px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountMsg}</div>}
         {accountError && <div style={{ background: '#fdedec', border: '1px solid #f1948a', color: '#c0392b', padding: '10px 12px', borderRadius: 6, marginBottom: 14, fontSize: 13 }}>{accountError}</div>}
 
-        <Table columns={userCols} data={users} emptyMsg="No user accounts found." />
+        <Table columns={userCols} data={filteredUsers} emptyMsg="No user accounts found." />
       </div>
 
-      {/* Verification Status & Logs remain unchanged */}
+      {/* Verification Status */}
       <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)', marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 12 }}>
           <h3 style={{ color: 'var(--primary)', fontSize: 15, margin: 0 }}>DS Verification Status</h3>
@@ -445,6 +484,10 @@ export default function AdminDashboard() {
               <option value="">All Provinces</option>
               {provinces.map(x => <option key={x.id} value={x.id}>{x.name_english}</option>)}
             </select>
+            <select style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} value={filter.district_id} onChange={e => setFilter(p => ({ ...p, district_id: e.target.value }))} disabled={!filter.province_id}>
+              <option value="">All Districts</option>
+              {districts.map(x => <option key={x.id} value={x.id}>{x.name_english}</option>)}
+            </select>
             <input type="date" style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13 }} value={filter.before_date} onChange={e => setFilter(p => ({ ...p, before_date: e.target.value }))} />
             <button onClick={applyFilter} style={{ padding: '7px 14px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600 }}>Apply Filter</button>
           </div>
@@ -452,6 +495,7 @@ export default function AdminDashboard() {
         <Table columns={statusCols} data={filteredStatus} />
       </div>
 
+      {/* Recent Logs */}
       <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', padding: 20, boxShadow: 'var(--shadow)' }}>
         <h3 style={{ color: 'var(--primary)', fontSize: 15, marginBottom: 14 }}>Recent Verification Logs</h3>
         <Table columns={logCols} data={logs} />
