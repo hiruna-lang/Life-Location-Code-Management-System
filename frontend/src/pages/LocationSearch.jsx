@@ -22,6 +22,7 @@ export default function LocationSearch() {
     gn: null,
   })
   const [loadingPanel, setLoadingPanel] = useState(false)
+  const [loadingInitial, setLoadingInitial] = useState(false)
   const [loadingVillages, setLoadingVillages] = useState(false)
   const [apiError, setApiError] = useState('')
   const resultTableRef = useRef(null)
@@ -32,13 +33,18 @@ export default function LocationSearch() {
         .then(items => items.map(item => ({ ...item, province_id: item.province_id || province.id })))
         .catch(() => []))
     )
-    return districtGroups.flat()
+    const flattenedDistricts = districtGroups.flat()
+    if (provinceList.length > 0 && flattenedDistricts.length === 0) {
+      throw new Error('District API returned no records for all provinces.')
+    }
+    return flattenedDistricts
   }
 
   useEffect(() => {
     let mounted = true
 
     async function loadProvinces() {
+      setLoadingInitial(true)
       try {
         const data = await locationApi.provinces()
         if (!mounted) return
@@ -51,6 +57,8 @@ export default function LocationSearch() {
         }
       } catch (error) {
         if (mounted) setApiError(friendlyApiError)
+      } finally {
+        if (mounted) setLoadingInitial(false)
       }
     }
 
@@ -108,6 +116,11 @@ export default function LocationSearch() {
   }
 
   const handleDistrictClick = async feature => {
+    if (loadingInitial) {
+      setApiError('Location data is still loading. Please try again in a moment.')
+      return
+    }
+
     const districtName = feature.properties?.shapeName || ''
     let records = allDistricts.length ? allDistricts : districts
     let district = matchApiRecord(records, districtName, 'district')
