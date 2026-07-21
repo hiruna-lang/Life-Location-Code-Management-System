@@ -12,9 +12,13 @@ const publicLinks = [
 
 const adminLinks = [
   { to: '/admin', labelKey: 'dashboard', adminOnly: true, end: true },
-  { to: '/verify', labelKey: 'verification' },
   { to: '/admin/reports', labelKey: 'reports', adminOnly: true },
   { to: '/admin/api-logs', labelKey: 'apiLogs', adminOnly: true },
+]
+
+const officerLinks = [
+  { to: '/ds-dashboard', label: 'DS Dashboard', end: true },
+  { to: '/ds-gn-verification', label: 'GN Division Verification' },
 ]
 
 export default function Layout({ children, admin = false }) {
@@ -61,16 +65,47 @@ export default function Layout({ children, admin = false }) {
             <span>{t('menu')}</span><span aria-hidden="true">☰</span>
           </button>
           <div className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
-            {publicLinks.map(link => (
-              <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
-                {t(link.labelKey)}
-              </NavLink>
-            ))}
-            {user && adminLinks.filter(link => !link.adminOnly || user.role === 'admin').map(link => (
-              <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
-                {t(link.labelKey)}
-              </NavLink>
-            ))}
+            {user?.role === 'admin' ? (
+              <>
+                <NavLink to="/admin" end className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('dashboard')}
+                </NavLink>
+                {publicLinks.filter(link => link.to !== '/').map(link => (
+                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
+                    {t(link.labelKey)}
+                  </NavLink>
+                ))}
+                {adminLinks.filter(link => link.to !== '/admin').map(link => (
+                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
+                    {t(link.labelKey)}
+                  </NavLink>
+                ))}
+              </>
+            ) : user?.role === 'officer' ? (
+              <>
+                <NavLink to="/ds-dashboard" end className={navClass} onClick={() => setMenuOpen(false)}>
+                  DS Dashboard
+                </NavLink>
+                {publicLinks.filter(link => link.to !== '/' && link.to !== '/same-gn').map(link => (
+                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
+                    {t(link.labelKey)}
+                  </NavLink>
+                ))}
+                {officerLinks.filter(link => link.to !== '/ds-dashboard').map(link => (
+                  <NavLink key={link.to} to={link.to} end={link.end} className={navClass} onClick={() => setMenuOpen(false)}>
+                    {link.label}
+                  </NavLink>
+                ))}
+              </>
+            ) : (
+              <>
+                {publicLinks.map(link => (
+                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
+                    {t(link.labelKey)}
+                  </NavLink>
+                ))}
+              </>
+            )}
           </div>
           <div className="site-nav__account">
             {user ? (

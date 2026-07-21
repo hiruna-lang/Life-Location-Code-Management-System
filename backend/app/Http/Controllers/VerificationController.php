@@ -25,6 +25,9 @@ class VerificationController extends Controller
         $ds = DivisionalSecretariat::find($dsId);
 
         $gns = GramaNiladhariDivision::where('divisional_secretariat_id', $dsId)
+            ->with(['villages' => function ($query) {
+                $query->orderBy('name_english');
+            }])
             ->orderBy('name_english')
             ->get();
 
@@ -37,6 +40,8 @@ class VerificationController extends Controller
             'ds_id'        => $dsId,
             'ds_name'      => $ds?->name_english,
             'gn_divisions' => $gns,
+            'gn_count'     => $gns->count(),
+            'village_count'=> $gns->sum(fn ($gn) => $gn->villages->count()),
             'status'       => $verification->status,
         ]);
     }
