@@ -29,7 +29,7 @@ export default function Reports() {
     setFilter(p=>({...p,district_id:''})); setDists([])
     if (filter.province_id) api.get('/districts',{params:{province_id:filter.province_id}}).then(r=>setDists(r.data))
   }, [filter.province_id])
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [filter.province_id, filter.district_id])
 
   const filteredStatus = status.filter(row => {
     const search = filter.ds_search.trim().toLowerCase()

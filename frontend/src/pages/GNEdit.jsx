@@ -75,10 +75,16 @@ export default function GNEdit() {
         <h4 style={{marginBottom:16,color:'var(--primary)'}}>GN Division Details</h4>
         <form onSubmit={saveGn}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16}}>
-            {[{k:'name_english',l:'Name (English)'},{k:'name_sinhala',l:'Name (Sinhala)'},{k:'name_tamil',l:'Name (Tamil)'},{k:'grama_niladhari_division_code',l:'GN Code'},{k:'lifecode',l:'Lifecode'},{k:'mpa_code',l:'MPA Code'}].map(f=>(
+            {[{k:'name_english',l:'Name (English)'},{k:'name_sinhala',l:'Name (Sinhala)'},{k:'name_tamil',l:'Name (Tamil)'}].map(f=>(
               <div key={f.k}>
                 <label style={label}>{f.l}</label>
                 <input style={inp} value={gnForm[f.k]||''} onChange={e=>setGnForm(p=>({...p,[f.k]:e.target.value}))} />
+              </div>
+            ))}
+            {[{k:'grama_niladhari_division_code',l:'GN Code'},{k:'lifecode',l:'Lifecode'},{k:'mpa_code',l:'MPA Code'}].map(f=>(
+              <div key={f.k}>
+                <label style={label}>{f.l}</label>
+                <div style={{...inp, background:'#f5f5f5', color:'#666', cursor:'not-allowed'}}>{gnForm[f.k]||''}</div>
               </div>
             ))}
           </div>
@@ -101,10 +107,16 @@ export default function GNEdit() {
           <div style={{background:'#fff',borderRadius:10,padding:28,width:480,boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
             <h4 style={{marginBottom:16,color:'var(--primary)'}}>Edit Village: {editVillage.name_english}</h4>
             <form onSubmit={saveVillage}>
-              {[{k:'name_english',l:'Name (English)'},{k:'name_sinhala',l:'Name (Sinhala)'},{k:'name_tamil',l:'Name (Tamil)'},{k:'village_code',l:'Village Code'},{k:'lifecode',l:'Lifecode'}].map(f=>(
+              {[{k:'name_english',l:'Name (English)'},{k:'name_sinhala',l:'Name (Sinhala)'},{k:'name_tamil',l:'Name (Tamil)'}].map(f=>(
                 <div key={f.k} style={{marginBottom:12}}>
                   <label style={label}>{f.l}</label>
                   <input style={inp} value={villageForm[f.k]||''} onChange={e=>setVillageForm(p=>({...p,[f.k]:e.target.value}))} />
+                </div>
+              ))}
+              {[{k:'village_code',l:'Village Code'},{k:'lifecode',l:'Lifecode'}].map(f=>(
+                <div key={f.k} style={{marginBottom:12}}>
+                  <label style={label}>{f.l}</label>
+                  <div style={{...inp, background:'#f5f5f5', color:'#666', cursor:'not-allowed'}}>{villageForm[f.k]||''}</div>
                 </div>
               ))}
               <div style={{display:'flex',gap:10,marginTop:8}}>
