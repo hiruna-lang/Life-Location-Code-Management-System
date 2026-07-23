@@ -292,15 +292,42 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
   return (
     <div className="location-province-orbit" aria-label="Select province">
       <svg className="location-province-connectors" viewBox="0 0 620 650" aria-hidden="true">
-        <path d="M150 127 H226 L305 120" />
-        <path d="M470 91 H430 L307 268" />
-        <path d="M470 189 H438 L411 339" />
-        <path d="M150 251 H225 L257 304" />
-        <path d="M470 299 H420 L325 375" />
-        <path d="M150 381 H230 L236 446" />
-        <path d="M470 419 H425 L371 469" />
-        <path d="M174 503 H230 L286 482" />
-        <path d="M448 519 H410 L332 580" />
+        <g>
+          <path d="M150 127 H220 L265 150" />
+          <circle cx="265" cy="150" r="4" />
+        </g>
+        <g>
+          <path d="M470 91 H430 L310 275" />
+          <circle cx="310" cy="275" r="4" />
+        </g>
+        <g>
+          <path d="M470 189 H438 L397 370" />
+          <circle cx="397" cy="370" r="4" />
+        </g>
+        <g>
+          <path d="M150 251 H215 L235 350" />
+          <circle cx="235" cy="350" r="4" />
+        </g>
+        <g>
+          <path d="M470 299 H420 L325 375" />
+          <circle cx="325" cy="375" r="4" />
+        </g>
+        <g>
+          <path d="M150 381 H220 L230 435" />
+          <circle cx="230" cy="435" r="4" />
+        </g>
+        <g>
+          <path d="M470 419 H425 L365 455" />
+          <circle cx="365" cy="455" r="4" />
+        </g>
+        <g>
+          <path d="M174 503 H225 L285 470" />
+          <circle cx="285" cy="470" r="4" />
+        </g>
+        <g>
+          <path d="M448 519 H410 L325 545" />
+          <circle cx="325" cy="545" r="4" />
+        </g>
       </svg>
       {provinces.map((province, index) => {
         const isSelected = String(selectedId) === String(province.id)
