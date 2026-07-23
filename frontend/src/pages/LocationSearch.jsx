@@ -222,18 +222,18 @@ export default function LocationSearch() {
           <div className="location-map-card__header">
             <span>District boundary layer</span>
             <h2>{selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}</h2>
-            <ProvinceButtonRow
-              provinces={provinces}
-              selectedId={selected.province?.id}
-              onSelect={selectProvince}
-              localizedName={localizedName}
-            />
           </div>
           <div className="location-map-stage">
             <div className={`location-map-actions${selected.district ? '' : ' is-hidden'}`}>
               <button type="button" onClick={backToDistrict} disabled={!selected.district}>{t('backToDistrictMap')}</button>
               <button type="button" onClick={resetSelection} disabled={!selected.district}>{t('resetSelection')}</button>
             </div>
+            <ProvinceButtonRow
+              provinces={provinces}
+              selectedId={selected.province?.id}
+              onSelect={selectProvince}
+              localizedName={localizedName}
+            />
             <SriLanka3DMap
               selectedFeatureName={selected.districtFeature?.properties?.shapeName || selected.district?.name_english}
               selectedProvinceId={selected.province?.id}
@@ -290,14 +290,26 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
   if (provinces.length === 0) return null
 
   return (
-    <div className="location-province-row" aria-label="Select province">
+    <div className="location-province-orbit" aria-label="Select province">
+      <svg className="location-province-connectors" viewBox="0 0 620 650" aria-hidden="true">
+        <path d="M148 128 H205 L258 190" />
+        <path d="M472 92 H421 L365 158" />
+        <path d="M496 190 H432 L385 230" />
+        <path d="M150 252 H215 L263 280" />
+        <path d="M495 300 H430 L389 320" />
+        <path d="M151 382 H214 L264 365" />
+        <path d="M492 420 H424 L380 397" />
+        <path d="M174 504 H232 L279 439" />
+        <path d="M470 520 H411 L354 456" />
+      </svg>
       {provinces.map((province, index) => {
         const isSelected = String(selectedId) === String(province.id)
+        const position = getProvincePosition(province, index)
         return (
           <button
             type="button"
             key={province.id}
-            className={isSelected ? 'is-selected' : ''}
+            className={`${isSelected ? 'is-selected ' : ''}province-position-${position}`}
             style={{ '--province-color': provinceButtonColors[index % provinceButtonColors.length] }}
             onClick={() => onSelect(province)}
           >
@@ -308,6 +320,26 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
       })}
     </div>
   )
+}
+
+function getProvincePosition(province, fallbackIndex) {
+  const name = normalizeName(province.name_english || province.name || '')
+  const positions = {
+    central: 'left-top',
+    eastern: 'right-top',
+    northcentral: 'right-upper',
+    northwestern: 'left-upper',
+    sabaragamuwa: 'right-middle',
+    southern: 'left-middle',
+    western: 'right-lower',
+    uva: 'left-lower',
+    northern: 'right-bottom',
+  }
+
+  return positions[name] || [
+    'left-top', 'right-top', 'right-upper', 'left-upper', 'right-middle',
+    'left-middle', 'right-lower', 'left-lower', 'right-bottom',
+  ][fallbackIndex % 9]
 }
 
 function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, localizedName }) {
