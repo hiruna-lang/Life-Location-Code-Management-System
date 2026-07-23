@@ -213,16 +213,18 @@ export default function LocationSearch() {
 
   return (
     <div className="location-search-page">
+      <header className="location-page-heading">
+        <span>Administrative location browser</span>
+        <h1>{selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}</h1>
+        <p>Explore provinces and navigate through districts, divisional secretariats, and GN divisions.</p>
+      </header>
+
       <motion.section
         className="location-dashboard"
         layout
         transition={{ duration: 0.22, ease: 'easeOut' }}
       >
         <motion.div className="location-map-card" layout transition={{ duration: 0.22, ease: 'easeOut' }}>
-          <div className="location-map-card__header">
-            <span>District boundary layer</span>
-            <h2>{selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}</h2>
-          </div>
           <div className="location-map-stage">
             <div className={`location-map-actions${selected.district ? '' : ' is-hidden'}`}>
               <button type="button" onClick={backToDistrict} disabled={!selected.district}>{t('backToDistrictMap')}</button>
