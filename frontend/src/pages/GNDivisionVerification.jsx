@@ -80,7 +80,7 @@ export default function GNDivisionVerification() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
         <div>
-          <h2 style={{ color: 'var(--primary)', fontWeight: 700 }}>GN Division Verification</h2>
+          <h2 style={{ color: 'var(--primary)', fontWeight: 700 }}>GN Division Modification</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>
             Logged in as <strong>{user?.name}</strong> · {dsInfo?.ds_name || 'Assigned divisional secretariat'} · DS ID: {dsInfo?.ds_id || '-'}
           </p>

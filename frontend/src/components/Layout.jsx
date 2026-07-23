@@ -18,7 +18,7 @@ const adminLinks = [
 
 const officerLinks = [
   { to: '/ds-dashboard', label: 'DS Dashboard', end: true },
-  { to: '/ds-gn-verification', label: 'GN Division Verification' },
+  { to: '/ds-gn-verification', label: 'GN Division Modification' },
 ]
 
 export default function Layout({ children, admin = false }) {
@@ -49,9 +49,13 @@ export default function Layout({ children, admin = false }) {
 
       <header className="government-header">
         <div className="site-container government-header__inner">
-          <Link to="/" aria-label="Life Location Code home">
+          {user ? (
             <GovernmentBrand />
-          </Link>
+          ) : (
+            <Link to="/" aria-label="Life Location Code home">
+              <GovernmentBrand />
+            </Link>
+          )}
           <div className="government-header__service">
             <span className="government-header__service-kicker">{t('nationalService')}</span>
             <strong>{t('lifeLocationCode')}</strong>

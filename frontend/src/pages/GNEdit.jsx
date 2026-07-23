@@ -63,7 +63,7 @@ export default function GNEdit() {
   return (
     <div>
       <div style={{marginBottom:20}}>
-        <Link to="/ds-gn-verification" style={{color:'var(--primary)', fontSize:13}}>← Back to GN Division Verification</Link>
+        <Link to="/ds-gn-verification" style={{color:'var(--primary)', fontSize:13}}>← Back to GN Division Modification</Link>
       </div>
       <h2 style={{color:'var(--primary)', fontWeight:700, marginBottom:4}}>✏️ Edit GN Division</h2>
       {gn && <p style={{color:'var(--text-muted)', fontSize:13, marginBottom:20}}>GN: <strong>{gn.name_english}</strong> · Code: {gn.grama_niladhari_division_code}</p>}
