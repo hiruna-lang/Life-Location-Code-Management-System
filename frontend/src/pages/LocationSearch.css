@@ -35,6 +35,43 @@
   font-size: 15px;
 }
 
+html[lang='si'] .location-page-heading h1,
+html[lang='ta'] .location-page-heading h1 {
+  font-family: 'Noto Sans Sinhala', 'Noto Sans Tamil', 'Source Serif 4', serif;
+  font-size: clamp(28px, 2.65vw, 38px);
+  line-height: 1.25;
+}
+
+html[lang='si'] .location-province-orbit button,
+html[lang='ta'] .location-province-orbit button {
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+html[lang='si'] .location-hierarchy-column__title,
+html[lang='ta'] .location-hierarchy-column__title {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+html[lang='si'] .location-hierarchy-search input,
+html[lang='ta'] .location-hierarchy-search input {
+  font-size: 13px;
+}
+
+html[lang='si'] .location-hierarchy-column button strong,
+html[lang='ta'] .location-hierarchy-column button strong {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+html[lang='si'] .location-hierarchy-column button .location-code,
+html[lang='ta'] .location-hierarchy-column button .location-code {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
 .location-map-card__header span,
 .location-side-card__header span,
 .location-results-card__header span {
