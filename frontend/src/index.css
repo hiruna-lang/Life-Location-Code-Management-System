@@ -91,6 +91,54 @@ html[lang='ta'] .government-brand__division {
   font-family: 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
   font-size: clamp(16px, 1.2vw, 19px);
 }
+
+/* Keep Sinhala and Tamil typography visually consistent with the English UI. */
+html[lang='si'] body {
+  font-family: 'Noto Sans Sinhala', 'Source Sans 3', sans-serif;
+}
+
+html[lang='ta'] body {
+  font-family: 'Noto Sans Tamil', 'Source Sans 3', sans-serif;
+}
+
+html[lang='si'] .government-brand__ministry,
+html[lang='ta'] .government-brand__ministry {
+  font-size: clamp(20px, 1.7vw, 26px);
+  line-height: 1.28;
+}
+
+html[lang='si'] .government-brand__division,
+html[lang='ta'] .government-brand__division {
+  font-size: clamp(16px, 1.25vw, 20px);
+  line-height: 1.3;
+}
+
+html[lang='si'] .government-header__service,
+html[lang='ta'] .government-header__service {
+  line-height: 1.35;
+}
+
+html[lang='si'] .government-header__service strong,
+html[lang='ta'] .government-header__service strong {
+  font-family: 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+html[lang='si'] .site-nav__link,
+html[lang='ta'] .site-nav__link {
+  padding-inline: 15px;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+html[lang='si'] .nav-account-button,
+html[lang='ta'] .nav-account-button {
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
 .government-header__service { text-align: right; padding-left: 30px; border-left: 1px solid var(--border); }
 .government-header__service-kicker { display: block; color: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
 .government-header__service strong { display: block; margin-top: 4px; color: var(--primary); font-family: 'Source Serif 4', serif; font-size: 23px; }
