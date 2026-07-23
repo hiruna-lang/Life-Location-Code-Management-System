@@ -16,8 +16,19 @@ export default function LocationResultTable({ villages, loading }) {
   return (
     <section className="location-results-card">
       <div className="location-results-card__header">
-        <span>Village result table</span>
-        <h2>{loading ? 'Loading villages...' : `${villages.length} village records`}</h2>
+        <div>
+          <span>Village result table</span>
+          <h2>{loading ? 'Loading villages...' : `${villages.length} village records`}</h2>
+        </div>
+        <button
+          type="button"
+          className="location-back-to-top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Scroll back to the top of the page"
+        >
+          <span aria-hidden="true">↑</span>
+          Back to top
+        </button>
       </div>
 
       <div className="location-table-wrap">
