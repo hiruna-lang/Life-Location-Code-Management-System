@@ -86,7 +86,8 @@
 }
 
 .location-map-card {
-  min-height: 720px;
+  height: 760px;
+  min-height: 760px;
   padding: 22px 0 18px 0;
   overflow: visible;
   background: transparent;
@@ -425,6 +426,8 @@
 
 .location-hierarchy-card {
   position: static;
+  height: 570px;
+  margin-top: 190px;
   max-height: none;
   overflow: visible;
   padding: 0;
@@ -439,10 +442,14 @@
   grid-template-columns: repeat(3, minmax(150px, 1fr));
   gap: 8px;
   align-items: stretch;
+  height: 100%;
 }
 
 .location-hierarchy-column {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
   min-width: 0;
+  min-height: 0;
   border: 1px solid #ded7cf;
   border-radius: 8px;
   overflow: hidden;
@@ -493,7 +500,8 @@
 .location-hierarchy-column__body {
   display: grid;
   align-content: start;
-  height: 426px;
+  height: auto;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -633,10 +641,14 @@
 
   .location-map-card {
     width: min(620px, 100%);
+    height: auto;
+    min-height: 720px;
   }
 
   .location-hierarchy-card {
     position: static;
+    height: auto;
+    margin-top: 0;
     max-height: none;
   }
 
@@ -646,6 +658,7 @@
 
   .location-hierarchy-column__body {
     height: 296px;
+    min-height: 296px;
   }
 
   .location-side {
@@ -673,6 +686,7 @@
   }
 
   .location-map-card {
+    height: auto;
     min-height: auto;
   }
 
