@@ -293,14 +293,14 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
     <div className="location-province-orbit" aria-label="Select province">
       <svg className="location-province-connectors" viewBox="0 0 620 650" aria-hidden="true">
         <path d="M150 127 H226 L305 120" />
-        <path d="M470 91 H430 L350 230" />
-        <path d="M470 189 H438 L410 335" />
-        <path d="M150 251 H225 L275 260" />
-        <path d="M470 299 H420 L330 355" />
-        <path d="M150 381 H230 L270 410" />
-        <path d="M470 419 H425 L360 440" />
-        <path d="M174 503 H230 L310 440" />
-        <path d="M448 519 H410 L330 550" />
+        <path d="M470 91 H430 L307 268" />
+        <path d="M470 189 H438 L411 339" />
+        <path d="M150 251 H225 L257 304" />
+        <path d="M470 299 H420 L325 375" />
+        <path d="M150 381 H230 L236 446" />
+        <path d="M470 419 H425 L371 469" />
+        <path d="M174 503 H230 L286 482" />
+        <path d="M448 519 H410 L332 580" />
       </svg>
       {provinces.map((province, index) => {
         const isSelected = String(selectedId) === String(province.id)
