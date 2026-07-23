@@ -292,15 +292,15 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
   return (
     <div className="location-province-orbit" aria-label="Select province">
       <svg className="location-province-connectors" viewBox="0 0 620 650" aria-hidden="true">
-        <path d="M148 128 H205 L258 190" />
-        <path d="M472 92 H421 L365 158" />
-        <path d="M496 190 H432 L385 230" />
-        <path d="M150 252 H215 L263 280" />
-        <path d="M495 300 H430 L389 320" />
-        <path d="M151 382 H214 L264 365" />
-        <path d="M492 420 H424 L380 397" />
-        <path d="M174 504 H232 L279 439" />
-        <path d="M470 520 H411 L354 456" />
+        <path d="M150 127 H226 L305 120" />
+        <path d="M470 91 H430 L350 230" />
+        <path d="M470 189 H438 L410 335" />
+        <path d="M150 251 H225 L275 260" />
+        <path d="M470 299 H420 L330 355" />
+        <path d="M150 381 H230 L270 410" />
+        <path d="M470 419 H425 L360 440" />
+        <path d="M174 503 H230 L310 440" />
+        <path d="M448 519 H410 L330 550" />
       </svg>
       {provinces.map((province, index) => {
         const isSelected = String(selectedId) === String(province.id)
@@ -325,15 +325,15 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
 function getProvincePosition(province, fallbackIndex) {
   const name = normalizeName(province.name_english || province.name || '')
   const positions = {
-    central: 'left-top',
-    eastern: 'right-top',
-    northcentral: 'right-upper',
+    northern: 'left-top',
+    northcentral: 'right-top',
+    eastern: 'right-upper',
     northwestern: 'left-upper',
-    sabaragamuwa: 'right-middle',
-    southern: 'left-middle',
-    western: 'right-lower',
-    uva: 'left-lower',
-    northern: 'right-bottom',
+    central: 'right-middle',
+    western: 'left-middle',
+    uva: 'right-lower',
+    sabaragamuwa: 'left-lower',
+    southern: 'right-bottom',
   }
 
   return positions[name] || [
