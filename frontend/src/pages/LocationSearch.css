@@ -90,34 +90,68 @@
   font-size: 15px;
 }
 
-html[lang='si'] .location-page-heading h1,
+html[lang='si'] .location-page-heading h1 {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+  font-size: clamp(30px, 2.8vw, 42px);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 html[lang='ta'] .location-page-heading h1 {
-  font-family: 'Noto Sans Sinhala', 'Noto Sans Tamil', 'Source Serif 4', serif;
-  font-size: clamp(28px, 2.65vw, 38px);
-  line-height: 1.25;
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: clamp(29px, 2.7vw, 40px);
+  font-weight: 700;
+  line-height: 1.42;
 }
 
-html[lang='si'] .location-province-orbit button,
-html[lang='ta'] .location-province-orbit button {
-  font-size: 12px;
-  line-height: 1.25;
+html[lang='si'] .location-page-heading p,
+html[lang='ta'] .location-page-heading p {
+  font-size: 16px;
+  line-height: 1.65;
 }
 
-html[lang='si'] .location-hierarchy-column__title,
-html[lang='ta'] .location-hierarchy-column__title {
-  font-size: 12px;
+html[lang='si'] .location-province-orbit button {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+  font-size: 13px;
   line-height: 1.45;
+}
+
+html[lang='ta'] .location-province-orbit button {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+html[lang='si'] .location-hierarchy-column__title {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+html[lang='ta'] .location-hierarchy-column__title {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 html[lang='si'] .location-hierarchy-search input,
 html[lang='ta'] .location-hierarchy-search input {
-  font-size: 13px;
+  min-height: 42px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 html[lang='si'] .location-hierarchy-column button strong,
 html[lang='ta'] .location-hierarchy-column button strong {
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+html[lang='si'] .location-hierarchy-column button,
+html[lang='ta'] .location-hierarchy-column button {
+  min-height: 88px;
+  padding-block: 12px;
 }
 
 html[lang='si'] .location-hierarchy-column button .location-code,

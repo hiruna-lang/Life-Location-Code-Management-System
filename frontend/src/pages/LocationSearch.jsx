@@ -220,7 +220,7 @@ export default function LocationSearch() {
         animate={{ opacity: 1, y: 0 }}
         transition={smoothTransition}
       >
-        <span>Administrative location browser</span>
+        <span>{t('locationBrowser')}</span>
         <AnimatePresence mode="wait" initial={false}>
           <motion.h1
             key={selectedProvinceName || 'all-districts'}
@@ -229,10 +229,12 @@ export default function LocationSearch() {
             exit={{ opacity: 0, y: -6 }}
             transition={smoothTransition}
           >
-            {selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}
+            {selectedProvinceName
+              ? t('districtMapSelected', { province: selectedProvinceName })
+              : t('districtMapAll')}
           </motion.h1>
         </AnimatePresence>
-        <p>Explore provinces and navigate through districts, divisional secretariats, and GN divisions.</p>
+        <p>{t('locationBrowserDescription')}</p>
       </motion.header>
 
       <motion.section
@@ -313,7 +315,9 @@ export default function LocationSearch() {
               items={districts}
               selectedId={selected.district?.id}
               onSelect={selectDistrict}
-              emptyText="No districts loaded."
+              emptyText={t('noDistricts')}
+              searchLabel={t('searchArea', { area: t('district') })}
+              noMatchesText={t('noMatchingRecords')}
               localizedName={localizedName}
             />
             <HierarchyColumn
@@ -321,7 +325,9 @@ export default function LocationSearch() {
               items={dsList}
               selectedId={selected.ds?.id}
               onSelect={handleDsClick}
-              emptyText={selected.district ? 'No DS divisions found.' : 'Select a district first.'}
+              emptyText={selected.district ? t('noDsDivisions') : t('selectDistrictFirst')}
+              searchLabel={t('searchArea', { area: t('ds') })}
+              noMatchesText={t('noMatchingRecords')}
               localizedName={localizedName}
             />
             <HierarchyColumn
@@ -329,7 +335,9 @@ export default function LocationSearch() {
               items={gnList}
               selectedId={selected.gn?.id}
               onSelect={handleGnClick}
-              emptyText={selected.ds ? 'No GN divisions found.' : 'Select a DS division first.'}
+              emptyText={selected.ds ? t('noGnDivisions') : t('selectDsFirst')}
+              searchLabel={t('searchArea', { area: t('gn') })}
+              noMatchesText={t('noMatchingRecords')}
               localizedName={localizedName}
             />
           </div>
@@ -440,7 +448,7 @@ function getProvincePosition(province, fallbackIndex) {
   ][fallbackIndex % 9]
 }
 
-function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, localizedName }) {
+function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, searchLabel, noMatchesText, localizedName }) {
   const bodyRef = useRef(null)
   const [searchTerm, setSearchTerm] = useState('')
   const selectedItem = selectedId ? items.find(item => String(item.id) === String(selectedId)) : null
@@ -477,8 +485,8 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
           type="search"
           value={searchTerm}
           onChange={event => setSearchTerm(event.target.value)}
-          placeholder={`Search ${title}`}
-          aria-label={`Search ${title}`}
+          placeholder={searchLabel}
+          aria-label={searchLabel}
         />
       </div>
       <motion.div className="location-hierarchy-column__body" ref={bodyRef} layout>
@@ -504,7 +512,7 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
             exit={{ opacity: 0, y: -6 }}
             transition={smoothTransition}
           >
-            No matching records.
+            {noMatchesText}
           </motion.div>
         )}
         {visibleItems.map(item => {
