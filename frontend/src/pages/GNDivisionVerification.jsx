@@ -6,7 +6,7 @@ import StatusBadge from '../components/StatusBadge'
 import PrintDraftModal from '../components/PrintDraftModal'
 import ConfirmModal from '../components/ConfirmModal'
 import PrintOfficialRecordsModal from '../components/PrintOfficialRecordsModal'
-import PrintOfficialLetterModal from '../components/PrintOfficialLetterModal'
+
 import { useAuth } from '../context/AuthContext'
 
 export default function GNDivisionVerification() {
@@ -22,7 +22,6 @@ export default function GNDivisionVerification() {
   const [showDraftPrint, setShowDraftPrint] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [showOfficialRecords, setShowOfficialRecords] = useState(false)
-  const [showOfficialLetter, setShowOfficialLetter] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -136,14 +135,9 @@ export default function GNDivisionVerification() {
             </>
           )}
           {status === 'locked' && (
-            <>
-              <button onClick={() => setShowOfficialRecords(true)} style={{ padding: '7px 16px', background: '#27ae60', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
-                Print Official Records
-              </button>
-              <button onClick={() => setShowOfficialLetter(true)} style={{ padding: '7px 16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
-                Print Official Letter
-              </button>
-            </>
+            <button onClick={() => setShowOfficialRecords(true)} style={{ padding: '7px 16px', background: '#27ae60', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+              Print Official Records
+            </button>
           )}
         </div>
       </div>
@@ -198,12 +192,6 @@ export default function GNDivisionVerification() {
         onClose={() => setShowOfficialRecords(false)}
       />
 
-      <PrintOfficialLetterModal
-        dsName={dsInfo?.ds_name || ''}
-        finalAt={finalAt}
-        show={showOfficialLetter}
-        onClose={() => setShowOfficialLetter(false)}
-      />
     </div>
   )
 }
