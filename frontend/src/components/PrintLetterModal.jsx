@@ -52,11 +52,10 @@ const renderLetterHtml = (target) => `
         ${senderDetails.address.map(line => `<div class="indent-48">${line}</div>`).join('')}
       </div>
       <div class="section">
-        <div><strong>To:</strong></div>
-        <div class="indent-32">The Divisional Secretary</div>
-        <div class="indent-32">${target.ds_name} Divisional Secretariat</div>
-        <div class="indent-32">${target.district_name} District</div>
-        <div class="indent-32">${target.province_name} Province</div>
+        <div><strong>To:</strong> The Divisional Secretary</div>
+        <div class="indent-48">${target.ds_name} Divisional Secretariat</div>
+        <div class="indent-48">${target.district_name} District</div>
+        <div class="indent-48">${target.province_name} Province</div>
       </div>
       <div class="section">
         <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</div>
@@ -128,11 +127,10 @@ export default function PrintLetterModal({ target, onClose }) {
           </div>
 
           <div style={{marginBottom:14}}>
-            <div><strong>To:</strong></div>
-            <div style={{marginLeft:32}}>The Divisional Secretary</div>
-            <div style={{marginLeft:32}}>{target.ds_name} Divisional Secretariat</div>
-            <div style={{marginLeft:32}}>{target.district_name} District</div>
-            <div style={{marginLeft:32}}>{target.province_name} Province</div>
+            <div><strong>To:</strong> The Divisional Secretary</div>
+            <div style={{marginLeft:48}}>{target.ds_name} Divisional Secretariat</div>
+            <div style={{marginLeft:48}}>{target.district_name} District</div>
+            <div style={{marginLeft:48}}>{target.province_name} Province</div>
           </div>
 
           <div style={{marginBottom:14}}>
