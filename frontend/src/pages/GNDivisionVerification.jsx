@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import api from '../api/axios'
 import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
+import PrintDraftModal from '../components/PrintDraftModal'
 import { useAuth } from '../context/AuthContext'
 
 export default function GNDivisionVerification() {
@@ -10,8 +11,10 @@ export default function GNDivisionVerification() {
   const [gns, setGns] = useState([])
   const [dsInfo, setDsInfo] = useState(null)
   const [status, setStatus] = useState('pending')
+  const [draftAt, setDraftAt] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [showDraftPrint, setShowDraftPrint] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -20,6 +23,7 @@ export default function GNDivisionVerification() {
         const { data } = await api.get('/verification/my-gn-divisions')
         setGns(data.gn_divisions || [])
         setStatus(data.status)
+        setDraftAt(data.draft_at || null)
         setDsInfo({
           ds_id: data.ds_id,
           ds_name: data.ds_name,
@@ -84,8 +88,20 @@ export default function GNDivisionVerification() {
           <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>
             Logged in as <strong>{user?.name}</strong> · {dsInfo?.ds_name || 'Assigned divisional secretariat'} · DS ID: {dsInfo?.ds_id || '-'}
           </p>
+          {draftAt && (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 2 }}>
+              Last edited: {new Date(draftAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </p>
+          )}
         </div>
-        <StatusBadge status={status} />
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <StatusBadge status={status} />
+          {status === 'draft' && (
+            <button onClick={() => setShowDraftPrint(true)} style={{ padding: '7px 16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+              Print Draft
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 20 }}>
@@ -112,6 +128,14 @@ export default function GNDivisionVerification() {
         </div>
         <Table columns={cols} data={filtered} loading={loading} emptyMsg="No GN divisions assigned." />
       </div>
+
+      <PrintDraftModal
+        dsName={dsInfo?.ds_name || ''}
+        draftAt={draftAt}
+        gns={gns}
+        show={showDraftPrint}
+        onClose={() => setShowDraftPrint(false)}
+      />
     </div>
   )
 }

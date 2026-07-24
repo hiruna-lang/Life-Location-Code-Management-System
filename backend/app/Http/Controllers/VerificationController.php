@@ -43,6 +43,7 @@ class VerificationController extends Controller
             'gn_count'     => $gns->count(),
             'village_count'=> $gns->sum(fn ($gn) => $gn->villages->count()),
             'status'       => $verification->status,
+            'draft_at'     => $verification->draft_at,
         ]);
     }
 
@@ -92,6 +93,11 @@ class VerificationController extends Controller
             'ip_address'                 => $request->ip(),
         ]);
 
+        if (!$user->isAdmin()) {
+            DsVerification::firstOrCreate(['divisional_secretariat_id' => $dsId])
+                ->update(['status' => 'draft', 'verified_by' => $user->id, 'draft_at' => now()]);
+        }
+
         return response()->json(['message' => 'GN Division updated.', 'gn' => $gn->fresh()]);
     }
 
@@ -124,6 +130,11 @@ class VerificationController extends Controller
             'new_data'                   => $village->fresh()->toArray(),
             'ip_address'                 => $request->ip(),
         ]);
+
+        if (!$user->isAdmin()) {
+            DsVerification::firstOrCreate(['divisional_secretariat_id' => $gnDsId])
+                ->update(['status' => 'draft', 'verified_by' => $user->id, 'draft_at' => now()]);
+        }
 
         return response()->json(['message' => 'Village updated.', 'village' => $village->fresh()]);
     }
