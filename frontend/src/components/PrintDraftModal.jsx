@@ -20,7 +20,7 @@ const renderHtml = ({ dsName, draftAt, gns }) => {
 <head>
   <title>Draft Print - ${dsName}</title>
   <style>
-    @page { size: A4 landscape; margin: 15mm; }
+    @page { size: A4 portrait; margin: 15mm; }
     body { font-family: "Times New Roman", Times, serif; color: #222; font-size: 12pt; line-height: 1.5; margin: 0; padding: 0; }
     .header { text-align: center; margin-bottom: 16px; }
     .header img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 4px; }

@@ -3,6 +3,7 @@ import api from '../api/axios'
 import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
 import PrintLetterModal from '../components/PrintLetterModal'
+import ConfirmModal from '../components/ConfirmModal'
 import { useAuth } from '../context/AuthContext'
 
 const sel = { padding:'8px 10px', border:'1px solid var(--border)', borderRadius:6, fontSize:13, background:'#fff', minWidth:180 }
@@ -18,10 +19,13 @@ export default function Reports() {
   const [loading, setLoading]   = useState(false)
   const [printTarget, setPrintTarget] = useState(null)
   const [unlocking, setUnlocking] = useState(null)
+  const [unlockTarget, setUnlockTarget] = useState(null)
   const logsRef = useRef(null)
 
-  const handleUnlock = async dsId => {
-    if (!window.confirm('Unlock this DS division? It will switch to draft state and become editable for the Divisional Secretary.')) return
+  const confirmUnlock = async () => {
+    if (!unlockTarget) return
+    const dsId = unlockTarget
+    setUnlockTarget(null)
     setUnlocking(dsId)
     try {
       await api.post(`/admin/ds/${dsId}/unlock`)
@@ -74,7 +78,7 @@ export default function Reports() {
       }
       if (r.status === 'locked' && user?.role === 'admin') {
         return (
-          <button onClick={() => handleUnlock(r.id)} disabled={unlocking === r.id} style={{padding:'5px 10px',background:'#c0392b',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
+          <button onClick={() => setUnlockTarget(r.id)} disabled={unlocking === r.id} style={{padding:'5px 10px',background:'#c0392b',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
             {unlocking === r.id ? 'Unlocking...' : 'Unlock'}
           </button>
         )
@@ -152,6 +156,15 @@ export default function Reports() {
       </div>
 
       <PrintLetterModal target={printTarget} onClose={() => setPrintTarget(null)} />
+
+      <ConfirmModal
+        show={!!unlockTarget}
+        title="Unlock DS Division"
+        message="After unlocking, the records will be set back to draft state and the Divisional Secretary will be able to edit the records again. Are you sure you want to proceed?"
+        confirmLabel="Yes, Unlock"
+        onConfirm={confirmUnlock}
+        onCancel={() => setUnlockTarget(null)}
+      />
     </div>
   )
 }
