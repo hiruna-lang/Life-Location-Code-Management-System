@@ -47,7 +47,7 @@ class DashboardController extends Controller
                 'd.name_english as district_name',
                 'ds.id', 'ds.name_english as ds_name',
                 DB::raw("COALESCE(dv.status, 'pending') as status"),
-                'dv.final_at', 'u.name as verified_by_name',
+                'dv.final_at', 'dv.locked_at', 'u.name as verified_by_name',
             ]);
 
         if ($request->filled('province_id')) {

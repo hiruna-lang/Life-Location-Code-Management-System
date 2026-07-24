@@ -90,7 +90,6 @@ export default function GNEdit() {
           </div>
           <div style={{marginTop:16, display:'flex', gap:10}}>
             <button type="submit" style={{padding:'9px 20px',background:'var(--success)',color:'#fff',border:'none',borderRadius:6,fontWeight:700}}>💾 Save GN</button>
-            <button type="button" onClick={()=>window.print()} style={{padding:'9px 20px',background:'var(--primary)',color:'#fff',border:'none',borderRadius:6,fontWeight:700}}>🖨️ Print</button>
           </div>
         </form>
       </div>
