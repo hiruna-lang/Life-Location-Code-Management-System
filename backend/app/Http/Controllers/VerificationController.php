@@ -44,6 +44,7 @@ class VerificationController extends Controller
             'village_count'=> $gns->sum(fn ($gn) => $gn->villages->count()),
             'status'       => $verification->status,
             'draft_at'     => $verification->draft_at,
+            'final_at'     => $verification->final_at,
         ]);
     }
 
@@ -165,14 +166,20 @@ class VerificationController extends Controller
         $this->checkNotLocked($dsId, $user);
 
         $verification = DsVerification::firstOrCreate(['divisional_secretariat_id' => $dsId]);
-        $verification->update(['status' => 'final', 'verified_by' => $user->id, 'final_at' => now()]);
+        $verification->update([
+            'status' => 'locked',
+            'verified_by' => $user->id,
+            'final_at' => now(),
+            'locked_at' => now(),
+            'locked_by' => $user->id,
+        ]);
 
         VerificationLog::create([
             'user_id' => $user->id, 'divisional_secretariat_id' => $dsId,
-            'action' => 'final', 'description' => 'Marked as Final (Verified)', 'ip_address' => $request->ip(),
+            'action' => 'final', 'description' => 'Marked as Final (Locked)', 'ip_address' => $request->ip(),
         ]);
 
-        return response()->json(['message' => 'Marked as Final.', 'status' => 'final']);
+        return response()->json(['message' => 'Marked as Final.', 'status' => 'locked']);
     }
 
     /** Admin: lock a DS */
@@ -196,12 +203,12 @@ class VerificationController extends Controller
         $this->requireAdmin($request->user());
         $verification = DsVerification::where('divisional_secretariat_id', $dsId)->first();
         if ($verification) {
-            $verification->update(['status' => 'final', 'locked_by' => null, 'locked_at' => null]);
+            $verification->update(['status' => 'draft', 'locked_by' => null, 'locked_at' => null]);
         }
 
         VerificationLog::create([
             'user_id' => $request->user()->id, 'divisional_secretariat_id' => $dsId,
-            'action' => 'unlock', 'description' => 'DS Division Unlocked by Admin', 'ip_address' => $request->ip(),
+            'action' => 'unlock', 'description' => 'DS Division Unlocked by Admin (set to Draft)', 'ip_address' => $request->ip(),
         ]);
 
         return response()->json(['message' => 'DS unlocked.']);

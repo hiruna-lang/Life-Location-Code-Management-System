@@ -3,10 +3,12 @@ import api from '../api/axios'
 import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
 import PrintLetterModal from '../components/PrintLetterModal'
+import { useAuth } from '../context/AuthContext'
 
 const sel = { padding:'8px 10px', border:'1px solid var(--border)', borderRadius:6, fontSize:13, background:'#fff', minWidth:180 }
 
 export default function Reports() {
+  const { user } = useAuth()
   const [provinces, setProvs]   = useState([])
   const [districts, setDists]   = useState([])
   const [status, setStatus]     = useState([])
@@ -15,7 +17,21 @@ export default function Reports() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading]   = useState(false)
   const [printTarget, setPrintTarget] = useState(null)
+  const [unlocking, setUnlocking] = useState(null)
   const logsRef = useRef(null)
+
+  const handleUnlock = async dsId => {
+    if (!window.confirm('Unlock this DS division? It will switch to draft state and become editable for the Divisional Secretary.')) return
+    setUnlocking(dsId)
+    try {
+      await api.post(`/admin/ds/${dsId}/unlock`)
+      load()
+    } catch {
+      alert('Failed to unlock. Please try again.')
+    } finally {
+      setUnlocking(null)
+    }
+  }
 
   const load = async () => {
     setLoading(true)
@@ -47,11 +63,24 @@ export default function Reports() {
     { key:'status',        label:'Status', render:r=><StatusBadge status={r.status} /> },
     { key:'final_at',      label:'Verified At', render:r=>r.final_at?new Date(r.final_at).toLocaleDateString():'—' },
     { key:'verified_by_name', label:'Verified By' },
-    { key:'print', label:'', render: r => r.status === 'pending' ? (
-      <button onClick={() => setPrintTarget(r)} style={{padding:'5px 10px',background:'var(--warning)',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
-        Print Letter
-      </button>
-    ) : null },
+    { key:'locked_at', label:'Locked At', render:r=>r.locked_at?new Date(r.locked_at).toLocaleDateString():'—' },
+    { key:'actions', label:'', render: r => {
+      if (r.status === 'pending') {
+        return (
+          <button onClick={() => setPrintTarget(r)} style={{padding:'5px 10px',background:'var(--warning)',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            Print Letter
+          </button>
+        )
+      }
+      if (r.status === 'locked' && user?.role === 'admin') {
+        return (
+          <button onClick={() => handleUnlock(r.id)} disabled={unlocking === r.id} style={{padding:'5px 10px',background:'#c0392b',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            {unlocking === r.id ? 'Unlocking...' : 'Unlock'}
+          </button>
+        )
+      }
+      return null
+    }},
   ]
 
   const logCols = [

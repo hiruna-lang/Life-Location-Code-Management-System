@@ -4,6 +4,9 @@ import api from '../api/axios'
 import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
 import PrintDraftModal from '../components/PrintDraftModal'
+import ConfirmModal from '../components/ConfirmModal'
+import PrintOfficialRecordsModal from '../components/PrintOfficialRecordsModal'
+import PrintOfficialLetterModal from '../components/PrintOfficialLetterModal'
 import { useAuth } from '../context/AuthContext'
 
 export default function GNDivisionVerification() {
@@ -12,9 +15,14 @@ export default function GNDivisionVerification() {
   const [dsInfo, setDsInfo] = useState(null)
   const [status, setStatus] = useState('pending')
   const [draftAt, setDraftAt] = useState(null)
+  const [finalAt, setFinalAt] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
   const [showDraftPrint, setShowDraftPrint] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [showOfficialRecords, setShowOfficialRecords] = useState(false)
+  const [showOfficialLetter, setShowOfficialLetter] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -24,6 +32,7 @@ export default function GNDivisionVerification() {
         setGns(data.gn_divisions || [])
         setStatus(data.status)
         setDraftAt(data.draft_at || null)
+        setFinalAt(data.final_at || null)
         setDsInfo({
           ds_id: data.ds_id,
           ds_name: data.ds_name,
@@ -35,6 +44,20 @@ export default function GNDivisionVerification() {
 
     load()
   }, [])
+
+  const saveAsFinal = async () => {
+    setSaving(true)
+    setShowConfirm(false)
+    try {
+      const { data } = await api.post('/verification/final')
+      setStatus('locked')
+      setFinalAt(new Date().toISOString())
+    } catch {
+      alert('Failed to save as final. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const filtered = gns.filter(gn => {
     const q = search.trim().toLowerCase()
@@ -74,9 +97,15 @@ export default function GNDivisionVerification() {
       </div>
     ) },
     { key: 'actions', label: 'Actions', render: r => (
-      <Link to={`/ds-gn-verification/gn/${r.id}`} style={{ padding: '5px 10px', background: 'var(--primary)', color: '#fff', borderRadius: 5, fontSize: 12, fontWeight: 700 }}>
-        Edit
-      </Link>
+      status === 'locked' ? (
+        <span style={{ padding: '4px 10px', background: '#fdedec', color: '#c0392b', borderRadius: 12, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
+          Locked
+        </span>
+      ) : (
+        <Link to={`/ds-gn-verification/gn/${r.id}`} style={{ padding: '5px 10px', background: 'var(--primary)', color: '#fff', borderRadius: 5, fontSize: 12, fontWeight: 700 }}>
+          Edit
+        </Link>
+      )
     ) },
   ]
 
@@ -94,12 +123,27 @@ export default function GNDivisionVerification() {
             </p>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <StatusBadge status={status} />
           {status === 'draft' && (
-            <button onClick={() => setShowDraftPrint(true)} style={{ padding: '7px 16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
-              Print Draft
-            </button>
+            <>
+              <button onClick={() => setShowDraftPrint(true)} style={{ padding: '7px 16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                Print Draft
+              </button>
+              <button onClick={() => setShowConfirm(true)} disabled={saving} style={{ padding: '7px 16px', background: '#c0392b', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                {saving ? 'Saving...' : 'Save as Final'}
+              </button>
+            </>
+          )}
+          {status === 'locked' && (
+            <>
+              <button onClick={() => setShowOfficialRecords(true)} style={{ padding: '7px 16px', background: '#27ae60', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                Print Official Records
+              </button>
+              <button onClick={() => setShowOfficialLetter(true)} style={{ padding: '7px 16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                Print Official Letter
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -135,6 +179,30 @@ export default function GNDivisionVerification() {
         gns={gns}
         show={showDraftPrint}
         onClose={() => setShowDraftPrint(false)}
+      />
+
+      <ConfirmModal
+        show={showConfirm}
+        title="Save as Final"
+        message="After saving as final, you cannot edit the records again. The GN divisions and villages will be locked. Are you sure you want to proceed?"
+        confirmLabel="Yes, Save as Final"
+        onConfirm={saveAsFinal}
+        onCancel={() => setShowConfirm(false)}
+      />
+
+      <PrintOfficialRecordsModal
+        dsName={dsInfo?.ds_name || ''}
+        finalAt={finalAt}
+        gns={gns}
+        show={showOfficialRecords}
+        onClose={() => setShowOfficialRecords(false)}
+      />
+
+      <PrintOfficialLetterModal
+        dsName={dsInfo?.ds_name || ''}
+        finalAt={finalAt}
+        show={showOfficialLetter}
+        onClose={() => setShowOfficialLetter(false)}
       />
     </div>
   )
