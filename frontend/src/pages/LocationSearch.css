@@ -635,6 +635,9 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
 }
 
 .location-hierarchy-column__title {
+  display: flex;
+  align-items: center;
+  min-height: 58px;
   padding: 10px 12px;
   color: #172c45;
   background: #fbf8f3;
