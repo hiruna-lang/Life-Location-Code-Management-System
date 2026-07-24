@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import SriLanka3DMap from '../components/three-map/SriLanka3DMap'
 import LocationResultTable from '../components/location/LocationResultTable'
 import { locationApi, normalizeName } from '../services/locationApi'
@@ -8,6 +8,7 @@ import './LocationSearch.css'
 
 const friendlyApiError = 'Unable to load location data right now. Please check the Laravel API and try again.'
 const provinceButtonColors = ['#2f628f', '#2f6f4e', '#a96f15', '#9f252d', '#6a65a8', '#168b8b', '#7d8b16', '#8a4f2a', '#712b31']
+const smoothTransition = { duration: 0.32, ease: [0.22, 1, 0.36, 1] }
 
 export default function LocationSearch() {
   const { t, localizedName } = useLanguage()
@@ -213,11 +214,26 @@ export default function LocationSearch() {
 
   return (
     <div className="location-search-page">
-      <header className="location-page-heading">
+      <motion.header
+        className="location-page-heading"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={smoothTransition}
+      >
         <span>Administrative location browser</span>
-        <h1>{selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}</h1>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.h1
+            key={selectedProvinceName || 'all-districts'}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={smoothTransition}
+          >
+            {selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}
+          </motion.h1>
+        </AnimatePresence>
         <p>Explore provinces and navigate through districts, divisional secretariats, and GN divisions.</p>
-      </header>
+      </motion.header>
 
       <motion.section
         className="location-dashboard"
@@ -226,10 +242,20 @@ export default function LocationSearch() {
       >
         <motion.div className="location-map-card" layout transition={{ duration: 0.22, ease: 'easeOut' }}>
           <div className="location-map-stage">
-            <div className={`location-map-actions${selected.district ? '' : ' is-hidden'}`}>
-              <button type="button" onClick={backToDistrict} disabled={!selected.district}>{t('backToDistrictMap')}</button>
-              <button type="button" onClick={resetSelection} disabled={!selected.district}>{t('resetSelection')}</button>
-            </div>
+            <AnimatePresence>
+              {selected.district && (
+                <motion.div
+                  className="location-map-actions"
+                  initial={{ opacity: 0, y: 10, x: '-50%' }}
+                  animate={{ opacity: 1, y: 0, x: '-50%' }}
+                  exit={{ opacity: 0, y: 10, x: '-50%' }}
+                  transition={smoothTransition}
+                >
+                  <button type="button" onClick={backToDistrict}>{t('backToDistrictMap')}</button>
+                  <button type="button" onClick={resetSelection}>{t('resetSelection')}</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <ProvinceButtonRow
               provinces={provinces}
               selectedId={selected.province?.id}
@@ -246,9 +272,40 @@ export default function LocationSearch() {
           </div>
         </motion.div>
 
-        <section className="location-hierarchy-card">
-          {apiError && <div className="location-panel-error">{apiError}</div>}
-          {loadingPanel && <div className="location-panel-empty">Loading next administrative level...</div>}
+        <motion.section
+          className="location-hierarchy-card"
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={smoothTransition}
+        >
+          <AnimatePresence>
+            {apiError && (
+              <motion.div
+                className="location-panel-error"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={smoothTransition}
+              >
+                {apiError}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {loadingPanel && (
+              <motion.div
+                className="location-panel-loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                role="status"
+              >
+                <span className="location-loading-spinner" />
+                Loading next administrative level...
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="location-hierarchy-grid">
             <HierarchyColumn
@@ -276,14 +333,22 @@ export default function LocationSearch() {
               localizedName={localizedName}
             />
           </div>
-        </section>
+        </motion.section>
       </motion.section>
 
-      {(selected.gn || villages.length > 0 || loadingVillages) && (
-        <div ref={resultTableRef}>
-          <LocationResultTable villages={villages} loading={loadingVillages} />
-        </div>
-      )}
+      <AnimatePresence>
+        {(selected.gn || villages.length > 0 || loadingVillages) && (
+          <motion.div
+            ref={resultTableRef}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 18 }}
+            transition={smoothTransition}
+          >
+            <LocationResultTable villages={villages} loading={loadingVillages} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -335,16 +400,20 @@ function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
         const isSelected = String(selectedId) === String(province.id)
         const position = getProvincePosition(province, index)
         return (
-          <button
+          <motion.button
             type="button"
             key={province.id}
             className={`${isSelected ? 'is-selected ' : ''}province-position-${position}`}
             style={{ '--province-color': provinceButtonColors[index % provinceButtonColors.length] }}
             onClick={() => onSelect(province)}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ ...smoothTransition, delay: index * 0.035 }}
+            whileTap={{ scale: 0.97 }}
           >
             <strong>{localizedName(province) || province.name || 'Unnamed area'}</strong>
             {getLocationCode(province) && <span className="province-code">Code: {getLocationCode(province)}</span>}
-          </button>
+          </motion.button>
         )
       })}
     </div>
@@ -401,7 +470,7 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
   }, [selectedId, items])
 
   return (
-    <div className="location-hierarchy-column">
+    <motion.div className="location-hierarchy-column" layout transition={smoothTransition}>
       <div className="location-hierarchy-column__title">{title}</div>
       <div className="location-hierarchy-search">
         <input
@@ -412,26 +481,56 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
           aria-label={`Search ${title}`}
         />
       </div>
-      <div className="location-hierarchy-column__body" ref={bodyRef}>
-        {items.length === 0 && <div className="location-hierarchy-empty">{emptyText}</div>}
-        {items.length > 0 && visibleItems.length === 0 && <div className="location-hierarchy-empty">No matching records.</div>}
+      <motion.div className="location-hierarchy-column__body" ref={bodyRef} layout>
+        <AnimatePresence mode="popLayout" initial={false}>
+        {items.length === 0 && (
+          <motion.div
+            key={`empty-${emptyText}`}
+            className="location-hierarchy-empty"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={smoothTransition}
+          >
+            {emptyText}
+          </motion.div>
+        )}
+        {items.length > 0 && visibleItems.length === 0 && (
+          <motion.div
+            key="no-matches"
+            className="location-hierarchy-empty"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={smoothTransition}
+          >
+            No matching records.
+          </motion.div>
+        )}
         {visibleItems.map(item => {
           const isSelected = String(selectedId) === String(item.id)
           const locationCode = getLocationCode(item)
           return (
-            <button
+            <motion.button
               type="button"
               key={item.id}
               className={isSelected ? 'is-selected' : ''}
               onClick={() => onSelect(item)}
+              layout
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={smoothTransition}
+              whileTap={{ scale: 0.985 }}
             >
               <strong>{localizedName(item) || item.name || 'Unnamed area'}</strong>
               {locationCode && <span className="location-code">Life Location Code: {locationCode}</span>}
-            </button>
+            </motion.button>
           )
         })}
-      </div>
-    </div>
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   )
 }
 

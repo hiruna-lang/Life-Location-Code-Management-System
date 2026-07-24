@@ -103,11 +103,6 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   transform: translateX(-50%);
 }
 
-.location-map-actions.is-hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .location-map-actions button {
   min-height: 38px;
   padding: 8px 12px;
@@ -118,11 +113,14 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   box-shadow: 0 10px 24px rgba(23,44,69,.14);
   font-weight: 800;
   line-height: 1.18;
+  transition: background .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
 
 .location-map-actions button:hover {
   background: #4e1920;
   border-color: #4e1920;
+  box-shadow: 0 13px 28px rgba(23,44,69,.2);
+  transform: translateY(-2px);
 }
 
 .location-action-grid button:hover:not(:disabled) {
@@ -492,7 +490,7 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
 }
 
 .location-hierarchy-card {
-  position: static;
+  position: relative;
   height: 588px;
   margin-top: 62px;
   max-height: none;
@@ -502,6 +500,45 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+}
+
+.location-panel-error {
+  position: absolute;
+  z-index: 12;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  margin-top: 0;
+  box-shadow: 0 12px 30px rgba(122,31,37,.16);
+}
+
+.location-panel-loading {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  color: #172c45;
+  background: rgba(251,248,243,.52);
+  border-radius: 8px;
+  font-weight: 800;
+  pointer-events: none;
+  backdrop-filter: blur(1.5px);
+}
+
+.location-loading-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(113,43,49,.2);
+  border-top-color: #712b31;
+  border-radius: 50%;
+  animation: location-spin .7s linear infinite;
+}
+
+@keyframes location-spin {
+  to { transform: rotate(360deg); }
 }
 
 .location-hierarchy-grid {
@@ -521,6 +558,12 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
+  transition: border-color .28s ease, box-shadow .28s ease;
+}
+
+.location-hierarchy-column:focus-within {
+  border-color: rgba(113,43,49,.38);
+  box-shadow: 0 10px 24px rgba(23,44,69,.08);
 }
 
 .location-hierarchy-column__title {
@@ -551,6 +594,7 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   outline: 0;
   font-size: 13px;
   font-weight: 700;
+  transition: background .22s ease, border-color .22s ease, box-shadow .22s ease;
 }
 
 .location-hierarchy-search input::placeholder {
@@ -611,12 +655,14 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   border: 0;
   border-bottom: 1px solid #eee8e2;
   text-align: left;
-  transition: background .14s ease, box-shadow .14s ease, color .14s ease;
+  transform-origin: center;
+  transition: background .25s ease, box-shadow .25s ease, color .25s ease, transform .25s ease;
 }
 
 .location-hierarchy-column button:hover {
   background: #fff8e8;
   box-shadow: inset 4px 0 0 #c49a42;
+  transform: translateX(2px);
 }
 
 .location-hierarchy-column button.is-selected {
@@ -678,6 +724,17 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   padding: 12px;
   color: #637080;
   font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .location-search-page *,
+  .location-search-page *::before,
+  .location-search-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }
 
 .location-results-card {
