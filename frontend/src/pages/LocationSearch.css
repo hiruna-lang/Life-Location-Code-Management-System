@@ -11,13 +11,13 @@
   top: 0;
   right: 0;
   left: 0;
-  height: clamp(120px, 12vw, 185px);
+  height: clamp(145px, 13vw, 205px);
   content: '';
-  background-image: url('/location-search-background-v2.png');
+  background-image: url('/location-search-top-ornament.png');
   background-position: center top;
   background-repeat: no-repeat;
-  background-size: cover;
-  opacity: .5;
+  background-size: 100% auto;
+  opacity: .58;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
@@ -56,9 +56,15 @@
 }
 
 .location-page-heading {
+  position: relative;
   width: 100%;
   padding: 4px 24px 12px;
   text-align: center;
+}
+
+.location-page-heading > * {
+  position: relative;
+  z-index: 1;
 }
 
 .location-page-heading span {
@@ -901,9 +907,10 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
 
 @media (max-width: 760px) {
   .site-main:has(.location-search-page)::before {
-    height: 125px;
-    background-position: 62% top;
-    opacity: .42;
+    height: 135px;
+    background-position: center top;
+    background-size: 100% auto;
+    opacity: .5;
   }
 
   .site-main:has(.location-search-page)::after {
