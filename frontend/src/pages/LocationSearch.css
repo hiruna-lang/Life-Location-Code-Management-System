@@ -241,6 +241,10 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   transform: translateX(-50%);
 }
 
+.location-map-stage .location-map-canvas:hover {
+  z-index: 4;
+}
+
 .location-map-card__header h2,
 .location-side-card__header h2,
 .location-results-card__header h2 {
@@ -364,7 +368,7 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   width: 100%;
   max-width: 440px;
   height: 650px;
-  overflow: hidden;
+  overflow: visible;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -381,7 +385,6 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
 .location-map-tooltip {
   position: absolute;
   z-index: 999;
-  transform: translate(12px, -50%);
   pointer-events: none;
   padding: 8px 11px;
   color: #fff;
@@ -391,6 +394,16 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   box-shadow: 0 10px 30px rgba(23,44,69,.22);
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.location-map-tooltip--right {
+  transform: translate(14px, -50%);
+}
+
+.location-map-tooltip--left {
+  transform: translate(calc(-100% - 14px), -50%);
 }
 
 .location-map-state {

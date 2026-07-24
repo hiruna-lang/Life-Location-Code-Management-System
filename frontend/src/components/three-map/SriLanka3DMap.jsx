@@ -102,10 +102,12 @@ export default function SriLanka3DMap({
 
   const showTooltip = (feature, event) => {
     const mapBounds = event.currentTarget.getBoundingClientRect()
+    const x = event.clientX - mapBounds.left
     setTooltip({
       name: feature.properties?.shapeName || 'Administrative area',
-      x: event.clientX - mapBounds.left,
-      y: event.clientY - mapBounds.top,
+      x,
+      y: Math.min(Math.max(event.clientY - mapBounds.top, 24), mapBounds.height - 24),
+      placement: x > mapBounds.width * 0.62 ? 'left' : 'right',
     })
   }
 
