@@ -56,16 +56,73 @@ img { display: block; max-width: 100%; }
 .utility-bar__links button:hover { color: #fff; }
 .utility-bar__links .language-active { color: #fff; font-weight: 700; border-bottom-color: var(--gold); }
 
-.government-header { background: #fff; border-bottom: 1px solid #e4ded9; }
-.government-header__inner { min-height: 136px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
-.government-brand { min-width: 0; display: flex; align-items: center; gap: 22px; color: var(--navy); }
+.government-header {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(5,24,48,.9) 0%, rgba(7,37,72,.78) 48%, rgba(5,26,53,.42) 100%),
+    url('/government-digital-header.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 108% auto;
+  border-top: 4px solid var(--navy);
+  border-bottom: 1px solid rgba(196,154,66,.42);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.12), 0 8px 24px rgba(23,44,69,.14);
+  animation: government-banner-drift 18s ease-in-out infinite alternate;
+}
+.government-header::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(105deg, rgba(255,255,255,.04), transparent 42%, rgba(196,154,66,.08));
+  pointer-events: none;
+  animation: government-banner-light 7s ease-in-out infinite;
+}
+.government-header::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(44vw, 720px);
+  height: 3px;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--gold) 48%, var(--primary));
+  transform-origin: right;
+  pointer-events: none;
+  animation: government-header-accent 5.5s ease-in-out infinite;
+}
+@keyframes government-header-accent {
+  0%, 100% { opacity: .55; transform: scaleX(.66); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+@keyframes government-banner-drift {
+  from { background-position: 46% center; background-size: 108% auto; }
+  to { background-position: 54% center; background-size: 114% auto; }
+}
+@keyframes government-banner-light {
+  0%, 100% { opacity: .35; }
+  50% { opacity: .8; }
+}
+.government-header__inner {
+  position: relative;
+  z-index: 1;
+  min-height: 136px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+.government-brand { min-width: 0; display: flex; align-items: center; gap: 22px; color: #fff; }
 .government-logo {
   flex: 0 0 auto;
   width: 82px;
   height: 108px;
   object-fit: cover;
   object-position: center;
-  mix-blend-mode: multiply;
+  padding: 5px;
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(234,216,170,.7);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.2);
 }
 .government-brand__text { min-width: 0; max-width: 850px; }
 .government-brand__ministry {
@@ -73,6 +130,8 @@ img { display: block; max-width: 100%; }
   font-size: clamp(20px, 1.8vw, 26px);
   font-weight: 700;
   line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .government-brand__division {
   margin-top: 6px;
@@ -146,23 +205,65 @@ html[lang='ta'] .nav-account-button {
   line-height: 1.35;
   white-space: nowrap;
 }
-.government-header__service { text-align: right; padding-left: 30px; border-left: 1px solid var(--border); }
-.government-header__service-kicker { display: block; color: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
-.government-header__service strong { display: block; margin-top: 4px; color: var(--primary); font-family: 'Source Serif 4', serif; font-size: 23px; }
+.government-header__service { text-align: right; padding-left: 30px; border-left: 1px solid rgba(234,216,170,.38); }
+.government-header__service-kicker { display: block; color: rgba(255,255,255,.68); font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
+.government-header__service strong { display: block; margin-top: 4px; color: var(--gold-light); font-family: 'Source Serif 4', serif; font-size: 23px; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
 
 .site-nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  color: #fff;
+  color: var(--navy);
   background:
-    radial-gradient(circle at 88% -80%, rgba(255,255,255,.16), transparent 34%),
-    linear-gradient(105deg, #602128 0%, var(--primary) 48%, #7f3038 100%);
-  border-bottom: 1px solid rgba(196,154,66,.34);
-  box-shadow: 0 8px 24px rgba(42,18,20,.2);
+    radial-gradient(circle at 88% 30%, rgba(196,154,66,.16), transparent 22%),
+    radial-gradient(circle at 72% 120%, rgba(113,43,49,.09), transparent 30%),
+    linear-gradient(105deg, #f8f5ef 0%, #f3f6f8 52%, #e9f0f5 100%);
+  background-size: 130% 130%;
+  border-top: 1px solid rgba(216,210,204,.9);
+  border-bottom: 1px solid rgba(196,154,66,.48);
+  box-shadow: 0 10px 28px rgba(23,44,69,.09);
+  backdrop-filter: blur(16px);
+  animation: nav-ambient-shift 12s ease-in-out infinite alternate;
+}
+.site-nav::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(255,255,255,.68) 48%, transparent 60%)
+    -35% 0 / 28% 100% no-repeat;
+  opacity: .55;
+  pointer-events: none;
+  animation: nav-soft-sheen 8s ease-in-out infinite;
+}
+.site-nav::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  width: min(34vw, 520px);
+  height: 2px;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--gold) 55%, rgba(113,43,49,.7));
+  transform-origin: right;
+  animation: nav-accent-breathe 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes nav-ambient-shift {
+  from { background-position: 0% 30%; }
+  to { background-position: 100% 70%; }
+}
+@keyframes nav-soft-sheen {
+  0%, 58% { background-position: -35% 0; opacity: 0; }
+  72% { opacity: .55; }
+  100% { background-position: 145% 0; opacity: 0; }
+}
+@keyframes nav-accent-breathe {
+  0%, 100% { opacity: .55; transform: scaleX(.72); }
+  50% { opacity: 1; transform: scaleX(1); }
 }
 .site-nav__inner {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -260,7 +361,8 @@ html[lang='ta'] .nav-account-button {
   transition: opacity .3s ease, transform .3s cubic-bezier(.22,1,.36,1);
 }
 .site-nav__link:hover {
-  color: var(--primary);
+  color: var(--gold-light);
+  text-shadow: 0 2px 8px rgba(0,0,0,.28);
   border-color: rgba(113,43,49,.12);
   box-shadow: 0 8px 20px rgba(42,18,20,.08);
   transform: translateX(4px);
@@ -305,20 +407,20 @@ html[lang='ta'] .nav-account-button {
   min-height: 42px;
   padding: 8px 16px;
   overflow: hidden;
-  color: #fff;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.48);
+  color: var(--primary);
+  background: rgba(255,255,255,.86);
+  border: 1px solid rgba(113,43,49,.32);
   border-radius: 10px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  box-shadow: 0 5px 14px rgba(23,44,69,.06);
   font-size: 13px;
   font-weight: 700;
   transition: color .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 .nav-account-button:hover {
-  color: var(--primary);
-  background: #fff;
-  border-color: #fff;
-  box-shadow: 0 10px 24px rgba(42,18,20,.22);
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 10px 24px rgba(113,43,49,.2);
   transform: translateY(-2px);
 }
 .account-name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
@@ -333,17 +435,18 @@ html[lang='ta'] .nav-account-button {
   justify-content: space-between;
   gap: 13px;
   color: #fff;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.28);
+  background: linear-gradient(135deg, var(--navy), #274666);
+  border: 1px solid rgba(23,44,69,.22);
   border-radius: 10px;
   font-weight: 700;
   transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 .site-nav__toggle:hover,
 .site-nav__toggle.is-open {
-  background: rgba(255,255,255,.13);
-  border-color: rgba(234,216,170,.5);
-  box-shadow: 0 8px 20px rgba(42,18,20,.14);
+  color: #fff;
+  background: linear-gradient(135deg, #274666, var(--primary));
+  border-color: rgba(196,154,66,.7);
+  box-shadow: 0 10px 24px rgba(23,44,69,.18);
   transform: translateY(-1px);
 }
 .site-nav__toggle-icon {
@@ -364,6 +467,18 @@ html[lang='ta'] .nav-account-button {
 .site-nav__toggle.is-open .site-nav__toggle-icon span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 .site-nav__toggle.is-open .site-nav__toggle-icon span:nth-child(2) { opacity: 0; transform: scaleX(.2); }
 .site-nav__toggle.is-open .site-nav__toggle-icon span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav,
+  .site-nav::before,
+  .site-nav::after,
+  .government-header,
+  .government-header::before,
+  .government-header::after,
+  .site-nav__links.is-open .site-nav__link {
+    animation: none !important;
+  }
+}
 
 .site-main { min-height: 600px; padding: 38px 0 64px; background: var(--bg); }
 .service-title-band { position: relative; padding: 34px 42px; color: #fff; background: var(--navy); border-left: 7px solid var(--gold); overflow: hidden; }
