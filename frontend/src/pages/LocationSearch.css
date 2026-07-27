@@ -937,6 +937,58 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   color: #202a35;
 }
 
+html[data-theme='dark'] .site-main:has(.location-search-page) {
+  background-color: #101722;
+}
+
+html[data-theme='dark'] .site-main:has(.location-search-page)::before,
+html[data-theme='dark'] .site-main:has(.location-search-page)::after {
+  opacity: .18;
+}
+
+html[data-theme='dark'] .location-hierarchy-column,
+html[data-theme='dark'] .location-hierarchy-search,
+html[data-theme='dark'] .location-hierarchy-column button,
+html[data-theme='dark'] .location-results-card,
+html[data-theme='dark'] .location-result-table {
+  color: #e8edf3;
+  background: #182230;
+  border-color: #344253;
+}
+
+html[data-theme='dark'] .location-hierarchy-column__title,
+html[data-theme='dark'] .location-hierarchy-search input,
+html[data-theme='dark'] .location-result-table th {
+  color: #e8edf3;
+  background: #202b38;
+  border-color: #344253;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button {
+  border-bottom-color: #344253;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button:hover {
+  background: #263342;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button.is-selected {
+  color: #fff;
+  background: #493c28;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button span,
+html[data-theme='dark'] .location-hierarchy-column button.is-selected span,
+html[data-theme='dark'] .location-result-table td {
+  color: #b9c4d0;
+}
+
+html[data-theme='dark'] .location-table-wrap,
+html[data-theme='dark'] .location-result-table th,
+html[data-theme='dark'] .location-result-table td {
+  border-color: #344253;
+}
+
 @media (max-width: 1180px) {
   .location-search-page {
     width: 100%;

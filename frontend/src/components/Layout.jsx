@@ -25,8 +25,20 @@ export default function Layout({ children, admin = false }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [languageOpen, setLanguageOpen] = useState(false)
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('llcms_theme')
+    if (savedTheme) return savedTheme
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
   const navRef = useRef(null)
+  const languageRef = useRef(null)
   const { language, setLanguage, t } = useLanguage()
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('llcms_theme', theme)
+  }, [theme])
 
   useEffect(() => {
     if (!menuOpen) return undefined
@@ -46,6 +58,15 @@ export default function Layout({ children, admin = false }) {
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    if (!languageOpen) return undefined
+    const closeLanguageMenu = event => {
+      if (!languageRef.current?.contains(event.target)) setLanguageOpen(false)
+    }
+    document.addEventListener('pointerdown', closeLanguageMenu)
+    return () => document.removeEventListener('pointerdown', closeLanguageMenu)
+  }, [languageOpen])
+
   const handleLogout = async () => {
     await logout()
     navigate('/')
@@ -55,17 +76,6 @@ export default function Layout({ children, admin = false }) {
 
   return (
     <div className={admin ? 'app-shell app-shell--admin' : 'app-shell'}>
-      <div className="utility-bar">
-        <div className="site-container utility-bar__inner">
-          <span>{t('officialService')}</span>
-          <div className="utility-bar__links">
-            <button className={language === 'si' ? 'language-active' : ''} onClick={() => setLanguage('si')}>සිංහල</button>
-            <button className={language === 'ta' ? 'language-active' : ''} onClick={() => setLanguage('ta')}>தமிழ்</button>
-            <button className={language === 'en' ? 'language-active' : ''} onClick={() => setLanguage('en')}>English</button>
-          </div>
-        </div>
-      </div>
-
       <header className="government-header">
         <div className="site-container government-header__inner">
           {user ? (
@@ -78,6 +88,33 @@ export default function Layout({ children, admin = false }) {
           <div className="government-header__service">
             <span className="government-header__service-kicker">{t('nationalService')}</span>
             <strong>{t('lifeLocationCode')}</strong>
+          </div>
+          <div className="government-header__tools">
+            <div className="header-language" ref={languageRef}>
+              <button
+                className={`header-language__trigger${languageOpen ? ' is-open' : ''}`}
+                onClick={() => setLanguageOpen(open => !open)}
+                aria-expanded={languageOpen}
+                aria-haspopup="menu"
+              >
+                <span className="header-language__icon" aria-hidden="true">文</span>
+                <span>{language === 'si' ? 'සිංහල' : language === 'ta' ? 'தமிழ்' : 'English'}</span>
+                <span className="header-language__chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div className={`header-language__menu${languageOpen ? ' is-open' : ''}`} role="menu">
+                <button className={language === 'en' ? 'language-active' : ''} onClick={() => { setLanguage('en'); setLanguageOpen(false) }} role="menuitem">English</button>
+                <button className={language === 'si' ? 'language-active' : ''} onClick={() => { setLanguage('si'); setLanguageOpen(false) }} role="menuitem">සිංහල</button>
+                <button className={language === 'ta' ? 'language-active' : ''} onClick={() => { setLanguage('ta'); setLanguageOpen(false) }} role="menuitem">தமிழ்</button>
+              </div>
+            </div>
+            <button
+              className="header-theme-toggle"
+              onClick={() => setTheme(current => current === 'dark' ? 'light' : 'dark')}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+            </button>
           </div>
         </div>
       </header>
@@ -137,20 +174,25 @@ export default function Layout({ children, admin = false }) {
                     {t(link.labelKey)}
                   </NavLink>
                 ))}
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) => `site-nav__link site-nav__link--account${isActive ? ' is-active' : ''}`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {t('officerLogin')}
+                </NavLink>
               </>
             )}
           </div>
-          <div className="site-nav__account">
-            {user ? (
+          {user && (
+            <div className="site-nav__account">
               <>
                 <span className="account-name">{user.name}</span>
                 <span className="role-badge">{user.role === 'admin' ? 'System Administrator' : 'Divisional Secretary'}</span>
                 <button className="nav-account-button" onClick={handleLogout}>{t('signOut')}</button>
               </>
-            ) : (
-              <Link className="nav-account-button" to="/login">{t('officerLogin')}</Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </nav>
 
