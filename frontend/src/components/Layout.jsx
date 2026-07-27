@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import GovernmentBrand from './GovernmentBrand'
@@ -25,7 +25,26 @@ export default function Layout({ children, admin = false }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const navRef = useRef(null)
   const { language, setLanguage, t } = useLanguage()
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+
+    const closeOnOutsideClick = event => {
+      if (!navRef.current?.contains(event.target)) setMenuOpen(false)
+    }
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [menuOpen])
 
   const handleLogout = async () => {
     await logout()
@@ -63,12 +82,22 @@ export default function Layout({ children, admin = false }) {
         </div>
       </header>
 
-      <nav className="site-nav" aria-label="Primary navigation">
+      <nav className="site-nav" aria-label="Primary navigation" ref={navRef}>
         <div className="site-container site-nav__inner">
-          <button className="site-nav__toggle" onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen}>
-            <span>{t('menu')}</span><span aria-hidden="true">☰</span>
+          <button
+            className={`site-nav__toggle${menuOpen ? ' is-open' : ''}`}
+            onClick={() => setMenuOpen(v => !v)}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation-menu"
+          >
+            <span className="site-nav__toggle-label">{t('menu')}</span>
+            <span className="site-nav__toggle-icon" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
           </button>
-          <div className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
+          <div id="primary-navigation-menu" className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
             {user?.role === 'admin' ? (
               <>
                 <NavLink to="/admin" end className={navClass} onClick={() => setMenuOpen(false)}>
