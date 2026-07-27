@@ -26,19 +26,14 @@ export default function Layout({ children, admin = false }) {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [languageOpen, setLanguageOpen] = useState(false)
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('llcms_theme')
-    if (savedTheme) return savedTheme
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  })
   const navRef = useRef(null)
   const languageRef = useRef(null)
   const { language, setLanguage, t } = useLanguage()
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    localStorage.setItem('llcms_theme', theme)
-  }, [theme])
+    delete document.documentElement.dataset.theme
+    localStorage.removeItem('llcms_theme')
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return undefined
@@ -107,14 +102,6 @@ export default function Layout({ children, admin = false }) {
                 <button className={language === 'ta' ? 'language-active' : ''} onClick={() => { setLanguage('ta'); setLanguageOpen(false) }} role="menuitem">தமிழ்</button>
               </div>
             </div>
-            <button
-              className="header-theme-toggle"
-              onClick={() => setTheme(current => current === 'dark' ? 'light' : 'dark')}
-              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-            >
-              <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
-            </button>
           </div>
         </div>
       </header>
