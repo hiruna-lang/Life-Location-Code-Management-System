@@ -60,12 +60,12 @@ img { display: block; max-width: 100%; }
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(5,24,48,.9) 0%, rgba(7,37,72,.78) 48%, rgba(5,26,53,.42) 100%),
-    url('/government-digital-header.png');
+    linear-gradient(90deg, rgba(55,10,17,.88) 0%, rgba(89,24,34,.7) 50%, rgba(78,25,32,.34) 100%),
+    url('/government-maroon-header.png');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 108% auto;
-  border-top: 4px solid var(--navy);
+  border-top: 4px solid var(--primary-dark);
   border-bottom: 1px solid rgba(196,154,66,.42);
   box-shadow: inset 0 -1px 0 rgba(255,255,255,.12), 0 8px 24px rgba(23,44,69,.14);
   animation: government-banner-drift 18s ease-in-out infinite alternate;
@@ -105,7 +105,7 @@ img { display: block; max-width: 100%; }
 .government-header__inner {
   position: relative;
   z-index: 1;
-  min-height: 136px;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -210,43 +210,19 @@ html[lang='ta'] .nav-account-button {
 .government-header__service strong { display: block; margin-top: 4px; color: var(--gold-light); font-family: 'Source Serif 4', serif; font-size: 23px; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
 
 .site-nav {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
-  color: var(--navy);
-  background:
-    radial-gradient(circle at 88% 30%, rgba(196,154,66,.16), transparent 22%),
-    radial-gradient(circle at 72% 120%, rgba(113,43,49,.09), transparent 30%),
-    linear-gradient(105deg, #f8f5ef 0%, #f3f6f8 52%, #e9f0f5 100%);
-  background-size: 130% 130%;
-  border-top: 1px solid rgba(216,210,204,.9);
-  border-bottom: 1px solid rgba(196,154,66,.48);
-  box-shadow: 0 10px 28px rgba(23,44,69,.09);
-  backdrop-filter: blur(16px);
-  animation: nav-ambient-shift 12s ease-in-out infinite alternate;
+  height: 0;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 .site-nav::before {
-  position: absolute;
-  inset: 0;
-  content: '';
-  background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,.68) 48%, transparent 60%)
-    -35% 0 / 28% 100% no-repeat;
-  opacity: .55;
-  pointer-events: none;
-  animation: nav-soft-sheen 8s ease-in-out infinite;
+  display: none;
 }
 .site-nav::after {
-  position: absolute;
-  right: 0;
-  bottom: -1px;
-  width: min(34vw, 520px);
-  height: 2px;
-  content: '';
-  background: linear-gradient(90deg, transparent, var(--gold) 55%, rgba(113,43,49,.7));
-  transform-origin: right;
-  animation: nav-accent-breathe 4.5s ease-in-out infinite;
-  pointer-events: none;
+  display: none;
 }
 @keyframes nav-ambient-shift {
   from { background-position: 0% 30%; }
@@ -268,12 +244,14 @@ html[lang='ta'] .nav-account-button {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  min-height: 64px;
+  height: 0;
+  min-height: 0;
+  transform: translateY(-56px);
 }
 .site-nav__links {
   position: absolute;
   z-index: 110;
-  top: calc(100% + 10px);
+  top: 52px;
   right: 0;
   display: flex;
   width: min(290px, calc(100vw - 32px));
@@ -407,9 +385,9 @@ html[lang='ta'] .nav-account-button {
   min-height: 42px;
   padding: 8px 16px;
   overflow: hidden;
-  color: var(--primary);
-  background: rgba(255,255,255,.86);
-  border: 1px solid rgba(113,43,49,.32);
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(234,216,170,.55);
   border-radius: 10px;
   box-shadow: 0 5px 14px rgba(23,44,69,.06);
   font-size: 13px;
@@ -417,10 +395,10 @@ html[lang='ta'] .nav-account-button {
   transition: color .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 .nav-account-button:hover {
-  color: #fff;
-  background: var(--primary);
-  border-color: var(--primary);
-  box-shadow: 0 10px 24px rgba(113,43,49,.2);
+  color: var(--primary-dark);
+  background: var(--gold-light);
+  border-color: var(--gold);
+  box-shadow: 0 10px 24px rgba(0,0,0,.2);
   transform: translateY(-2px);
 }
 .account-name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
@@ -435,8 +413,9 @@ html[lang='ta'] .nav-account-button {
   justify-content: space-between;
   gap: 13px;
   color: #fff;
-  background: linear-gradient(135deg, var(--navy), #274666);
-  border: 1px solid rgba(23,44,69,.22);
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(234,216,170,.58);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
   border-radius: 10px;
   font-weight: 700;
   transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
@@ -444,9 +423,9 @@ html[lang='ta'] .nav-account-button {
 .site-nav__toggle:hover,
 .site-nav__toggle.is-open {
   color: #fff;
-  background: linear-gradient(135deg, #274666, var(--primary));
-  border-color: rgba(196,154,66,.7);
-  box-shadow: 0 10px 24px rgba(23,44,69,.18);
+  background: rgba(196,154,66,.22);
+  border-color: var(--gold);
+  box-shadow: 0 10px 24px rgba(0,0,0,.2);
   transform: translateY(-1px);
 }
 .site-nav__toggle-icon {
@@ -714,9 +693,9 @@ html[lang='ta'] .nav-account-button {
   .service-card { min-height: auto; }
   .home-intro { grid-template-columns: 1fr; }
   .home-intro__panel { border-left: 0; border-top: 1px solid var(--border); }
-  .site-nav__inner { min-height: 56px; flex-wrap: wrap; }
+  .site-nav__inner { height: 0; min-height: 0; flex-wrap: wrap; transform: translateY(-52px); }
   .site-nav__toggle { display: flex; }
-  .site-nav__links { display: none; width: 100%; margin-left: 0; flex-direction: column; align-items: stretch; order: 3; padding: 6px 0 12px; }
+  .site-nav__links { display: none; top: 48px; width: min(290px, calc(100vw - 28px)); margin-left: 0; flex-direction: column; align-items: stretch; order: 3; padding: 14px; }
   .site-nav__links.is-open { display: flex; }
   .site-nav__link { min-height: 46px; padding: 0 14px; border-left: 4px solid transparent; border-radius: 8px; }
   .site-nav__link::after { display: none; }
@@ -729,7 +708,7 @@ html[lang='ta'] .nav-account-button {
   .site-container, .site-container--wide { width: min(100% - 28px, 1180px); }
   .utility-bar__inner > span { display: none; }
   .utility-bar__inner { justify-content: flex-end; }
-  .government-header__inner { min-height: 106px; }
+  .government-header__inner { min-height: 150px; padding-bottom: 48px; }
   .government-brand { gap: 14px; }
   .government-logo { width: 58px; height: 76px; }
   .government-brand__ministry { font-size: 15px; line-height: 1.25; }
