@@ -315,17 +315,18 @@ html[lang='ta'] .nav-account-button {
   align-items: center;
   justify-content: center;
   color: #fff8e8;
-  background: linear-gradient(135deg, rgba(125,45,54,.94), rgba(72,20,27,.94));
-  border: 1px solid rgba(234,216,170,.58);
-  border-radius: 9px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
-  backdrop-filter: blur(12px);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
   transition: color .22s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
 .header-language__trigger {
   gap: 8px;
-  min-width: 126px;
-  padding: 5px 10px;
+  min-width: auto;
+  padding: 5px 2px;
   font-size: 12px;
   font-weight: 700;
 }
@@ -346,9 +347,9 @@ html[lang='ta'] .nav-account-button {
 .header-language__trigger:hover,
 .header-language__trigger.is-open {
   color: #fff;
-  background: linear-gradient(135deg, #91414a, #5b2028);
-  border-color: #d8b65f;
-  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+  background: transparent;
+  border-bottom-color: #d8b65f;
+  box-shadow: none;
   transform: translateY(-1px);
 }
 .header-language__menu {
@@ -1079,7 +1080,7 @@ html[data-theme='dark'] .app-shell--admin .site-main {
     left: auto;
     transform: none;
   }
-  .header-language__trigger { min-width: 112px; padding-inline: 8px; font-size: 11px; }
+  .header-language__trigger { min-width: auto; padding-inline: 2px; font-size: 11px; }
   .government-brand { gap: 14px; }
   .government-emblem-frame {
     flex-basis: 72px;
