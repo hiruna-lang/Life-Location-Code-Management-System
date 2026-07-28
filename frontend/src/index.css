@@ -1019,6 +1019,10 @@ html[data-theme='dark'] .app-shell--admin .site-main {
   width: 100%;
   padding-right: 0;
 }
+.login-header .site-container > a {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .login-main { flex: 1; display: grid; place-items: center; padding: 54px 24px; background: linear-gradient(90deg, rgba(113,43,49,.04), transparent 26%, transparent 74%, rgba(113,43,49,.04)); }
 .login-card { width: min(100%, 480px); padding: 38px 42px 34px; background: #fff; border: 1px solid var(--border); border-top: 6px solid var(--primary); box-shadow: var(--shadow); }
 .login-card__heading { margin-bottom: 27px; }
