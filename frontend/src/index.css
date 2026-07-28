@@ -608,6 +608,8 @@ html[lang='ta'] .nav-account-button {
 .account-name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
 .role-badge { padding: 2px 7px; border-radius: 10px; background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
 .site-nav__toggle {
+  position: absolute;
+  right: min(0px, calc(50% - 50vw + 18px));
   order: 2;
   display: inline-flex;
   min-width: 102px;
