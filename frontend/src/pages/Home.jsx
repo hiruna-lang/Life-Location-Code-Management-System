@@ -37,15 +37,15 @@ export default function Home() {
       <section className="service-grid" aria-label={t('publicService')}>
         <Link className="service-card" to="/search">
           <span className="service-card__number">01</span>
-          <div><h3>{t('locationServiceTitle')}</h3><p>{t('locationServiceDesc')}</p><span className="text-link">{t('openService')} →</span></div>
+          <div><h3>{t('locationServiceTitle')}</h3><p>{t('locationServiceDesc')}</p><span className="text-link">{t('openService')} <span aria-hidden="true">→</span></span></div>
         </Link>
         <Link className="service-card" to="/same-gn">
           <span className="service-card__number">02</span>
-          <div><h3>{t('analysisTitle')}</h3><p>{t('analysisDesc')}</p><span className="text-link">{t('viewAnalysis')} →</span></div>
+          <div><h3>{t('analysisTitle')}</h3><p>{t('analysisDesc')}</p><span className="text-link">{t('viewAnalysis')} <span aria-hidden="true">→</span></span></div>
         </Link>
         <Link className="service-card" to="/login">
           <span className="service-card__number">03</span>
-          <div><h3>{t('officerPortal')}</h3><p>{t('officerPortalDesc')}</p><span className="text-link">{t('officerLogin')} →</span></div>
+          <div><h3>{t('officerPortal')}</h3><p>{t('officerPortalDesc')}</p><span className="text-link">{t('officerLogin')} <span aria-hidden="true">→</span></span></div>
         </Link>
       </section>
 
