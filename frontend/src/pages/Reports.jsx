@@ -3,6 +3,7 @@ import api from '../api/axios'
 import Table from '../components/Table'
 import StatusBadge from '../components/StatusBadge'
 import PrintLetterModal from '../components/PrintLetterModal'
+import LanguageSelectModal from '../components/LanguageSelectModal'
 import ConfirmModal from '../components/ConfirmModal'
 import { useAuth } from '../context/AuthContext'
 
@@ -18,6 +19,8 @@ export default function Reports() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading]   = useState(false)
   const [printTarget, setPrintTarget] = useState(null)
+  const [printLanguage, setPrintLanguage] = useState(null)
+  const [showLangModal, setShowLangModal] = useState(false)
   const [unlocking, setUnlocking] = useState(null)
   const [unlockTarget, setUnlockTarget] = useState(null)
   const logsRef = useRef(null)
@@ -71,7 +74,7 @@ export default function Reports() {
     { key:'actions', label:'', render: r => {
       if (r.status === 'pending') {
         return (
-          <button onClick={() => setPrintTarget(r)} style={{padding:'5px 10px',background:'var(--warning)',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
+          <button onClick={() => { setPrintTarget(r); setShowLangModal(true) }} style={{padding:'5px 10px',background:'var(--warning)',color:'#fff',border:'none',borderRadius:5,fontSize:12,fontWeight:700,cursor:'pointer'}}>
             Print Letter
           </button>
         )
@@ -155,7 +158,13 @@ export default function Reports() {
         <Table columns={logCols} data={logs} emptyMsg="No logs found." />
       </div>
 
-      <PrintLetterModal target={printTarget} onClose={() => setPrintTarget(null)} />
+      <LanguageSelectModal
+        show={showLangModal}
+        onSelect={(lang) => { setPrintLanguage(lang); setShowLangModal(false) }}
+        onClose={() => { setShowLangModal(false); setPrintTarget(null) }}
+      />
+
+      <PrintLetterModal target={printTarget} language={printLanguage} onClose={() => { setPrintTarget(null); setPrintLanguage(null) }} />
 
       <ConfirmModal
         show={!!unlockTarget}
