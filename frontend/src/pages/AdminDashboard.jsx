@@ -8,7 +8,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [dsOptions, setDsOptions] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [addFormRole, setAddFormRole] = useState(null);
   const [newUser, setNewUser] = useState({ 
     name: '', 
     email: '', 
@@ -23,7 +23,6 @@ export default function AdminDashboard() {
   const [savingUser, setSavingUser] = useState(false);
   const [accountMsg, setAccountMsg] = useState('');
   const [accountError, setAccountError] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,19 +42,15 @@ export default function AdminDashboard() {
     setUsers(data);
   };
 
-  const filteredUsers = users.filter(user => {
-    if (userRoleFilter === 'all') return true;
-    if (userRoleFilter === 'admin') return user.role === 'admin';
-    if (userRoleFilter === 'officer') return user.role === 'officer';
-    return true;
-  });
+  const adminUsers = users.filter(user => user.role === 'admin');
+  const officerUsers = users.filter(user => user.role === 'officer');
 
-  const openAddForm = () => {
-    setNewUser({ name: '', email: '', password: '', role: 'officer', ds_id: '' });
+  const openAddForm = (role) => {
+    setNewUser({ name: '', email: '', password: '', role, ds_id: '' });
     setDsSearch('');
     setAccountMsg('');
     setAccountError('');
-    setShowAddForm(true);
+    setAddFormRole(role);
   };
 
   const createAccount = async (event) => {
@@ -73,7 +68,7 @@ export default function AdminDashboard() {
       };
       const { data } = await api.post('/admin/users', payload);
       await refreshUsers();
-      setShowAddForm(false);
+      setAddFormRole(null);
       setAccountMsg(`${data.user.name} account created.`);
     } catch (error) {
       const errors = error.response?.data?.errors;
@@ -93,7 +88,7 @@ export default function AdminDashboard() {
       name: user.name,
       email: user.email,
       password: '',
-      role: 'officer',
+      role: user.role,
       ds_id: user.active_ds_assignment?.divisional_secretariat_id || '',
       is_active: user.is_active,
     });
@@ -113,8 +108,8 @@ export default function AdminDashboard() {
       const payload = {
         name: editingUser.name,
         email: editingUser.email,
-        role: 'officer',
-        ds_id: editingUser.ds_id,
+        role: editingUser.role,
+        ds_id: editingUser.role === 'officer' ? editingUser.ds_id : null,
         is_active: editingUser.is_active,
       };
       if (editingUser.password) payload.password = editingUser.password;
@@ -140,7 +135,7 @@ export default function AdminDashboard() {
       const { data } = await api.put(`/admin/users/${user.id}`, {
         name: user.name,
         email: user.email,
-        role: 'officer',
+        role: user.role,
         ds_id: user.active_ds_assignment?.divisional_secretariat_id,
         is_active: !user.is_active,
       });
@@ -170,14 +165,23 @@ export default function AdminDashboard() {
     ds.name_english.toLowerCase().includes(dsSearch.toLowerCase())
   );
 
-  const userCols = [
+  const adminCols = [
     { key: 'name', label: 'Name', render: r => <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{r.name}</span> },
     { key: 'email', label: 'Email' },
-    { key: 'role', label: 'Role', render: r => <span className="role-badge">{r.role === 'admin' ? 'System Administrator' : 'Divisional Secretary'}</span> },
+    { key: 'is_active', label: 'Status', render: r => <StatusBadge status={r.is_active ? 'active' : 'disabled'} /> },
+    { key: 'created_at', label: 'Created', render: r => r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' },
+    { key: 'actions', label: 'Actions', render: r => (
+      <button onClick={() => startEdit(r)} style={{ padding: '6px 12px', border: '1px solid var(--border)', background: '#fff', color: 'var(--primary)', borderRadius: 6, fontWeight: 600, fontSize: 13 }}>Edit</button>
+    ) },
+  ];
+
+  const officerCols = [
+    { key: 'name', label: 'Name', render: r => <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{r.name}</span> },
+    { key: 'email', label: 'Email' },
     { key: 'is_active', label: 'Status', render: r => <StatusBadge status={r.is_active ? 'active' : 'disabled'} /> },
     { key: 'ds', label: 'Assigned DS', render: r => r.active_ds_assignment?.divisional_secretariat?.name_english || '-' },
     { key: 'created_at', label: 'Created', render: r => r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' },
-    { key: 'actions', label: 'Actions', render: r => r.role === 'officer' ? (
+    { key: 'actions', label: 'Actions', render: r => (
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <button onClick={() => startEdit(r)} style={{ padding: '6px 12px', border: '1px solid var(--border)', background: '#fff', color: 'var(--primary)', borderRadius: 6, fontWeight: 600, fontSize: 13 }}>Edit</button>
         <button onClick={() => toggleActive(r)} style={{ padding: '6px 12px', border: 'none', background: r.is_active ? 'var(--warning)' : 'var(--success)', color: '#fff', borderRadius: 6, fontWeight: 600, fontSize: 13 }}>
@@ -185,7 +189,7 @@ export default function AdminDashboard() {
         </button>
         <button onClick={() => deleteAccount(r)} style={{ padding: '6px 12px', border: 'none', background: 'var(--accent)', color: '#fff', borderRadius: 6, fontWeight: 600, fontSize: 13 }}>Delete</button>
       </div>
-    ) : '-' },
+    ) },
   ];
 
   return (
@@ -250,7 +254,90 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* User Accounts Section - More Professional Card */}
+      {/* Messages */}
+      {accountMsg && (
+        <div style={{ 
+          background: '#eafaf1', 
+          border: '1px solid #82e0aa', 
+          color: '#1e8449', 
+          padding: '12px 16px', 
+          borderRadius: 8, 
+          marginBottom: 20, 
+          fontSize: 14 
+        }}>
+          {accountMsg}
+        </div>
+      )}
+      {accountError && (
+        <div style={{ 
+          background: '#fdedec', 
+          border: '1px solid #f1948a', 
+          color: '#c0392b', 
+          padding: '12px 16px', 
+          borderRadius: 8, 
+          marginBottom: 20, 
+          fontSize: 14 
+        }}>
+          {accountError}
+        </div>
+      )}
+
+      {/* System Administrators Section */}
+      <div style={{ 
+        background: 'var(--surface)', 
+        borderRadius: 12, 
+        padding: 28, 
+        boxShadow: 'var(--shadow)', 
+        border: '1px solid var(--border)',
+        marginBottom: 32 
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          marginBottom: 24,
+          flexWrap: 'wrap',
+          gap: 16 
+        }}>
+          <div>
+            <h3 style={{ 
+              color: 'var(--primary)', 
+              fontSize: 20, 
+              fontWeight: 700, 
+              margin: 0,
+              letterSpacing: '-0.01em'
+            }}>
+              System Administrators
+            </h3>
+            <p style={{ margin: '4px 0 0', color: 'var(--text-muted)', fontSize: 14 }}>
+              {adminUsers.length} administrator{adminUsers.length === 1 ? '' : 's'}
+            </p>
+          </div>
+          <button 
+            onClick={() => openAddForm('admin')}
+            style={{ 
+              padding: '10px 20px', 
+              background: 'var(--primary)', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: 8, 
+              fontWeight: 700, 
+              fontSize: 14,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            + Add System Administrator
+          </button>
+        </div>
+
+        <Table columns={adminCols} data={adminUsers} emptyMsg="No system administrator accounts found." />
+      </div>
+
+      {/* Divisional Secretaries Section */}
       <div style={{ 
         background: 'var(--surface)', 
         borderRadius: 12, 
@@ -274,135 +361,127 @@ export default function AdminDashboard() {
               margin: 0,
               letterSpacing: '-0.01em'
             }}>
-              User Accounts
+              Divisional Secretaries
             </h3>
             <p style={{ margin: '4px 0 0', color: 'var(--text-muted)', fontSize: 14 }}>
-              Manage system administrators and divisional secretaries
+              {officerUsers.length} divisional secretar{officerUsers.length === 1 ? 'y' : 'ies'}
             </p>
           </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <button 
-              onClick={openAddForm}
-              style={{ 
-                padding: '10px 20px', 
-                background: 'var(--primary)', 
-                color: '#fff', 
-                border: 'none', 
-                borderRadius: 8, 
-                fontWeight: 700, 
-                fontSize: 14,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-              }}
-            >
-              + Add New User
-            </button>
-
-            <span style={{ fontSize: 14, color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              {filteredUsers.length} total accounts
-            </span>
-
-            <select 
-              value={userRoleFilter} 
-              onChange={e => setUserRoleFilter(e.target.value)}
-              style={{ 
-                padding: '8px 14px', 
-                border: '1px solid var(--border)', 
-                borderRadius: 8, 
-                fontSize: 14,
-                background: 'white',
-                minWidth: 180
-              }}
-            >
-              <option value="all">All Accounts</option>
-              <option value="admin">System Administrators</option>
-              <option value="officer">Divisional Secretaries</option>
-            </select>
-          </div>
+          <button 
+            onClick={() => openAddForm('officer')}
+            style={{ 
+              padding: '10px 20px', 
+              background: 'var(--primary)', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: 8, 
+              fontWeight: 700, 
+              fontSize: 14,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            + Add Divisional Secretary
+          </button>
         </div>
 
-        {/* Messages */}
-        {accountMsg && (
-          <div style={{ 
-            background: '#eafaf1', 
-            border: '1px solid #82e0aa', 
-            color: '#1e8449', 
-            padding: '12px 16px', 
-            borderRadius: 8, 
-            marginBottom: 20, 
-            fontSize: 14 
-          }}>
-            {accountMsg}
-          </div>
-        )}
-        {accountError && (
-          <div style={{ 
-            background: '#fdedec', 
-            border: '1px solid #f1948a', 
-            color: '#c0392b', 
-            padding: '12px 16px', 
-            borderRadius: 8, 
-            marginBottom: 20, 
-            fontSize: 14 
-          }}>
-            {accountError}
-          </div>
-        )}
+        <Table columns={officerCols} data={officerUsers} emptyMsg="No divisional secretary accounts found." />
+      </div>
 
-        <Table columns={userCols} data={filteredUsers} emptyMsg="No user accounts found." />
-
-        {/* Add User Modal - Enhanced Professional Design */}
-        {showAddForm && (
+      {/* Add User Modal - Enhanced Professional Design */}
+      {addFormRole && (
+        <div
+          style={{
+            position: 'fixed', 
+            inset: 0, 
+            background: 'rgba(0,0,0,0.5)', 
+            zIndex: 1000,
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center'
+          }}
+          onClick={() => setAddFormRole(null)}
+        >
           <div
             style={{
-              position: 'fixed', 
-              inset: 0, 
-              background: 'rgba(0,0,0,0.5)', 
-              zIndex: 1000,
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center'
+              background: '#fff', 
+              borderRadius: 16, 
+              padding: 32, 
+              width: 460,
+              boxShadow: '0 25px 70px rgba(0,0,0,0.3)', 
+              maxHeight: '92vh', 
+              overflow: 'auto'
             }}
-            onClick={() => setShowAddForm(false)}
+            onClick={e => e.stopPropagation()}
           >
-            <div
-              style={{
-                background: '#fff', 
-                borderRadius: 16, 
-                padding: 32, 
-                width: 460,
-                boxShadow: '0 25px 70px rgba(0,0,0,0.3)', 
-                maxHeight: '92vh', 
-                overflow: 'auto'
-              }}
-              onClick={e => e.stopPropagation()}
-            >
-              <h3 style={{ 
-                color: 'var(--primary)', 
-                fontSize: 22, 
-                fontWeight: 700, 
-                marginBottom: 24,
-                letterSpacing: '-0.02em'
-              }}>
-                Create New User Account
-              </h3>
+            <h3 style={{ 
+              color: 'var(--primary)', 
+              fontSize: 22, 
+              fontWeight: 700, 
+              marginBottom: 24,
+              letterSpacing: '-0.02em'
+            }}>
+              {addFormRole === 'admin' ? 'Create System Administrator' : 'Create Divisional Secretary'}
+            </h3>
 
-              <form onSubmit={createAccount} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                {/* Role Selection */}
-                <div>
+            <form onSubmit={createAccount} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Full Name
+                </label>
+                <input 
+                  value={newUser.name} 
+                  onChange={e => setNewUser(p => ({ ...p, name: e.target.value }))} 
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
+                  required 
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Email Address
+                </label>
+                <input 
+                  type="email" 
+                  value={newUser.email} 
+                  onChange={e => setNewUser(p => ({ ...p, email: e.target.value }))} 
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
+                  required 
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Password
+                </label>
+                <input 
+                  type="password" 
+                  minLength={8} 
+                  value={newUser.password} 
+                  onChange={e => setNewUser(p => ({ ...p, password: e.target.value }))} 
+                  style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
+                  required 
+                />
+              </div>
+
+              {newUser.role === 'officer' && (
+                <div style={{ position: 'relative' }}>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                    Account Type
+                    Divisional Secretariat
                   </label>
-                  <select 
-                    value={newUser.role} 
+                  <input
+                    type="text"
+                    placeholder="Search and select DS division..."
+                    value={dsSearch}
                     onChange={e => { 
-                      setNewUser(p => ({ ...p, role: e.target.value, ds_id: e.target.value === 'admin' ? '' : p.ds_id })); 
-                      setDsSearch(''); 
-                    }} 
+                      setDsSearch(e.target.value); 
+                      setDsDropdownOpen(true); 
+                      setNewUser(p => ({ ...p, ds_id: '' })); 
+                    }}
+                    onFocus={() => setDsDropdownOpen(true)}
                     style={{ 
                       width: '100%', 
                       padding: '11px 14px', 
@@ -410,204 +489,160 @@ export default function AdminDashboard() {
                       borderRadius: 8, 
                       fontSize: 15 
                     }}
-                    required
-                  >
-                    <option value="officer">Divisional Secretary</option>
-                    <option value="admin">System Administrator</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                    Full Name
-                  </label>
-                  <input 
-                    value={newUser.name} 
-                    onChange={e => setNewUser(p => ({ ...p, name: e.target.value }))} 
-                    style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
-                    required 
+                    required={newUser.role === 'officer'}
                   />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                    Email Address
-                  </label>
-                  <input 
-                    type="email" 
-                    value={newUser.email} 
-                    onChange={e => setNewUser(p => ({ ...p, email: e.target.value }))} 
-                    style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
-                    required 
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                    Password
-                  </label>
-                  <input 
-                    type="password" 
-                    minLength={8} 
-                    value={newUser.password} 
-                    onChange={e => setNewUser(p => ({ ...p, password: e.target.value }))} 
-                    style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
-                    required 
-                  />
-                </div>
-
-                {newUser.role === 'officer' && (
-                  <div style={{ position: 'relative' }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                      Divisional Secretariat
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Search and select DS division..."
-                      value={dsSearch}
-                      onChange={e => { 
-                        setDsSearch(e.target.value); 
-                        setDsDropdownOpen(true); 
-                        setNewUser(p => ({ ...p, ds_id: '' })); 
-                      }}
-                      onFocus={() => setDsDropdownOpen(true)}
-                      style={{ 
-                        width: '100%', 
-                        padding: '11px 14px', 
-                        border: '1px solid var(--border)', 
-                        borderRadius: 8, 
-                        fontSize: 15 
-                      }}
-                      required={newUser.role === 'officer'}
-                    />
-                    
-                    {dsDropdownOpen && (
-                      <div style={{
-                        position: 'absolute', 
-                        top: '100%', 
-                        left: 0, 
-                        right: 0, 
-                        zIndex: 20,
-                        background: '#fff', 
-                        border: '1px solid var(--border)', 
-                        borderRadius: 8,
-                        maxHeight: 240, 
-                        overflow: 'auto', 
-                        marginTop: 6, 
-                        boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
-                      }}>
-                        {filteredDs.length === 0 ? (
-                          <div style={{ padding: '14px 16px', color: 'var(--text-muted)', fontSize: 14 }}>No matching divisions found</div>
-                        ) : (
-                          filteredDs.map(ds => (
-                            <div
-                              key={ds.id}
-                              onClick={() => { 
-                                setNewUser(p => ({ ...p, ds_id: ds.id })); 
-                                setDsSearch(ds.name_english); 
-                                setDsDropdownOpen(false); 
-                              }}
-                              style={{
-                                padding: '12px 16px', 
-                                cursor: 'pointer', 
-                                fontSize: 15,
-                                borderBottom: '1px solid var(--border)',
-                                background: newUser.ds_id === ds.id ? '#f0f4ff' : 'transparent'
-                              }}
-                              onMouseEnter={e => e.target.style.background = '#f8f9fa'}
-                              onMouseLeave={e => e.target.style.background = newUser.ds_id === ds.id ? '#f0f4ff' : 'transparent'}
-                            >
-                              {ds.name_english}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-                  <button 
-                    type="submit" 
-                    disabled={creatingUser}
-                    style={{ 
-                      flex: 1, 
-                      padding: '13px 20px', 
-                      background: 'var(--primary)', 
-                      color: '#fff', 
-                      border: 'none', 
-                      borderRadius: 8, 
-                      fontWeight: 700, 
-                      fontSize: 15 
-                    }}
-                  >
-                    {creatingUser ? 'Creating Account...' : 'Create Account'}
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setShowAddForm(false)}
-                    style={{ 
-                      flex: 1, 
-                      padding: '13px 20px', 
+                  
+                  {dsDropdownOpen && (
+                    <div style={{
+                      position: 'absolute', 
+                      top: '100%', 
+                      left: 0, 
+                      right: 0, 
+                      zIndex: 20,
                       background: '#fff', 
-                      color: 'var(--primary)', 
                       border: '1px solid var(--border)', 
-                      borderRadius: 8, 
-                      fontWeight: 700, 
-                      fontSize: 15 
-                    }}
-                  >
-                    Cancel
-                  </button>
+                      borderRadius: 8,
+                      maxHeight: 240, 
+                      overflow: 'auto', 
+                      marginTop: 6, 
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
+                    }}>
+                      {filteredDs.length === 0 ? (
+                        <div style={{ padding: '14px 16px', color: 'var(--text-muted)', fontSize: 14 }}>No matching divisions found</div>
+                      ) : (
+                        filteredDs.map(ds => (
+                          <div
+                            key={ds.id}
+                            onClick={() => { 
+                              setNewUser(p => ({ ...p, ds_id: ds.id })); 
+                              setDsSearch(ds.name_english); 
+                              setDsDropdownOpen(false); 
+                            }}
+                            style={{
+                              padding: '12px 16px', 
+                              cursor: 'pointer', 
+                              fontSize: 15,
+                              borderBottom: '1px solid var(--border)',
+                              background: newUser.ds_id === ds.id ? '#f0f4ff' : 'transparent'
+                            }}
+                            onMouseEnter={e => e.target.style.background = '#f8f9fa'}
+                            onMouseLeave={e => e.target.style.background = newUser.ds_id === ds.id ? '#f0f4ff' : 'transparent'}
+                          >
+                            {ds.name_english}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
-              </form>
-            </div>
-          </div>
-        )}
+              )}
 
-        {/* Edit User Form - Professional Inline Design */}
-        {editingUser && (
-          <form 
-            onSubmit={saveEdit} 
-            style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-              gap: 18, 
-              padding: 24, 
-              border: '2px solid var(--info)', 
-              borderRadius: 12, 
-              background: '#f8fbff',
-              marginBottom: 28 
+              <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                <button 
+                  type="submit" 
+                  disabled={creatingUser}
+                  style={{ 
+                    flex: 1, 
+                    padding: '13px 20px', 
+                    background: 'var(--primary)', 
+                    color: '#fff', 
+                    border: 'none', 
+                    borderRadius: 8, 
+                    fontWeight: 700, 
+                    fontSize: 15 
+                  }}
+                >
+                  {creatingUser ? 'Creating Account...' : 'Create Account'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setAddFormRole(null)}
+                  style={{ 
+                    flex: 1, 
+                    padding: '13px 20px', 
+                    background: '#fff', 
+                    color: 'var(--primary)', 
+                    border: '1px solid var(--border)', 
+                    borderRadius: 8, 
+                    fontWeight: 700, 
+                    fontSize: 15 
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Form - Professional Inline Design */}
+      {editingUser && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+          onClick={cancelEdit}
+        >
+          <form
+            onSubmit={saveEdit}
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 32,
+              width: 460,
+              boxShadow: '0 25px 70px rgba(0,0,0,0.3)',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18
             }}
           >
+            <h3 style={{ 
+              color: 'var(--primary)', 
+              fontSize: 22, 
+              fontWeight: 700, 
+              marginBottom: 6,
+              letterSpacing: '-0.02em'
+            }}>
+              Edit {editingUser.role === 'admin' ? 'System Administrator' : 'Divisional Secretary'}
+            </h3>
+
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--primary)' }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                 Full Name
               </label>
               <input 
                 value={editingUser.name} 
                 onChange={e => setEditingUser(p => ({ ...p, name: e.target.value }))} 
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
+                style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
                 required 
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--primary)' }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                 Email
               </label>
               <input 
                 type="email" 
                 value={editingUser.email} 
                 onChange={e => setEditingUser(p => ({ ...p, email: e.target.value }))} 
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
+                style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
                 required 
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--primary)' }}>
-                New Password <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(optional)</span>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                New Password <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional)</span>
               </label>
               <input 
                 type="password" 
@@ -615,57 +650,56 @@ export default function AdminDashboard() {
                 value={editingUser.password} 
                 onChange={e => setEditingUser(p => ({ ...p, password: e.target.value }))} 
                 placeholder="Leave blank to keep current" 
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
+                style={{ width: '100%', padding: '11px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 15 }} 
               />
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--primary)' }}>
-                Divisional Secretariat
-              </label>
-              <select 
-                value={editingUser.ds_id} 
-                onChange={e => setEditingUser(p => ({ ...p, ds_id: e.target.value }))} 
-                style={{ 
-                  width: '100%', 
-                  padding: '10px 12px', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: 8, 
-                  fontSize: 15 
-                }} 
-                required
-              >
-                <option value="">Select DS Division</option>
-                {dsOptions.map(ds => (
-                  <option key={ds.id} value={ds.id}>{ds.name_english}</option>
-                ))}
-              </select>
-            </div>
+            {editingUser.role === 'officer' && (
+              <>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Divisional Secretariat
+                  </label>
+                  <select 
+                    value={editingUser.ds_id} 
+                    onChange={e => setEditingUser(p => ({ ...p, ds_id: e.target.value }))} 
+                    style={{ 
+                      width: '100%', 
+                      padding: '11px 14px', 
+                      border: '1px solid var(--border)', 
+                      borderRadius: 8, 
+                      fontSize: 15 
+                    }} 
+                    required
+                  >
+                    <option value="">Select DS Division</option>
+                    {dsOptions.map(ds => (
+                      <option key={ds.id} value={ds.id}>{ds.name_english}</option>
+                    ))}
+                  </select>
+                </div>
 
-            <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-              <input 
-                type="checkbox" 
-                checked={editingUser.is_active} 
-                onChange={e => setEditingUser(p => ({ ...p, is_active: e.target.checked }))} 
-                style={{ width: 20, height: 20 }}
-              />
-              <label style={{ fontSize: 15, fontWeight: 600, color: 'var(--primary)' }}>
-                Account is active
-              </label>
-            </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={editingUser.is_active} 
+                    onChange={e => setEditingUser(p => ({ ...p, is_active: e.target.checked }))} 
+                    style={{ width: 20, height: 20 }}
+                  />
+                  <label style={{ fontSize: 15, fontWeight: 600, color: 'var(--primary)' }}>
+                    Account is active
+                  </label>
+                </div>
+              </>
+            )}
 
-            <div style={{ 
-              display: 'flex', 
-              gap: 12, 
-              gridColumn: '1 / -1',
-              marginTop: 12 
-            }}>
+            <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
               <button 
                 type="submit" 
                 disabled={savingUser}
                 style={{ 
                   flex: 1,
-                  padding: '12px 20px', 
+                  padding: '13px 20px', 
                   background: 'var(--primary)', 
                   color: '#fff', 
                   border: 'none', 
@@ -681,7 +715,7 @@ export default function AdminDashboard() {
                 onClick={cancelEdit}
                 style={{ 
                   flex: 1,
-                  padding: '12px 20px', 
+                  padding: '13px 20px', 
                   background: '#fff', 
                   color: 'var(--primary)', 
                   border: '1px solid var(--border)', 
@@ -694,8 +728,8 @@ export default function AdminDashboard() {
               </button>
             </div>
           </form>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 } 
