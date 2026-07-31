@@ -22,12 +22,12 @@ const headerData = {
   },
 }
 
-export function renderLetterHeader(origin) {
+export function renderLetterHeader(origin, lang = 'en') {
   const logoUrl = `${origin}/government-logo.jpg`
   const { ministry, division, address, contact } = headerData
 
   return `
-    <div class="letter-header">
+    <div class="letter-header${lang === 'ta' ? ' letter-header--tamil' : ''}">
       <div class="letter-header__top">
         <img src="${logoUrl}" alt="Government Emblem" class="letter-header__emblem" />
         <div class="letter-header__ministry">
@@ -59,9 +59,14 @@ export function renderLetterHeader(origin) {
   `
 }
 
-export function letterHeaderStyles() {
+export function letterHeaderStyles(lang = 'en') {
+  const isTamil = lang === 'ta'
+
   return `
     .letter-header { margin-bottom: 16px; }
+    .letter-header--tamil .letter-header__ministry-line { font-size: 9pt; }
+    .letter-header--tamil .letter-header__ministry-line--english { font-size: 10pt; }
+    .letter-header--tamil .letter-header__bottom { font-size: 8.5pt; }
     .letter-header__top { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
     .letter-header__emblem { width: 60px; height: 60px; object-fit: contain; flex-shrink: 0; }
     .letter-header__ministry { flex: 1; }
