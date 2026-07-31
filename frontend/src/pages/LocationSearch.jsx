@@ -9,6 +9,17 @@ import './LocationSearch.css'
 const friendlyApiError = 'Unable to load location data right now. Please check the Laravel API and try again.'
 const provinceButtonColors = ['#2f628f', '#2f6f4e', '#a96f15', '#9f252d', '#6a65a8', '#168b8b', '#7d8b16', '#8a4f2a', '#712b31']
 const smoothTransition = { duration: 0.32, ease: [0.22, 1, 0.36, 1] }
+const provinceConnectors = {
+  northern: { path: 'M150 127 H220 L265 150', x: 265, y: 150 },
+  northcentral: { path: 'M470 91 H430 L300 299', x: 300, y: 299 },
+  eastern: { path: 'M470 189 H438 L392 358', x: 392, y: 358 },
+  northwestern: { path: 'M150 251 H205 L227 354', x: 227, y: 354 },
+  central: { path: 'M470 299 H420 L304 406', x: 304, y: 406 },
+  western: { path: 'M150 381 H205 L221 440', x: 221, y: 440 },
+  uva: { path: 'M470 419 H425 L368 457', x: 368, y: 457 },
+  sabaragamuwa: { path: 'M174 503 H220 L250 452', x: 250, y: 452 },
+  southern: { path: 'M448 519 H410 L304 533', x: 304, y: 533 },
+}
 
 export default function LocationSearch() {
   const { t, localizedName } = useLanguage()
@@ -220,7 +231,7 @@ export default function LocationSearch() {
         animate={{ opacity: 1, y: 0 }}
         transition={smoothTransition}
       >
-        <span>Administrative location browser</span>
+        <span>{t('locationBrowser')}</span>
         <AnimatePresence mode="wait" initial={false}>
           <motion.h1
             key={selectedProvinceName || 'all-districts'}
@@ -229,10 +240,12 @@ export default function LocationSearch() {
             exit={{ opacity: 0, y: -6 }}
             transition={smoothTransition}
           >
-            {selectedProvinceName ? `${selectedProvinceName} District Map` : 'Sri Lanka District Map'}
+            {selectedProvinceName
+              ? t('districtMapSelected', { province: selectedProvinceName })
+              : t('districtMapAll')}
           </motion.h1>
         </AnimatePresence>
-        <p>Explore provinces and navigate through districts, divisional secretariats, and GN divisions.</p>
+        <p>{t('locationBrowserDescription')}</p>
       </motion.header>
 
       <motion.section
@@ -313,7 +326,9 @@ export default function LocationSearch() {
               items={districts}
               selectedId={selected.district?.id}
               onSelect={selectDistrict}
-              emptyText="No districts loaded."
+              emptyText={t('noDistricts')}
+              searchLabel={t('searchArea', { area: t('district') })}
+              noMatchesText={t('noMatchingRecords')}
               localizedName={localizedName}
             />
             <HierarchyColumn
@@ -321,7 +336,9 @@ export default function LocationSearch() {
               items={dsList}
               selectedId={selected.ds?.id}
               onSelect={handleDsClick}
-              emptyText={selected.district ? 'No DS divisions found.' : 'Select a district first.'}
+              emptyText={selected.district ? t('noDsDivisions') : t('selectDistrictFirst')}
+              searchLabel={t('searchArea', { area: t('ds') })}
+              noMatchesText={t('noMatchingRecords')}
               localizedName={localizedName}
             />
             <HierarchyColumn
@@ -329,7 +346,9 @@ export default function LocationSearch() {
               items={gnList}
               selectedId={selected.gn?.id}
               onSelect={handleGnClick}
-              emptyText={selected.ds ? 'No GN divisions found.' : 'Select a DS division first.'}
+              emptyText={selected.ds ? t('noGnDivisions') : t('selectDsFirst')}
+              searchLabel={t('searchArea', { area: t('gn') })}
+              noMatchesText={t('noMatchingRecords')}
               localizedName={localizedName}
             />
           </div>
@@ -355,46 +374,27 @@ export default function LocationSearch() {
 
 function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
   if (provinces.length === 0) return null
+  const selectedProvince = provinces.find(province => String(province.id) === String(selectedId))
+  const selectedProvinceKey = selectedProvince
+    ? normalizeName(selectedProvince.name_english || selectedProvince.name || '')
+    : ''
 
   return (
     <div className="location-province-orbit" aria-label="Select province">
       <svg className="location-province-connectors" viewBox="0 0 620 650" aria-hidden="true">
-        <g>
-          <path d="M150 127 H220 L265 150" />
-          <circle cx="265" cy="150" r="4" />
-        </g>
-        <g>
-          <path d="M470 91 H430 L310 275" />
-          <circle cx="310" cy="275" r="4" />
-        </g>
-        <g>
-          <path d="M470 189 H438 L397 370" />
-          <circle cx="397" cy="370" r="4" />
-        </g>
-        <g>
-          <path d="M150 251 H215 L235 350" />
-          <circle cx="235" cy="350" r="4" />
-        </g>
-        <g>
-          <path d="M470 299 H420 L325 375" />
-          <circle cx="325" cy="375" r="4" />
-        </g>
-        <g>
-          <path d="M150 381 H220 L230 435" />
-          <circle cx="230" cy="435" r="4" />
-        </g>
-        <g>
-          <path d="M470 419 H425 L365 455" />
-          <circle cx="365" cy="455" r="4" />
-        </g>
-        <g>
-          <path d="M174 503 H225 L285 470" />
-          <circle cx="285" cy="470" r="4" />
-        </g>
-        <g>
-          <path d="M448 519 H410 L325 545" />
-          <circle cx="325" cy="545" r="4" />
-        </g>
+        {Object.entries(provinceConnectors).map(([provinceKey, connector]) => (
+          <g
+            key={provinceKey}
+            className={
+              selectedProvinceKey
+                ? provinceKey === selectedProvinceKey ? 'is-selected' : 'is-muted'
+                : ''
+            }
+          >
+            <path d={connector.path} />
+            <circle cx={connector.x} cy={connector.y} r="4" />
+          </g>
+        ))}
       </svg>
       {provinces.map((province, index) => {
         const isSelected = String(selectedId) === String(province.id)
@@ -440,7 +440,7 @@ function getProvincePosition(province, fallbackIndex) {
   ][fallbackIndex % 9]
 }
 
-function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, localizedName }) {
+function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, searchLabel, noMatchesText, localizedName }) {
   const bodyRef = useRef(null)
   const [searchTerm, setSearchTerm] = useState('')
   const selectedItem = selectedId ? items.find(item => String(item.id) === String(selectedId)) : null
@@ -477,8 +477,8 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
           type="search"
           value={searchTerm}
           onChange={event => setSearchTerm(event.target.value)}
-          placeholder={`Search ${title}`}
-          aria-label={`Search ${title}`}
+          placeholder={searchLabel}
+          aria-label={searchLabel}
         />
       </div>
       <motion.div className="location-hierarchy-column__body" ref={bodyRef} layout>
@@ -504,7 +504,7 @@ function HierarchyColumn({ title, items, selectedId, onSelect, emptyText, locali
             exit={{ opacity: 0, y: -6 }}
             transition={smoothTransition}
           >
-            No matching records.
+            {noMatchesText}
           </motion.div>
         )}
         {visibleItems.map(item => {

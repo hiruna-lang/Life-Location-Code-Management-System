@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import GovernmentBrand from './GovernmentBrand'
@@ -25,7 +25,42 @@ export default function Layout({ children, admin = false }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [languageOpen, setLanguageOpen] = useState(false)
+  const navRef = useRef(null)
+  const languageRef = useRef(null)
   const { language, setLanguage, t } = useLanguage()
+
+  useEffect(() => {
+    delete document.documentElement.dataset.theme
+    localStorage.removeItem('llcms_theme')
+  }, [])
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+
+    const closeOnOutsideClick = event => {
+      if (!navRef.current?.contains(event.target)) setMenuOpen(false)
+    }
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    if (!languageOpen) return undefined
+    const closeLanguageMenu = event => {
+      if (!languageRef.current?.contains(event.target)) setLanguageOpen(false)
+    }
+    document.addEventListener('pointerdown', closeLanguageMenu)
+    return () => document.removeEventListener('pointerdown', closeLanguageMenu)
+  }, [languageOpen])
 
   const handleLogout = async () => {
     await logout()
@@ -36,17 +71,6 @@ export default function Layout({ children, admin = false }) {
 
   return (
     <div className={admin ? 'app-shell app-shell--admin' : 'app-shell'}>
-      <div className="utility-bar">
-        <div className="site-container utility-bar__inner">
-          <span>{t('officialService')}</span>
-          <div className="utility-bar__links">
-            <button className={language === 'si' ? 'language-active' : ''} onClick={() => setLanguage('si')}>සිංහල</button>
-            <button className={language === 'ta' ? 'language-active' : ''} onClick={() => setLanguage('ta')}>தமிழ்</button>
-            <button className={language === 'en' ? 'language-active' : ''} onClick={() => setLanguage('en')}>English</button>
-          </div>
-        </div>
-      </div>
-
       <header className="government-header">
         <div className="site-container government-header__inner">
           {user ? (
@@ -60,15 +84,44 @@ export default function Layout({ children, admin = false }) {
             <span className="government-header__service-kicker">{t('nationalService')}</span>
             <strong>{t('lifeLocationCode')}</strong>
           </div>
+          <div className="government-header__tools">
+            <div className="header-language" ref={languageRef}>
+              <button
+                className={`header-language__trigger${languageOpen ? ' is-open' : ''}`}
+                onClick={() => setLanguageOpen(open => !open)}
+                aria-expanded={languageOpen}
+                aria-haspopup="menu"
+              >
+                <span className="header-language__icon" aria-hidden="true">文</span>
+                <span>{language === 'si' ? 'සිංහල' : language === 'ta' ? 'தமிழ்' : 'English'}</span>
+                <span className="header-language__chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div className={`header-language__menu${languageOpen ? ' is-open' : ''}`} role="menu">
+                <button className={language === 'en' ? 'language-active' : ''} onClick={() => { setLanguage('en'); setLanguageOpen(false) }} role="menuitem">English</button>
+                <button className={language === 'si' ? 'language-active' : ''} onClick={() => { setLanguage('si'); setLanguageOpen(false) }} role="menuitem">සිංහල</button>
+                <button className={language === 'ta' ? 'language-active' : ''} onClick={() => { setLanguage('ta'); setLanguageOpen(false) }} role="menuitem">தமிழ்</button>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
-      <nav className="site-nav" aria-label="Primary navigation">
+      <nav className="site-nav" aria-label="Primary navigation" ref={navRef}>
         <div className="site-container site-nav__inner">
-          <button className="site-nav__toggle" onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen}>
-            <span>{t('menu')}</span><span aria-hidden="true">☰</span>
+          <button
+            className={`site-nav__toggle${menuOpen ? ' is-open' : ''}`}
+            onClick={() => setMenuOpen(v => !v)}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation-menu"
+          >
+            <span className="site-nav__toggle-label">{t('menu')}</span>
+            <span className="site-nav__toggle-icon" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
           </button>
-          <div className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
+          <div id="primary-navigation-menu" className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
             {user?.role === 'admin' ? (
               <>
                 <NavLink to="/admin" end className={navClass} onClick={() => setMenuOpen(false)}>
@@ -108,20 +161,25 @@ export default function Layout({ children, admin = false }) {
                     {t(link.labelKey)}
                   </NavLink>
                 ))}
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) => `site-nav__link site-nav__link--account${isActive ? ' is-active' : ''}`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {t('officerLogin')}
+                </NavLink>
               </>
             )}
           </div>
-          <div className="site-nav__account">
-            {user ? (
+          {user && (
+            <div className="site-nav__account">
               <>
                 <span className="account-name">{user.name}</span>
                 <span className="role-badge">{user.role === 'admin' ? 'System Administrator' : 'Divisional Secretary'}</span>
                 <button className="nav-account-button" onClick={handleLogout}>{t('signOut')}</button>
               </>
-            ) : (
-              <Link className="nav-account-button" to="/login">{t('officerLogin')}</Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </nav>
 

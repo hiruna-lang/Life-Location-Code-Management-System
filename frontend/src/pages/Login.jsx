@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import GovernmentBrand from '../components/GovernmentBrand'
@@ -9,7 +9,18 @@ export default function Login() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [languageOpen, setLanguageOpen] = useState(false)
+  const languageRef = useRef(null)
   const { language, setLanguage, t } = useLanguage()
+
+  useEffect(() => {
+    if (!languageOpen) return undefined
+    const closeLanguageMenu = event => {
+      if (!languageRef.current?.contains(event.target)) setLanguageOpen(false)
+    }
+    document.addEventListener('pointerdown', closeLanguageMenu)
+    return () => document.removeEventListener('pointerdown', closeLanguageMenu)
+  }, [languageOpen])
 
   const handleSubmit = async event => {
     event.preventDefault()
@@ -24,18 +35,29 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="utility-bar">
-        <div className="site-container utility-bar__inner">
-          <span>{t('officialService')}</span>
-          <div className="utility-bar__links">
-            <button className={language === 'si' ? 'language-active' : ''} onClick={() => setLanguage('si')}>සිංහල</button>
-            <button className={language === 'ta' ? 'language-active' : ''} onClick={() => setLanguage('ta')}>தமிழ்</button>
-            <button className={language === 'en' ? 'language-active' : ''} onClick={() => setLanguage('en')}>English</button>
+      <header className="login-header">
+        <div className="site-container">
+          <Link to="/"><GovernmentBrand /></Link>
+          <div className="government-header__tools">
+            <div className="header-language" ref={languageRef}>
+              <button
+                className={`header-language__trigger${languageOpen ? ' is-open' : ''}`}
+                onClick={() => setLanguageOpen(open => !open)}
+                aria-expanded={languageOpen}
+                aria-haspopup="menu"
+              >
+                <span className="header-language__icon" aria-hidden="true">文</span>
+                <span>{language === 'si' ? 'සිංහල' : language === 'ta' ? 'தமிழ்' : 'English'}</span>
+                <span className="header-language__chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div className={`header-language__menu${languageOpen ? ' is-open' : ''}`} role="menu">
+                <button className={language === 'en' ? 'language-active' : ''} onClick={() => { setLanguage('en'); setLanguageOpen(false) }} role="menuitem">English</button>
+                <button className={language === 'si' ? 'language-active' : ''} onClick={() => { setLanguage('si'); setLanguageOpen(false) }} role="menuitem">සිංහල</button>
+                <button className={language === 'ta' ? 'language-active' : ''} onClick={() => { setLanguage('ta'); setLanguageOpen(false) }} role="menuitem">தமிழ்</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <header className="login-header">
-        <div className="site-container"><Link to="/"><GovernmentBrand /></Link></div>
       </header>
 
       <main className="login-main">

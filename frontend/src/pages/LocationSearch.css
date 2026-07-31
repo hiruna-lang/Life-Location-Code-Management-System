@@ -90,34 +90,68 @@
   font-size: 15px;
 }
 
-html[lang='si'] .location-page-heading h1,
+html[lang='si'] .location-page-heading h1 {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+  font-size: clamp(30px, 2.8vw, 42px);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 html[lang='ta'] .location-page-heading h1 {
-  font-family: 'Noto Sans Sinhala', 'Noto Sans Tamil', 'Source Serif 4', serif;
-  font-size: clamp(28px, 2.65vw, 38px);
-  line-height: 1.25;
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: clamp(29px, 2.7vw, 40px);
+  font-weight: 700;
+  line-height: 1.42;
 }
 
-html[lang='si'] .location-province-orbit button,
-html[lang='ta'] .location-province-orbit button {
-  font-size: 12px;
-  line-height: 1.25;
+html[lang='si'] .location-page-heading p,
+html[lang='ta'] .location-page-heading p {
+  font-size: 16px;
+  line-height: 1.65;
 }
 
-html[lang='si'] .location-hierarchy-column__title,
-html[lang='ta'] .location-hierarchy-column__title {
-  font-size: 12px;
+html[lang='si'] .location-province-orbit button {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+  font-size: 13px;
   line-height: 1.45;
+}
+
+html[lang='ta'] .location-province-orbit button {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+html[lang='si'] .location-hierarchy-column__title {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+html[lang='ta'] .location-hierarchy-column__title {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 html[lang='si'] .location-hierarchy-search input,
 html[lang='ta'] .location-hierarchy-search input {
-  font-size: 13px;
+  min-height: 42px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 html[lang='si'] .location-hierarchy-column button strong,
 html[lang='ta'] .location-hierarchy-column button strong {
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+html[lang='si'] .location-hierarchy-column button,
+html[lang='ta'] .location-hierarchy-column button {
+  min-height: 88px;
+  padding-block: 12px;
 }
 
 html[lang='si'] .location-hierarchy-column button .location-code,
@@ -290,6 +324,26 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
   stroke: #fff;
   stroke-width: 1.5;
   filter: drop-shadow(0 1px 2px rgba(23,44,69,.28));
+}
+
+.location-province-connectors g {
+  opacity: 1;
+  transition: opacity .3s ease;
+}
+
+.location-province-connectors g.is-muted {
+  opacity: .18;
+}
+
+.location-province-connectors g.is-selected path {
+  stroke: #712b31;
+  stroke-width: 1.8;
+}
+
+.location-province-connectors g.is-selected circle {
+  r: 5px;
+  fill: #c49a42;
+  stroke-width: 2px;
 }
 
 .location-province-orbit button {
@@ -881,6 +935,58 @@ html[lang='ta'] .location-hierarchy-column button .location-code {
 
 .location-result-table td {
   color: #202a35;
+}
+
+html[data-theme='dark'] .site-main:has(.location-search-page) {
+  background-color: #101722;
+}
+
+html[data-theme='dark'] .site-main:has(.location-search-page)::before,
+html[data-theme='dark'] .site-main:has(.location-search-page)::after {
+  opacity: .18;
+}
+
+html[data-theme='dark'] .location-hierarchy-column,
+html[data-theme='dark'] .location-hierarchy-search,
+html[data-theme='dark'] .location-hierarchy-column button,
+html[data-theme='dark'] .location-results-card,
+html[data-theme='dark'] .location-result-table {
+  color: #e8edf3;
+  background: #182230;
+  border-color: #344253;
+}
+
+html[data-theme='dark'] .location-hierarchy-column__title,
+html[data-theme='dark'] .location-hierarchy-search input,
+html[data-theme='dark'] .location-result-table th {
+  color: #e8edf3;
+  background: #202b38;
+  border-color: #344253;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button {
+  border-bottom-color: #344253;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button:hover {
+  background: #263342;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button.is-selected {
+  color: #fff;
+  background: #493c28;
+}
+
+html[data-theme='dark'] .location-hierarchy-column button span,
+html[data-theme='dark'] .location-hierarchy-column button.is-selected span,
+html[data-theme='dark'] .location-result-table td {
+  color: #b9c4d0;
+}
+
+html[data-theme='dark'] .location-table-wrap,
+html[data-theme='dark'] .location-result-table th,
+html[data-theme='dark'] .location-result-table td {
+  border-color: #344253;
 }
 
 @media (max-width: 1180px) {
