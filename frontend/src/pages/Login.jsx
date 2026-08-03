@@ -91,6 +91,7 @@ export default function Login() {
           </button>
           <div id="login-navigation-menu" className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
             <NavLink to="/" end className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('locationDirectoryNav')}</NavLink>
+            <NavLink to="/listing" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('locationListing')}</NavLink>
             <NavLink to="/about" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('aboutService')}</NavLink>
             <NavLink to="/tools" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('tools')}</NavLink>
             <NavLink to="/login" className="site-nav__link site-nav__link--account is-active" onClick={() => setMenuOpen(false)}>{t('officerLogin')}</NavLink>
