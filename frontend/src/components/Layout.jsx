@@ -8,6 +8,7 @@ const publicLinks = [
   { to: '/', labelKey: 'home', end: true },
   { to: '/search', labelKey: 'locationSearch' },
   { to: '/same-gn', labelKey: 'gnAnalysis' },
+  { to: '/about', labelKey: 'aboutService' },
 ]
 
 const adminLinks = [

@@ -1,0 +1,102 @@
+.site-main:has(.about-service-page) {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(196,154,66,.12), transparent 24%),
+    linear-gradient(180deg, #faf8f5, #f5f0eb);
+}
+
+.about-service-page { display: grid; gap: 26px; padding-bottom: 18px; color: #172c45; }
+
+.about-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(230px, .65fr);
+  min-height: 350px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(circle at 86% 15%, rgba(231,187,82,.2), transparent 28%),
+    linear-gradient(125deg, #451019, #782832 65%, #52131c);
+  border: 1px solid #b98a35;
+  border-radius: 3px 3px 18px 18px;
+  box-shadow: 0 24px 54px rgba(55,20,24,.18);
+}
+
+.about-hero::after {
+  position: absolute;
+  right: -100px;
+  bottom: -170px;
+  width: 430px;
+  height: 430px;
+  content: '';
+  border: 1px solid rgba(235,199,113,.25);
+  border-radius: 50%;
+  box-shadow: 0 0 0 42px rgba(235,199,113,.045), 0 0 0 84px rgba(235,199,113,.03);
+}
+
+.about-hero__copy { position: relative; z-index: 1; align-self: center; padding: clamp(34px, 5vw, 68px); }
+.about-eyebrow, .about-section-number { color: #c99a3e; font-size: 11px; font-weight: 900; letter-spacing: 1.6px; text-transform: uppercase; }
+.about-hero .about-eyebrow { color: #f0d485; }
+.about-hero h1 { max-width: 730px; margin-top: 10px; color: #fff; font-family: 'Source Serif 4', serif; font-size: clamp(38px, 5vw, 62px); line-height: 1.02; }
+.about-hero__copy > p { max-width: 690px; margin-top: 16px; color: rgba(255,255,255,.78); font-size: 17px; line-height: 1.65; }
+.about-hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.about-button { padding: 11px 17px; border: 1px solid rgba(255,255,255,.4); border-radius: 6px; font-size: 13px; font-weight: 800; transition: transform .2s ease, background .2s ease; }
+.about-button:hover { transform: translateY(-2px); }
+.about-button--primary { color: #571821; background: #f1d481; border-color: #f1d481; }
+.about-button--secondary { color: #fff; background: rgba(255,255,255,.07); }
+
+.about-hero__mark { position: relative; z-index: 1; display: grid; align-content: center; justify-items: center; padding: 30px; border-left: 1px solid rgba(255,255,255,.17); text-align: center; }
+.about-hero__mark > span { display: grid; width: 112px; height: 112px; place-items: center; color: #f0d485; border: 2px solid #d4aa52; border-radius: 50%; font-family: 'Source Serif 4', serif; font-size: 34px; font-weight: 850; box-shadow: 0 0 0 10px rgba(212,170,82,.08); }
+.about-hero__mark strong { margin-top: 22px; color: #fff5da; font-family: 'Source Serif 4', serif; font-size: 19px; line-height: 1.35; }
+
+.about-purpose, .about-hierarchy, .about-audience, .about-benefits, .about-access { padding: clamp(26px, 4vw, 46px); background: rgba(255,255,255,.88); border: 1px solid #e1d8cf; box-shadow: 0 14px 34px rgba(37,29,27,.06); }
+.about-purpose { display: grid; grid-template-columns: .7fr 1.3fr; gap: 50px; border-top: 4px solid #712b31; }
+.about-purpose h2, .about-section-heading h2, .about-benefits h2, .about-access h2 { margin-top: 7px; color: #172c45; font-family: 'Source Serif 4', serif; font-size: clamp(27px, 3vw, 38px); line-height: 1.12; }
+.about-purpose__copy { display: grid; gap: 14px; color: #5d6875; font-size: 15px; line-height: 1.7; }
+.about-section-heading > p, .about-benefits__intro > p { margin-top: 8px; color: #687482; }
+
+.about-hierarchy { background: #172c45; border-color: #172c45; }
+.about-hierarchy .about-section-heading h2 { color: #fff; }
+.about-hierarchy .about-section-heading > p { color: rgba(255,255,255,.62); }
+.about-hierarchy .about-section-number { color: #e4c470; }
+.about-hierarchy__flow { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 28px; }
+.about-hierarchy__flow > div { position: relative; min-height: 155px; padding: 18px; border-left: 1px solid rgba(255,255,255,.15); }
+.about-hierarchy__flow > div:last-child { border-right: 1px solid rgba(255,255,255,.15); }
+.about-hierarchy__flow span { color: #e4c470; font-size: 11px; font-weight: 900; }
+.about-hierarchy__flow strong { display: block; margin-top: 25px; color: #fff; font-family: 'Source Serif 4', serif; font-size: 19px; }
+.about-hierarchy__flow small { display: block; margin-top: 8px; color: rgba(255,255,255,.58); font-size: 11px; line-height: 1.45; }
+
+.about-audience__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 26px; }
+.about-audience article { min-height: 210px; padding: 23px; background: #faf7f3; border: 1px solid #e5dbd1; border-top: 3px solid #8a3039; transition: transform .22s ease, box-shadow .22s ease; }
+.about-audience article:hover { transform: translateY(-4px); box-shadow: 0 14px 28px rgba(55,28,29,.1); }
+.about-audience article > span { color: #b18430; font-size: 11px; font-weight: 900; }
+.about-audience h3 { margin-top: 24px; color: #172c45; font-family: 'Source Serif 4', serif; font-size: 20px; line-height: 1.2; }
+.about-audience article p { margin-top: 10px; color: #687482; font-size: 13px; line-height: 1.6; }
+
+.about-benefits { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; }
+.about-benefits__list > div { display: grid; grid-template-columns: 36px 1fr; gap: 13px; padding: 15px 0; border-bottom: 1px solid #e7ded6; }
+.about-benefits__list > div > span { color: #a27829; font-size: 11px; font-weight: 900; }
+.about-benefits__list strong { display: block; color: #172c45; font-size: 15px; }
+.about-benefits__list small { display: block; margin-top: 4px; color: #6c7782; font-size: 12px; line-height: 1.45; }
+
+.about-access { display: grid; grid-template-columns: 1.3fr .7fr; gap: 45px; color: #fff; background: linear-gradient(120deg, #712b31, #4e1920); border-color: #8b454b; }
+.about-access .about-section-number { color: #e4c470; }
+.about-access h2 { color: #fff; }
+.about-access p { max-width: 720px; margin-top: 12px; color: rgba(255,255,255,.72); line-height: 1.65; }
+.about-access__actions { display: grid; align-content: center; gap: 9px; }
+.about-access__actions a { display: flex; justify-content: space-between; padding: 13px 15px; color: #fff; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.22); border-radius: 6px; font-weight: 750; transition: background .2s ease, transform .2s ease; }
+.about-access__actions a:hover { background: rgba(255,255,255,.14); transform: translateX(3px); }
+.about-access__actions span { color: #e4c470; }
+
+@media (max-width: 900px) {
+  .about-hero, .about-purpose, .about-benefits, .about-access { grid-template-columns: 1fr; }
+  .about-hero__mark { display: none; }
+  .about-hierarchy__flow { grid-template-columns: repeat(2, 1fr); }
+  .about-audience__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .about-service-page { gap: 16px; }
+  .about-hero__copy { padding: 30px 22px; }
+  .about-hierarchy__flow, .about-audience__grid { grid-template-columns: 1fr; }
+  .about-hierarchy__flow > div { min-height: auto; }
+}
