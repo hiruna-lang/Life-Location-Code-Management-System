@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
 
 import About                  from './pages/About'
+import Tools                  from './pages/Tools'
 import LocationSearch          from './pages/LocationSearch'
 import LocationListing         from './pages/LocationListing'
 import SameGnDifferentDs       from './pages/SameGnDifferentDs'
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/"        element={<Layout><LocationSearch /></Layout>} />
           <Route path="/listing" element={<Layout><LocationListing /></Layout>} />
           <Route path="/about"   element={<Layout><About /></Layout>} />
+          <Route path="/tools"   element={<Layout><Tools /></Layout>} />
           <Route path="/same-gn" element={<Layout><SameGnDifferentDs /></Layout>} />
           <Route path="/login"   element={<Login />} />
 
