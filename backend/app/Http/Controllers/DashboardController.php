@@ -44,8 +44,15 @@ class DashboardController extends Controller
             ->leftJoin('users as u', 'dv.verified_by', '=', 'u.id')
             ->select([
                 'p.name_english as province_name',
+                'p.name_sinhala as province_name_sinhala',
+                'p.name_tamil as province_name_tamil',
                 'd.name_english as district_name',
-                'ds.id', 'ds.name_english as ds_name',
+                'd.name_sinhala as district_name_sinhala',
+                'd.name_tamil as district_name_tamil',
+                'ds.id',
+                'ds.name_english as ds_name',
+                'ds.name_sinhala as ds_name_sinhala',
+                'ds.name_tamil as ds_name_tamil',
                 DB::raw("COALESCE(dv.status, 'pending') as status"),
                 'dv.final_at', 'dv.locked_at', 'u.name as verified_by_name',
             ]);
