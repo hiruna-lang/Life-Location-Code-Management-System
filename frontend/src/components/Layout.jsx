@@ -8,6 +8,7 @@ const publicLinks = [
   { to: '/', labelKey: 'locationDirectoryNav', end: true },
   { to: '/same-gn', labelKey: 'gnAnalysis' },
   { to: '/about', labelKey: 'aboutService' },
+  { to: '/tools', labelKey: 'tools' },
 ]
 
 const adminLinks = [
@@ -183,7 +184,7 @@ export default function Layout({ children, admin = false }) {
         </div>
       </nav>
 
-      <main className="site-main">
+      <main className={admin ? 'site-main' : 'site-main site-main--public'}>
         <div className={admin ? 'site-container site-container--wide' : 'site-container'}>
           {children}
         </div>

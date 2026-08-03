@@ -1,9 +1,3 @@
-.site-main:has(.about-service-page) {
-  background:
-    radial-gradient(circle at 12% 10%, rgba(196,154,66,.12), transparent 24%),
-    linear-gradient(180deg, #faf8f5, #f5f0eb);
-}
-
 .about-service-page { display: grid; gap: 26px; padding-bottom: 18px; color: #172c45; }
 
 .about-hero {
