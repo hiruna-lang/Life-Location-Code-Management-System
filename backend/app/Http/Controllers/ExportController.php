@@ -23,6 +23,18 @@ class ExportController extends Controller
         return $pdf->download('search_results.pdf');
     }
 
+    public function exportListingExcel(Request $request)
+    {
+        return Excel::download(new SearchResultsExport($request->all()), 'location_listing.xlsx');
+    }
+
+    public function exportListingPdf(Request $request)
+    {
+        $data = $this->getListingData($request);
+        $pdf  = Pdf::loadView('exports.search_pdf', ['results' => $data])->setPaper('a4', 'landscape');
+        return $pdf->download('location_listing.pdf');
+    }
+
     public function exportDuplicateGnExcel(Request $request)
     {
         return Excel::download(new DuplicateGnExport($request->all()), 'duplicate_gn_analysis.xlsx');
@@ -51,6 +63,105 @@ class ExportController extends Controller
         return $query->orderBy('p.name_english')->orderBy('d.name_english')
             ->orderBy('ds.name_english')->orderBy('g.name_english')
             ->orderBy('v.name_english')->limit(10000)->get()->toArray();
+    }
+
+    private function getListingData(Request $request): array
+    {
+        $provinceId      = $request->input('province_id');
+        $districtId      = $request->input('district_id');
+        $dsId            = $request->input('ds_id');
+        $gnId            = $request->input('gn_id');
+        $includeVillages = $request->boolean('include_villages', false);
+        $sortBy          = $request->input('sort_by', 'name');
+
+        $provinceColumns = [
+            'p.name_english as province_name', 'p.name_sinhala as province_name_sinhala',
+            'p.name_tamil as province_name_tamil', 'p.lifecode as province_lifecode',
+        ];
+        $districtColumns = [
+            'd.name_english as district_name', 'd.name_sinhala as district_name_sinhala',
+            'd.name_tamil as district_name_tamil', 'd.lifecode as district_lifecode',
+        ];
+        $dsColumns = [
+            'ds.name_english as ds_name', 'ds.name_sinhala as ds_name_sinhala',
+            'ds.name_tamil as ds_name_tamil', 'ds.lifecode as ds_lifecode',
+            'ds.divisional_secretariat_code as ds_code',
+        ];
+        $gnColumns = [
+            'g.name_english as gn_name', 'g.name_sinhala as gn_name_sinhala',
+            'g.name_tamil as gn_name_tamil', 'g.lifecode as gn_lifecode',
+            'g.grama_niladhari_division_code as gn_code',
+        ];
+        $villageColumns = [
+            'v.name_english as village_name', 'v.name_sinhala as village_name_sinhala',
+            'v.name_tamil as village_name_tamil', 'v.lifecode as village_lifecode',
+        ];
+
+        if ($dsId === 'none') {
+            $level = 'district';
+        } elseif ($gnId === 'none') {
+            $level = 'ds';
+        } elseif ($includeVillages) {
+            $level = 'village';
+        } else {
+            $level = 'gn';
+        }
+
+        switch ($level) {
+            case 'district':
+                $query = DB::table('district as d')
+                    ->join('province as p', 'd.province_id', '=', 'p.id')
+                    ->select(array_merge($provinceColumns, $districtColumns));
+                break;
+            case 'ds':
+                $query = DB::table('divisional_secretariat as ds')
+                    ->join('district as d', 'ds.district_id', '=', 'd.id')
+                    ->join('province as p', 'd.province_id', '=', 'p.id')
+                    ->select(array_merge($provinceColumns, $districtColumns, $dsColumns));
+                break;
+            case 'village':
+                $query = DB::table('village as v')
+                    ->join('grama_niladhari_division as g', 'v.grama_niladhari_division_id', '=', 'g.id')
+                    ->join('divisional_secretariat as ds', 'g.divisional_secretariat_id', '=', 'ds.id')
+                    ->join('district as d', 'ds.district_id', '=', 'd.id')
+                    ->join('province as p', 'd.province_id', '=', 'p.id')
+                    ->select(array_merge($provinceColumns, $districtColumns, $dsColumns, $gnColumns, $villageColumns));
+                break;
+            default:
+                $query = DB::table('grama_niladhari_division as g')
+                    ->join('divisional_secretariat as ds', 'g.divisional_secretariat_id', '=', 'ds.id')
+                    ->join('district as d', 'ds.district_id', '=', 'd.id')
+                    ->join('province as p', 'd.province_id', '=', 'p.id')
+                    ->select(array_merge($provinceColumns, $districtColumns, $dsColumns, $gnColumns));
+                break;
+        }
+
+        $this->applySearchFilters($query, $request);
+
+        if ($sortBy === 'code') {
+            switch ($level) {
+                case 'district': $query->reorder('d.lifecode'); break;
+                case 'ds':       $query->reorder('ds.lifecode'); break;
+                case 'village':  $query->reorder('v.lifecode'); break;
+                default:         $query->reorder('g.lifecode'); break;
+            }
+        } else {
+            $query->orderBy('p.name_english');
+            if ($level !== 'district') {
+                $query->orderBy('d.name_english');
+            }
+            if (in_array($level, ['ds', 'village', 'gn'], true)) {
+                $query->orderBy('ds.name_english');
+            }
+            if (in_array($level, ['village', 'gn'], true)) {
+                $query->orderBy('g.name_english');
+            }
+            if ($level === 'village') {
+                $query->orderBy('v.name_english');
+            }
+        }
+
+        return $query->limit(10000)->get()->toArray();
     }
 
     private function applySearchFilters($query, Request $request): void

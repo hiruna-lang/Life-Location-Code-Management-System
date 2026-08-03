@@ -21,9 +21,7 @@ export default function LocationListing() {
 
   const [includeVillages, setIncludeVillages] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [loadingDistricts, setLoadingDistricts] = useState(false)
-  const [loadingDs, setLoadingDs] = useState(false)
-  const [loadingGn, setLoadingGn] = useState(false)
+  const [loadingPicker, setLoadingPicker] = useState(false)
 
   const [results, setResults] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -31,138 +29,71 @@ export default function LocationListing() {
   const [totalCount, setTotalCount] = useState(0)
   const [filterText, setFilterText] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
+  const [sortBy, setSortBy] = useState('name')
+
+  const [activePicker, setActivePicker] = useState(null)
+  const [pickerSearch, setPickerSearch] = useState('')
+  const [pickerSort, setPickerSort] = useState('name')
 
   const resultsRef = useRef(null)
+  const pickerRef = useRef(null)
 
   useEffect(() => {
     locationApi.provinces().then(setProvinces).catch(() => {})
   }, [])
 
+  useEffect(() => {
+    if (!activePicker) return
+    const handleClickOutside = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target) &&
+          !e.target.closest('.filter-field')) {
+        setActivePicker(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [activePicker])
+
   const loadAllDistricts = useCallback(async () => {
-    setLoadingDistricts(true)
+    setLoadingPicker(true)
     try {
       const groups = await Promise.all(
         provinces.map(p => locationApi.districts(p.id).catch(() => []))
       )
-      const all = groups.flat()
-      setDistricts(all)
+      setDistricts(groups.flat())
     } catch {
       setDistricts([])
     } finally {
-      setLoadingDistricts(false)
+      setLoadingPicker(false)
     }
   }, [provinces])
 
   const loadAllDs = useCallback(async (districtScope) => {
-    setLoadingDs(true)
+    setLoadingPicker(true)
     try {
       const groups = await Promise.all(
         districtScope.map(d => locationApi.divisionalSecretariats(d.id).catch(() => []))
       )
-      const all = groups.flat()
-      setDsList(all)
+      setDsList(groups.flat())
     } catch {
       setDsList([])
     } finally {
-      setLoadingDs(false)
+      setLoadingPicker(false)
     }
   }, [])
 
   const loadAllGn = useCallback(async (dsScope) => {
-    setLoadingGn(true)
+    setLoadingPicker(true)
     try {
       const groups = await Promise.all(
         dsScope.map(ds => locationApi.gnDivisions(ds.id).catch(() => []))
       )
-      const all = groups.flat()
-      setGnList(all)
+      setGnList(groups.flat())
     } catch {
       setGnList([])
     } finally {
-      setLoadingGn(false)
+      setLoadingPicker(false)
     }
-  }, [])
-
-  const handleProvinceChange = useCallback(async (e) => {
-    const val = e.target.value
-    setSelectedProvince(val)
-    setSelectedDistrict('')
-    setSelectedDs('')
-    setSelectedGn('')
-    setDsList([])
-    setGnList([])
-
-    if (val === '' || val === 'none') {
-      setDistricts([])
-      return
-    }
-    if (val === 'all') {
-      await loadAllDistricts()
-      return
-    }
-    setLoadingDistricts(true)
-    try {
-      const data = await locationApi.districts(val)
-      setDistricts(data)
-    } catch {
-      setDistricts([])
-    } finally {
-      setLoadingDistricts(false)
-    }
-  }, [loadAllDistricts])
-
-  const handleDistrictChange = useCallback(async (e) => {
-    const val = e.target.value
-    setSelectedDistrict(val)
-    setSelectedDs('')
-    setSelectedGn('')
-    setGnList([])
-
-    if (val === '' || val === 'none') {
-      setDsList([])
-      return
-    }
-    if (val === 'all') {
-      await loadAllDs(districts)
-      return
-    }
-    setLoadingDs(true)
-    try {
-      const data = await locationApi.divisionalSecretariats(val)
-      setDsList(data)
-    } catch {
-      setDsList([])
-    } finally {
-      setLoadingDs(false)
-    }
-  }, [districts, loadAllDs])
-
-  const handleDsChange = useCallback(async (e) => {
-    const val = e.target.value
-    setSelectedDs(val)
-    setSelectedGn('')
-
-    if (val === '' || val === 'none') {
-      setGnList([])
-      return
-    }
-    if (val === 'all') {
-      await loadAllGn(dsList)
-      return
-    }
-    setLoadingGn(true)
-    try {
-      const data = await locationApi.gnDivisions(val)
-      setGnList(data)
-    } catch {
-      setGnList([])
-    } finally {
-      setLoadingGn(false)
-    }
-  }, [dsList, loadAllGn])
-
-  const handleGnChange = useCallback((e) => {
-    setSelectedGn(e.target.value)
   }, [])
 
   const isProvinceNone = selectedProvince === 'none'
@@ -172,22 +103,270 @@ export default function LocationListing() {
   const hasNoneSelected = isProvinceNone || isDistrictNone || isDsNone || isGnNone
 
   useEffect(() => {
-    if (hasNoneSelected) {
-      setIncludeVillages(false)
-    }
+    if (hasNoneSelected) setIncludeVillages(false)
   }, [hasNoneSelected])
+
+  const openPicker = useCallback(async (level) => {
+    if (activePicker === level) {
+      setActivePicker(null)
+      return
+    }
+    setPickerSearch('')
+    setPickerSort('name')
+    setActivePicker(level)
+
+    if (level === 'province') {
+      if (provinces.length === 0) {
+        setLoadingPicker(true)
+        try {
+          const data = await locationApi.provinces()
+          setProvinces(data)
+        } catch { /* empty */ }
+        setLoadingPicker(false)
+      }
+      return
+    }
+
+    if (level === 'district') {
+      setLoadingPicker(true)
+      try {
+        if (selectedProvince && selectedProvince !== 'all' && selectedProvince !== 'none') {
+          const data = await locationApi.districts(selectedProvince)
+          setDistricts(data)
+        } else if (districts.length === 0) {
+          await loadAllDistricts()
+        }
+      } catch { setDistricts([]) }
+      setLoadingPicker(false)
+      return
+    }
+
+    if (level === 'ds') {
+      setLoadingPicker(true)
+      try {
+        if (selectedDistrict && selectedDistrict !== 'all' && selectedDistrict !== 'none') {
+          const data = await locationApi.divisionalSecretariats(selectedDistrict)
+          setDsList(data)
+        } else if (selectedProvince && selectedProvince !== 'all' && selectedProvince !== 'none') {
+          const provDistricts = districts.filter(d => String(d.province_id) === String(selectedProvince))
+          if (provDistricts.length > 0) await loadAllDs(provDistricts)
+          else setDsList([])
+        } else if (dsList.length === 0) {
+          await loadAllDs(districts)
+        }
+      } catch { setDsList([]) }
+      setLoadingPicker(false)
+      return
+    }
+
+    if (level === 'gn') {
+      setLoadingPicker(true)
+      try {
+        if (selectedDs && selectedDs !== 'all' && selectedDs !== 'none') {
+          const data = await locationApi.gnDivisions(selectedDs)
+          setGnList(data)
+        } else if (selectedDistrict && selectedDistrict !== 'all' && selectedDistrict !== 'none') {
+          const distDs = dsList.filter(ds => String(ds.district_id) === String(selectedDistrict))
+          if (distDs.length > 0) await loadAllGn(distDs)
+          else setGnList([])
+        } else if (gnList.length === 0) {
+          await loadAllGn(dsList)
+        }
+      } catch { setGnList([]) }
+      setLoadingPicker(false)
+      return
+    }
+  }, [activePicker, provinces, districts, dsList, selectedProvince, selectedDistrict, selectedDs, loadAllDistricts, loadAllDs, loadAllGn])
+
+  const pickerItems = useMemo(() => {
+    if (!activePicker) return []
+    let items = []
+    const normalize = s => String(s || '').toLowerCase()
+
+    if (activePicker === 'province') {
+      items = provinces.map(p => ({
+        id: String(p.id),
+        name: localizedName(p),
+        code: p.lifecode || p.province_code || '',
+        raw: p,
+      }))
+    } else if (activePicker === 'district') {
+      items = districts.map(d => ({
+        id: String(d.id),
+        name: localizedName(d),
+        code: d.lifecode || d.district_code || '',
+        raw: d,
+      }))
+    } else if (activePicker === 'ds') {
+      const isAllDistricts = selectedDistrict === 'all' || selectedDistrict === ''
+      items = dsList.map(ds => {
+        const parentDistrict = districts.find(d => String(d.id) === String(ds.district_id))
+        return {
+          id: String(ds.id),
+          name: localizedName(ds),
+          code: ds.lifecode || ds.divisional_secretariat_code || '',
+          parentName: isAllDistricts && parentDistrict ? localizedName(parentDistrict) : null,
+          raw: ds,
+        }
+      })
+    } else if (activePicker === 'gn') {
+      const isAllDs = selectedDs === 'all' || selectedDs === ''
+      items = gnList.map(gn => {
+        const parentDs = dsList.find(ds => String(ds.id) === String(gn.divisional_secretariat_id))
+        return {
+          id: String(gn.id),
+          name: localizedName(gn),
+          code: gn.lifecode || gn.grama_niladhari_division_code || '',
+          parentName: isAllDs && parentDs ? localizedName(parentDs) : null,
+          raw: gn,
+        }
+      })
+    }
+
+    if (pickerSearch.trim()) {
+      const term = normalize(pickerSearch)
+      items = items.filter(item =>
+        normalize(item.name).includes(term) ||
+        normalize(item.code).includes(term) ||
+        (item.parentName && normalize(item.parentName).includes(term))
+      )
+    }
+
+    items.sort((a, b) => {
+      if (pickerSort === 'code') {
+        return String(a.code).localeCompare(String(b.code))
+      }
+      return String(a.name).localeCompare(String(b.name))
+    })
+
+    return items
+  }, [activePicker, provinces, districts, dsList, gnList, pickerSearch, pickerSort, localizedName, selectedDistrict, selectedDs])
+
+  const handlePickerSelect = useCallback(async (level, id) => {
+    if (level === 'province') {
+      setSelectedProvince(id)
+      setSelectedDistrict('')
+      setSelectedDs('')
+      setSelectedGn('')
+      setDsList([])
+      setGnList([])
+      if (id === 'all') {
+        await loadAllDistricts()
+      } else {
+        setDistricts([])
+      }
+    } else if (level === 'district') {
+      setSelectedDistrict(id)
+      setSelectedDs('')
+      setSelectedGn('')
+      setGnList([])
+      if (id === 'all' && selectedProvince && selectedProvince !== 'none') {
+        setLoadingPicker(true)
+        try {
+          const provDistricts = selectedProvince === 'all' ? districts : districts
+          await loadAllDs(provDistricts)
+        } catch { setDsList([]) }
+        setLoadingPicker(false)
+      } else {
+        setDsList([])
+      }
+    } else if (level === 'ds') {
+      setSelectedDs(id)
+      setSelectedGn('')
+      if (id === 'all') {
+        setLoadingPicker(true)
+        try {
+          const dsScope = selectedDistrict === 'all' ? dsList : dsList
+          await loadAllGn(dsScope)
+        } catch { setGnList([]) }
+        setLoadingPicker(false)
+      } else {
+        setGnList([])
+      }
+    } else if (level === 'gn') {
+      setSelectedGn(id)
+    }
+    setActivePicker(null)
+  }, [districts, dsList, selectedProvince, selectedDistrict, loadAllDistricts, loadAllDs, loadAllGn])
+
+  const clearField = useCallback((level, e) => {
+    e.stopPropagation()
+    if (level === 'province') {
+      setSelectedProvince('')
+      setSelectedDistrict('')
+      setSelectedDs('')
+      setSelectedGn('')
+      setDistricts([])
+      setDsList([])
+      setGnList([])
+    } else if (level === 'district') {
+      setSelectedDistrict('')
+      setSelectedDs('')
+      setSelectedGn('')
+      setDsList([])
+      setGnList([])
+    } else if (level === 'ds') {
+      setSelectedDs('')
+      setSelectedGn('')
+      setGnList([])
+    } else if (level === 'gn') {
+      setSelectedGn('')
+    }
+  }, [])
+
+  const getFieldValue = (level) => {
+    if (level === 'province') {
+      if (!selectedProvince) return ''
+      if (selectedProvince === 'all') return t('allProvinces')
+      if (selectedProvince === 'none') return t('noneOption')
+      const p = provinces.find(x => String(x.id) === String(selectedProvince))
+      return p ? localizedName(p) : ''
+    }
+    if (level === 'district') {
+      if (!selectedDistrict) return ''
+      if (selectedDistrict === 'all') return t('allDistricts')
+      if (selectedDistrict === 'none') return t('noneOption')
+      const d = districts.find(x => String(x.id) === String(selectedDistrict))
+      return d ? localizedName(d) : ''
+    }
+    if (level === 'ds') {
+      if (!selectedDs) return ''
+      if (selectedDs === 'all') return t('allDs')
+      if (selectedDs === 'none') return t('noneOption')
+      const ds = dsList.find(x => String(x.id) === String(selectedDs))
+      return ds ? localizedName(ds) : ''
+    }
+    if (level === 'gn') {
+      if (!selectedGn) return ''
+      if (selectedGn === 'all') return t('allGn')
+      if (selectedGn === 'none') return t('noneOption')
+      const gn = gnList.find(x => String(x.id) === String(selectedGn))
+      return gn ? localizedName(gn) : ''
+    }
+    return ''
+  }
+
+  const getPickerLabel = (level) => {
+    if (level === 'province') return t('selectProvince')
+    if (level === 'district') return t('selectDistrict')
+    if (level === 'ds') return t('selectDs')
+    if (level === 'gn') return t('selectGn')
+    return ''
+  }
 
   const handleSearch = useCallback(async (page = 1) => {
     setLoading(true)
     setHasSearched(true)
     setCurrentPage(page)
     setFilterText('')
+    setActivePicker(null)
 
     try {
       const params = {
         per_page: RESULTS_PER_PAGE,
         page,
         include_villages: hasNoneSelected ? '0' : (includeVillages ? '1' : '0'),
+        sort_by: sortBy,
       }
       if (selectedProvince) params.province_id = selectedProvince
       if (selectedDistrict) params.district_id = selectedDistrict
@@ -208,11 +387,44 @@ export default function LocationListing() {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 100)
     }
-  }, [selectedProvince, selectedDistrict, selectedDs, selectedGn, includeVillages, hasNoneSelected])
+  }, [selectedProvince, selectedDistrict, selectedDs, selectedGn, includeVillages, hasNoneSelected, sortBy])
 
   const handlePageChange = useCallback((newPage) => {
     handleSearch(newPage)
   }, [handleSearch])
+
+  const handleExport = useCallback(async (format) => {
+    const params = {
+      include_villages: hasNoneSelected ? '0' : (includeVillages ? '1' : '0'),
+      sort_by: sortBy,
+    }
+    if (selectedProvince) params.province_id = selectedProvince
+    if (selectedDistrict) params.district_id = selectedDistrict
+    if (selectedDs) params.ds_id = selectedDs
+    if (selectedGn) params.gn_id = selectedGn
+
+    const query = new URLSearchParams(params).toString()
+    const url = format === 'excel'
+      ? `/export/listing/excel?${query}`
+      : `/export/listing/pdf?${query}`
+
+    try {
+      const response = await api.get(url, { responseType: 'blob' })
+      const contentType = response.headers['content-type']
+      if (contentType && (contentType.includes('application/pdf') || contentType.includes('application/vnd') || contentType.includes('octet-stream'))) {
+        const blob = new Blob([response.data], { type: contentType })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = format === 'excel' ? 'location_listing.xlsx' : 'location_listing.pdf'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(link.href)
+      }
+    } catch {
+      window.open(`/api${url}`, '_blank')
+    }
+  }, [selectedProvince, selectedDistrict, selectedDs, selectedGn, includeVillages, hasNoneSelected, sortBy])
 
   const filteredResults = useMemo(() => {
     if (!filterText.trim()) return results
@@ -245,41 +457,47 @@ export default function LocationListing() {
     setTotalCount(0)
     setTotalPages(1)
     setCurrentPage(1)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
   const formatResultPath = (row) => {
     const parts = []
     if (row.province_name) {
-      const name = localizedName({ name_english: row.province_name, name_sinhala: row.province_name_sinhala, name_tamil: row.province_name_tamil }) || row.province_name
-      const code = row.province_lifecode || row.province_code || ''
-      parts.push({ name, code })
+      parts.push({
+        name: localizedName({ name_english: row.province_name, name_sinhala: row.province_name_sinhala, name_tamil: row.province_name_tamil }) || row.province_name,
+        code: row.province_lifecode || row.province_code || '',
+      })
     }
     if (row.district_name) {
-      const name = localizedName({ name_english: row.district_name, name_sinhala: row.district_name_sinhala, name_tamil: row.district_name_tamil }) || row.district_name
-      const code = row.district_lifecode || row.district_code || ''
-      parts.push({ name, code })
+      parts.push({
+        name: localizedName({ name_english: row.district_name, name_sinhala: row.district_name_sinhala, name_tamil: row.district_name_tamil }) || row.district_name,
+        code: row.district_lifecode || row.district_code || '',
+      })
     }
     if (row.ds_name) {
-      const name = localizedName({ name_english: row.ds_name, name_sinhala: row.ds_name_sinhala, name_tamil: row.ds_name_tamil }) || row.ds_name
-      const code = row.ds_lifecode || row.ds_code || ''
-      parts.push({ name, code })
+      parts.push({
+        name: localizedName({ name_english: row.ds_name, name_sinhala: row.ds_name_sinhala, name_tamil: row.ds_name_tamil }) || row.ds_name,
+        code: row.ds_lifecode || row.ds_code || '',
+      })
     }
     if (row.gn_name) {
-      const name = localizedName({ name_english: row.gn_name, name_sinhala: row.gn_name_sinhala, name_tamil: row.gn_name_tamil }) || row.gn_name
-      const code = row.gn_lifecode || row.gn_code || ''
-      parts.push({ name, code })
+      parts.push({
+        name: localizedName({ name_english: row.gn_name, name_sinhala: row.gn_name_sinhala, name_tamil: row.gn_name_tamil }) || row.gn_name,
+        code: row.gn_lifecode || row.gn_code || '',
+      })
     }
     if (row.village_name) {
-      const name = localizedName({ name_english: row.village_name, name_sinhala: row.village_name_sinhala, name_tamil: row.village_name_tamil }) || row.village_name
-      const code = row.village_lifecode || ''
-      parts.push({ name, code })
+      parts.push({
+        name: localizedName({ name_english: row.village_name, name_sinhala: row.village_name_sinhala, name_tamil: row.village_name_tamil }) || row.village_name,
+        code: row.village_lifecode || '',
+      })
     }
     return parts
   }
 
-  const showDistrictSelect = !isProvinceNone
-  const showDsSelect = !isProvinceNone && !isDistrictNone
-  const showGnSelect = !isProvinceNone && !isDistrictNone && !isDsNone
+  const isDistrictDisabled = isProvinceNone
+  const isDsDisabled = isProvinceNone || isDistrictNone
+  const isGnDisabled = isProvinceNone || isDistrictNone || isDsNone
 
   return (
     <div className="location-listing-page">
@@ -289,91 +507,58 @@ export default function LocationListing() {
         <p>{t('listingDescription')}</p>
       </header>
 
-      <div className="location-listing-layout">
+      <div className="location-listing-top">
         <aside className="location-listing-filters">
-          <div className="filter-group">
-            <label htmlFor="filter-province">{t('province')}</label>
-            <select
-              id="filter-province"
-              value={selectedProvince}
-              onChange={handleProvinceChange}
-            >
-              <option value="">{t('selectProvince')}</option>
-              <option value="all">{t('allOption')}</option>
-              <option value="none">{t('noneOption')}</option>
-              {provinces.map(p => (
-                <option key={p.id} value={p.id}>{localizedName(p)}</option>
-              ))}
-            </select>
+          <div
+            className={`filter-field${activePicker === 'province' ? ' filter-field--active' : ''}`}
+            onClick={() => openPicker('province')}
+          >
+            <label>{t('province')}</label>
+            <div className="filter-field__value">
+              <span>{getFieldValue('province') || t('selectProvince')}</span>
+              {selectedProvince && (
+                <button type="button" className="filter-field__clear" onClick={(e) => clearField('province', e)} aria-label={t('clearSelection')}>×</button>
+              )}
+            </div>
           </div>
 
-          <div className="filter-group">
-            <label htmlFor="filter-district">{t('district')}</label>
-            <select
-              id="filter-district"
-              value={selectedDistrict}
-              onChange={handleDistrictChange}
-              disabled={!showDistrictSelect}
-            >
-              <option value="">
-                {loadingDistricts ? 'Loading…' : isProvinceNone ? t('noneOption') : t('selectDistrict')}
-              </option>
-              {showDistrictSelect && (
-                <>
-                  <option value="all">{t('allOption')}</option>
-                  <option value="none">{t('noneOption')}</option>
-                  {districts.map(d => (
-                    <option key={d.id} value={d.id}>{localizedName(d)}</option>
-                  ))}
-                </>
+          <div
+            className={`filter-field${isDistrictDisabled ? ' filter-field--disabled' : ''}${activePicker === 'district' ? ' filter-field--active' : ''}`}
+            onClick={() => !isDistrictDisabled && openPicker('district')}
+          >
+            <label>{t('district')}</label>
+            <div className="filter-field__value">
+              <span>{isDistrictDisabled ? '—' : (getFieldValue('district') || t('selectDistrict'))}</span>
+              {selectedDistrict && !isDistrictDisabled && (
+                <button type="button" className="filter-field__clear" onClick={(e) => clearField('district', e)} aria-label={t('clearSelection')}>×</button>
               )}
-            </select>
+            </div>
           </div>
 
-          <div className="filter-group">
-            <label htmlFor="filter-ds">{t('ds')}</label>
-            <select
-              id="filter-ds"
-              value={selectedDs}
-              onChange={handleDsChange}
-              disabled={!showDsSelect}
-            >
-              <option value="">
-                {loadingDs ? 'Loading…' : isDistrictNone ? t('noneOption') : t('selectDs')}
-              </option>
-              {showDsSelect && (
-                <>
-                  <option value="all">{t('allOption')}</option>
-                  <option value="none">{t('noneOption')}</option>
-                  {dsList.map(ds => (
-                    <option key={ds.id} value={ds.id}>{localizedName(ds)}</option>
-                  ))}
-                </>
+          <div
+            className={`filter-field${isDsDisabled ? ' filter-field--disabled' : ''}${activePicker === 'ds' ? ' filter-field--active' : ''}`}
+            onClick={() => !isDsDisabled && openPicker('ds')}
+          >
+            <label>{t('ds')}</label>
+            <div className="filter-field__value">
+              <span>{isDsDisabled ? '—' : (getFieldValue('ds') || t('selectDs'))}</span>
+              {selectedDs && !isDsDisabled && (
+                <button type="button" className="filter-field__clear" onClick={(e) => clearField('ds', e)} aria-label={t('clearSelection')}>×</button>
               )}
-            </select>
+            </div>
           </div>
 
-          <div className="filter-group">
-            <label htmlFor="filter-gn">{t('gn')}</label>
-            <select
-              id="filter-gn"
-              value={selectedGn}
-              onChange={handleGnChange}
-              disabled={!showGnSelect}
-            >
-              <option value="">
-                {loadingGn ? 'Loading…' : isDsNone ? t('noneOption') : t('selectGn')}
-              </option>
-              {showGnSelect && (
-                <>
-                  <option value="all">{t('allOption')}</option>
-                  <option value="none">{t('noneOption')}</option>
-                  {gnList.map(gn => (
-                    <option key={gn.id} value={gn.id}>{localizedName(gn)}</option>
-                  ))}
-                </>
+          <div
+            className={`filter-field${isGnDisabled ? ' filter-field--disabled' : ''}${activePicker === 'gn' ? ' filter-field--active' : ''}`}
+            onClick={() => !isGnDisabled && openPicker('gn')}
+          >
+            <label>{t('gn')}</label>
+            <div className="filter-field__value">
+              <span>{isGnDisabled ? '—' : (getFieldValue('gn') || t('selectGn'))}</span>
+              {selectedGn && !isGnDisabled && (
+                <button type="button" className="filter-field__clear" onClick={(e) => clearField('gn', e)} aria-label={t('clearSelection')}>×</button>
               )}
-            </select>
+            </div>
           </div>
 
           <label className={`filter-checkbox${hasNoneSelected ? ' filter-checkbox--disabled' : ''}`}>
@@ -396,26 +581,119 @@ export default function LocationListing() {
           </button>
         </aside>
 
-        <section className="location-listing-results" ref={resultsRef}>
-          <div className="results-header">
-            <div className="results-search-icon" aria-hidden="true">🔍</div>
-            <h2>{t('searchResults')}</h2>
-          </div>
+        <section className="location-listing-picker" ref={pickerRef}>
+          {activePicker ? (
+            <>
+              <div className="picker-header">
+                <h3>{getPickerLabel(activePicker)}</h3>
+                <div className="picker-controls">
+                  <input
+                    type="search"
+                    value={pickerSearch}
+                    onChange={e => setPickerSearch(e.target.value)}
+                    placeholder={t('filterResults')}
+                    className="picker-search"
+                    autoFocus
+                  />
+                  <select
+                    value={pickerSort}
+                    onChange={e => setPickerSort(e.target.value)}
+                    className="picker-sort"
+                  >
+                    <option value="name">{t('sortName')}</option>
+                    <option value="code">{t('sortOrder')}</option>
+                  </select>
+                </div>
+              </div>
+              <div className="picker-body">
+                {loadingPicker ? (
+                  <div className="picker-loading"><span className="results-spinner" /></div>
+                ) : pickerItems.length === 0 ? (
+                  <div className="picker-empty">{t('noResultsFound')}</div>
+                ) : (
+                  <ul className="picker-list">
+                    <li>
+                      <button
+                        type="button"
+                        className="picker-item picker-item--special"
+                        onClick={() => handlePickerSelect(activePicker, 'all')}
+                      >
+                        <span className="picker-item-name">{t('allOption')}</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        className="picker-item picker-item--special"
+                        onClick={() => handlePickerSelect(activePicker, 'none')}
+                      >
+                        <span className="picker-item-name">{t('noneOption')}</span>
+                      </button>
+                    </li>
+                    {pickerItems.map(item => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          className="picker-item"
+                          onClick={() => handlePickerSelect(activePicker, item.id)}
+                        >
+                          <span className="picker-item-name">
+                            {item.parentName && <span className="picker-item-parent">{item.parentName} {'>'} </span>}
+                            {item.name}
+                          </span>
+                          {item.code && <span className="picker-item-code">{item.code}</span>}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="picker-placeholder">
+              <p>{t('clickToSelect')}</p>
+            </div>
+          )}
+        </section>
+      </div>
 
-          {hasSearched && (
-            <div className="results-filter-bar">
-              <input
-                type="search"
-                value={filterText}
-                onChange={e => setFilterText(e.target.value)}
-                placeholder={t('filterResults')}
-                aria-label={t('filterResults')}
-              />
+      {hasSearched && (
+        <section className="location-listing-results" ref={resultsRef}>
+          <div className="results-top-bar">
+            <div className="results-top-left">
+              <h2>{t('searchResults')}</h2>
               {totalCount > 0 && (
                 <span className="results-count">{t('resultsCount', { count: totalCount })}</span>
               )}
             </div>
-          )}
+            <div className="results-top-right">
+              <div className="results-sort">
+                <label>{t('sortBy')}:</label>
+                <select value={sortBy} onChange={e => { setSortBy(e.target.value); if (hasSearched) handleSearch(1) }}>
+                  <option value="name">{t('sortName')}</option>
+                  <option value="code">{t('sortOrder')}</option>
+                </select>
+              </div>
+              <div className="results-exports">
+                <button type="button" className="export-btn export-btn--excel" onClick={() => handleExport('excel')}>
+                  {t('downloadExcel')}
+                </button>
+                <button type="button" className="export-btn export-btn--pdf" onClick={() => handleExport('pdf')}>
+                  {t('downloadPdf')}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="results-filter-bar">
+            <input
+              type="search"
+              value={filterText}
+              onChange={e => setFilterText(e.target.value)}
+              placeholder={t('filterResults')}
+              aria-label={t('filterResults')}
+            />
+          </div>
 
           <div className="results-body">
             {loading && (
@@ -425,12 +703,8 @@ export default function LocationListing() {
               </div>
             )}
 
-            {!loading && hasSearched && filteredResults.length === 0 && (
+            {!loading && filteredResults.length === 0 && (
               <div className="results-empty">{t('noResultsFound')}</div>
-            )}
-
-            {!loading && !hasSearched && results.length === 0 && (
-              <div className="results-placeholder">{t('clickToSelect')}</div>
             )}
 
             {!loading && filteredResults.length > 0 && (
@@ -461,7 +735,7 @@ export default function LocationListing() {
             )}
           </div>
 
-          {!loading && totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="results-pagination">
               <button
                 type="button"
@@ -481,7 +755,7 @@ export default function LocationListing() {
             </div>
           )}
         </section>
-      </div>
+      )}
     </div>
   )
 }

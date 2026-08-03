@@ -15,11 +15,12 @@ class SearchController extends Controller
         $gnId            = $request->input('gn_id');
         $keyword         = $request->input('keyword');
         $includeVillages = $request->boolean('include_villages', true);
+        $sortBy          = $request->input('sort_by', 'name');
         $perPage         = min((int) $request->input('per_page', 10), 100);
 
         $deepestLevel = $this->determineDeepestLevel($provinceId, $districtId, $dsId, $gnId, $includeVillages);
 
-        return $this->searchByLevel($deepestLevel, $provinceId, $districtId, $dsId, $gnId, $keyword, $perPage);
+        return $this->searchByLevel($deepestLevel, $provinceId, $districtId, $dsId, $gnId, $keyword, $sortBy, $perPage);
     }
 
     private function determineDeepestLevel($provinceId, $districtId, $dsId, $gnId, $includeVillages)
@@ -42,7 +43,7 @@ class SearchController extends Controller
         return 'gn';
     }
 
-    private function searchByLevel($level, $provinceId, $districtId, $dsId, $gnId, $keyword, $perPage)
+    private function searchByLevel($level, $provinceId, $districtId, $dsId, $gnId, $keyword, $sortBy, $perPage)
     {
         $provinceColumns = [
             'p.id as province_id',
@@ -165,7 +166,32 @@ class SearchController extends Controller
                 break;
         }
 
+        $this->applySorting($query, $sortBy, $level);
+
         return response()->json($query->paginate($perPage));
+    }
+
+    private function applySorting($query, $sortBy, $level)
+    {
+        if ($sortBy === 'code') {
+            switch ($level) {
+                case 'province':
+                    $query->reorder('p.lifecode', 'asc');
+                    break;
+                case 'district':
+                    $query->reorder('d.lifecode', 'asc');
+                    break;
+                case 'ds':
+                    $query->reorder('ds.lifecode', 'asc');
+                    break;
+                case 'gn':
+                    $query->reorder('g.lifecode', 'asc');
+                    break;
+                case 'village':
+                    $query->reorder('v.lifecode', 'asc');
+                    break;
+            }
+        }
     }
 
     private function applyFiltersToQuery($query, $provinceId, $districtId, $dsId, $gnId)

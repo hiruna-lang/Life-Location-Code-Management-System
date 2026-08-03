@@ -39,6 +39,8 @@ Route::middleware([LogApiAccess::class])->group(function () {
     // Exports (public)
     Route::get('/export/search/excel',       [ExportController::class, 'exportSearchExcel']);
     Route::get('/export/search/pdf',         [ExportController::class, 'exportSearchPdf']);
+    Route::get('/export/listing/excel',      [ExportController::class, 'exportListingExcel']);
+    Route::get('/export/listing/pdf',        [ExportController::class, 'exportListingPdf']);
     Route::get('/export/duplicate-gn/excel', [ExportController::class, 'exportDuplicateGnExcel']);
     Route::get('/export/duplicate-gn/pdf',   [ExportController::class, 'exportDuplicateGnPdf']);
 });
