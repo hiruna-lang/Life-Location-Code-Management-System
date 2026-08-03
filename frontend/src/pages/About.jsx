@@ -67,7 +67,7 @@ export default function About() {
             official administrative locations through one clear national hierarchy.
           </p>
           <div className="about-hero__actions">
-            <Link to="/search" className="about-button about-button--primary">Search location codes</Link>
+            <Link to="/" className="about-button about-button--primary">Search location codes</Link>
             <Link to="/same-gn" className="about-button about-button--secondary">View GN analysis</Link>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function About() {
           </p>
         </div>
         <div className="about-access__actions">
-          <Link to="/search">Open public search <span>→</span></Link>
+          <Link to="/">Open public search <span>→</span></Link>
           <Link to="/login">Authorised officer login <span>→</span></Link>
         </div>
       </motion.section>

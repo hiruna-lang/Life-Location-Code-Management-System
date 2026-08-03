@@ -723,7 +723,6 @@ html[lang='ta'] .nav-account-button {
 .site-nav__link[href='/']::after,
 .site-nav__link[href='/admin']::after,
 .site-nav__link[href='/ds-dashboard']::after { content: '⌂'; }
-.site-nav__link[href='/search']::after { content: '⌕'; }
 .site-nav__link[href='/same-gn']::after { content: '▥'; }
 .site-nav__link[href='/about']::after { content: 'i'; font-family: Georgia, serif; font-weight: 800; }
 .site-nav__link[href='/login']::after { content: '●'; }

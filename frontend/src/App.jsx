@@ -37,7 +37,6 @@ export default function App() {
           {/* Public */}
           <Route path="/"        element={<Layout><LocationSearch /></Layout>} />
           <Route path="/about"   element={<Layout><About /></Layout>} />
-          <Route path="/search"  element={<Layout><LocationSearch /></Layout>} />
           <Route path="/same-gn" element={<Layout><SameGnDifferentDs /></Layout>} />
           <Route path="/login"   element={<Login />} />
 

@@ -6,7 +6,6 @@ import { useLanguage } from '../context/LanguageContext'
 
 const publicLinks = [
   { to: '/', labelKey: 'home', end: true },
-  { to: '/search', labelKey: 'locationSearch' },
   { to: '/same-gn', labelKey: 'gnAnalysis' },
   { to: '/about', labelKey: 'aboutService' },
 ]
