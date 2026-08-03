@@ -354,3 +354,61 @@
  [90m  9 |[39m   { to[33m:[39m [32m'/'[39m[33m,[39m labelKey[33m:[39m [32m'locationDirectoryNav'[39m[33m,[39m end[33m:[39m [36mtrue[39m }[33m,[39m
  [90m 10 |[39m [33m===[39m[33m===[39m[33m=[39m
  [90m 11 |[39m   { to[33m:[39m [32m'/'[39m[33m,[39m labelKey[33m:[39m [32m'home'[39m[33m,[39m end[33m:[39m [36mtrue[39m }[33m,[39m[0m
+[2m12:38:48 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "./pages/Tools" from "src/App.jsx". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/hirun/OneDrive/Desktop/Life Location Code Management System/frontend/src/App.jsx[39m:7:35
+[33m  21 |  import { LanguageProvider } from "./context/LanguageContext";
+  22 |  import About from "./pages/About";
+  23 |  import Tools from "./pages/Tools";
+     |                     ^
+  24 |  import LocationSearch from "./pages/LocationSearch";
+  25 |  import SameGnDifferentDs from "./pages/SameGnDifferentDs";[39m
+      at TransformPluginContext._formatError (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49258:41)
+      at TransformPluginContext.error (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49253:16)
+      at normalizeUrl (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64307:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64439:39
+      at async Promise.all (index 8)
+      at async TransformPluginContext.transform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64366:7)
+      at async PluginContainer.transform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49099:18)
+      at async loadAndTransform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51978:27)
+      at async viteTransformMiddleware (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:62106:24)
+[2m12:38:51 PM[22m [31m[1m[vite][22m[39m Pre-transform error: Failed to resolve import "./pages/Tools" from "src/App.jsx". Does the file exist?
+[2m12:38:51 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "./pages/Tools" from "src/App.jsx". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/hirun/OneDrive/Desktop/Life Location Code Management System/frontend/src/App.jsx[39m:7:35
+[33m  21 |  import { LanguageProvider } from "./context/LanguageContext";
+  22 |  import About from "./pages/About";
+  23 |  import Tools from "./pages/Tools";
+     |                     ^
+  24 |  import LocationSearch from "./pages/LocationSearch";
+  25 |  import SameGnDifferentDs from "./pages/SameGnDifferentDs";[39m
+      at TransformPluginContext._formatError (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49258:41)
+      at TransformPluginContext.error (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49253:16)
+      at normalizeUrl (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64307:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64439:39
+      at async Promise.all (index 8)
+      at async TransformPluginContext.transform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64366:7)
+      at async PluginContainer.transform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49099:18)
+      at async loadAndTransform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51978:27)
+      at async viteTransformMiddleware (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:62106:24)
+[2m12:38:52 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "./Tools.css" from "src/pages/Tools.jsx". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/hirun/OneDrive/Desktop/Life Location Code Management System/frontend/src/pages/Tools.jsx[39m:3:7
+[33m  18 |  import React, { useMemo, useState } from "react";
+  19 |  import { motion } from "framer-motion";
+  20 |  import "./Tools.css";
+     |          ^
+  21 |  const apiEndpoints = [
+  22 |    ["POST", "/api/login", "Public", "Authenticate an authorised officer", "{ email, password }", "{ token, user }"],[39m
+      at TransformPluginContext._formatError (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49258:41)
+      at TransformPluginContext.error (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49253:16)
+      at normalizeUrl (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64307:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64439:39
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64366:7)
+      at async PluginContainer.transform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49099:18)
+      at async loadAndTransform (file:///C:/Users/hirun/OneDrive/Desktop/Life%20Location%20Code%20Management%20System/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51978:27)
+[2m12:38:52 PM[22m [31m[1m[vite][22m[39m Pre-transform error: Failed to resolve import "./Tools.css" from "src/pages/Tools.jsx". Does the file exist?
