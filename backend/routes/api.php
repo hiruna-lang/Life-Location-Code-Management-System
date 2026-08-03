@@ -28,6 +28,7 @@ Route::middleware([LogApiAccess::class])->group(function () {
     Route::get('/divisional-secretariats', [LocationController::class, 'divisionalSecretariats']);
     Route::get('/gn-divisions',            [LocationController::class, 'gnDivisions']);
     Route::get('/villages',                [LocationController::class, 'villages']);
+    Route::get('/location-lookup',          [LocationController::class, 'lookup']);
 
     // Search
     Route::get('/search', [SearchController::class, 'search']);

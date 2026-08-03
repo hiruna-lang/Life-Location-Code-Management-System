@@ -5,9 +5,9 @@ import GovernmentBrand from './GovernmentBrand'
 import { useLanguage } from '../context/LanguageContext'
 
 const publicLinks = [
-  { to: '/', labelKey: 'home', end: true },
-  { to: '/search', labelKey: 'locationSearch' },
+  { to: '/', labelKey: 'locationDirectoryNav', end: true },
   { to: '/same-gn', labelKey: 'gnAnalysis' },
+  { to: '/about', labelKey: 'aboutService' },
 ]
 
 const adminLinks = [

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
 
-import Home                   from './pages/Home'
+import About                  from './pages/About'
 import LocationSearch          from './pages/LocationSearch'
 import SameGnDifferentDs       from './pages/SameGnDifferentDs'
 import Login                   from './pages/Login'
@@ -35,8 +35,8 @@ export default function App() {
         <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/"        element={<Layout><Home /></Layout>} />
-          <Route path="/search"  element={<Layout><LocationSearch /></Layout>} />
+          <Route path="/"        element={<Layout><LocationSearch /></Layout>} />
+          <Route path="/about"   element={<Layout><About /></Layout>} />
           <Route path="/same-gn" element={<Layout><SameGnDifferentDs /></Layout>} />
           <Route path="/login"   element={<Login />} />
 

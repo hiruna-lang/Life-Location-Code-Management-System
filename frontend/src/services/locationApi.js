@@ -48,4 +48,9 @@ export const locationApi = {
     warnEmpty('villages', data)
     return Array.isArray(data) ? data : []
   },
+
+  async lookup(query) {
+    const { data } = await api.get('/location-lookup', { params: { q: query } })
+    return Array.isArray(data) ? data : []
+  },
 }
