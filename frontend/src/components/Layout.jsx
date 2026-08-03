@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 
 const publicLinks = [
   { to: '/', labelKey: 'locationDirectoryNav', end: true },
+  { to: '/listing', labelKey: 'locationListing' },
   { to: '/same-gn', labelKey: 'gnAnalysis' },
   { to: '/about', labelKey: 'aboutService' },
   { to: '/tools', labelKey: 'tools' },

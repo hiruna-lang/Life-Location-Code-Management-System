@@ -6,6 +6,7 @@ import { LanguageProvider } from './context/LanguageContext'
 import About                  from './pages/About'
 import Tools                  from './pages/Tools'
 import LocationSearch          from './pages/LocationSearch'
+import LocationListing         from './pages/LocationListing'
 import SameGnDifferentDs       from './pages/SameGnDifferentDs'
 import Login                   from './pages/Login'
 import AdminDashboard          from './pages/AdminDashboard'
@@ -37,6 +38,7 @@ export default function App() {
         <Routes>
           {/* Public */}
           <Route path="/"        element={<Layout><LocationSearch /></Layout>} />
+          <Route path="/listing" element={<Layout><LocationListing /></Layout>} />
           <Route path="/about"   element={<Layout><About /></Layout>} />
           <Route path="/tools"   element={<Layout><Tools /></Layout>} />
           <Route path="/same-gn" element={<Layout><SameGnDifferentDs /></Layout>} />
