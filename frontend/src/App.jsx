@@ -41,7 +41,11 @@ export default function App() {
           <Route path="/listing" element={<Layout><LocationListing /></Layout>} />
           <Route path="/about"   element={<Layout><About /></Layout>} />
           <Route path="/tools"   element={<Layout><Tools /></Layout>} />
-          <Route path="/same-gn" element={<Layout><SameGnDifferentDs /></Layout>} />
+          <Route path="/same-gn" element={
+            <RequireAuth>
+              <Layout><SameGnDifferentDs /></Layout>
+            </RequireAuth>
+          } />
           <Route path="/login"   element={<Login />} />
 
           {/* Admin only */}
