@@ -40,7 +40,13 @@ export default function LocationSearch() {
   const [loadingInitial, setLoadingInitial] = useState(false)
   const [loadingVillages, setLoadingVillages] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [directoryQuery, setDirectoryQuery] = useState('')
+  const [lookupResults, setLookupResults] = useState([])
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [lookupOpen, setLookupOpen] = useState(false)
+  const [lookupSelection, setLookupSelection] = useState(null)
   const resultTableRef = useRef(null)
+  const lookupRequestRef = useRef(0)
 
   const loadAllDistrictsFor = async provinceList => {
     const districtGroups = await Promise.all(
@@ -80,6 +86,30 @@ export default function LocationSearch() {
     loadProvinces()
     return () => { mounted = false }
   }, [])
+
+  useEffect(() => {
+    const query = directoryQuery.trim()
+    if (query.length < 2) {
+      setLookupResults([])
+      setLookupLoading(false)
+      return undefined
+    }
+
+    const requestId = ++lookupRequestRef.current
+    const timer = window.setTimeout(async () => {
+      setLookupLoading(true)
+      try {
+        const data = await locationApi.lookup(query)
+        if (requestId === lookupRequestRef.current) setLookupResults(data)
+      } catch (error) {
+        if (requestId === lookupRequestRef.current) setApiError(friendlyApiError)
+      } finally {
+        if (requestId === lookupRequestRef.current) setLookupLoading(false)
+      }
+    }, 280)
+
+    return () => window.clearTimeout(timer)
+  }, [directoryQuery])
 
   const matchApiRecord = (records, geoJsonName, type) => {
     const normalizedGeoJsonName = normalizeName(geoJsonName)
@@ -223,6 +253,35 @@ export default function LocationSearch() {
 
   const selectedProvinceName = selected.province ? localizedName(selected.province) : ''
 
+  const chooseLookupResult = async result => {
+    setLookupSelection(result)
+    setLookupOpen(false)
+    setApiError('')
+
+    const province = provinces.find(item => String(item.id) === String(result.province_id)) || null
+    const district = allDistricts.find(item => String(item.id) === String(result.district_id)) || null
+    setLoadingPanel(true)
+
+    try {
+      const nextDistricts = province ? allDistricts.filter(item => String(item.province_id) === String(province.id)) : allDistricts
+      const nextDsList = district ? await locationApi.divisionalSecretariats(district.id) : []
+      const ds = nextDsList.find(item => String(item.id) === String(result.ds_id)) || null
+      const nextGnList = ds ? await locationApi.gnDivisions(ds.id) : []
+      const gn = nextGnList.find(item => String(item.id) === String(result.gn_id)) || null
+      const nextVillages = gn ? await locationApi.villages(gn.id) : []
+
+      setDistricts(nextDistricts)
+      setDsList(nextDsList)
+      setGnList(nextGnList)
+      setVillages(nextVillages)
+      setSelected({ province, district, districtFeature: null, ds, gn })
+    } catch (error) {
+      setApiError(friendlyApiError)
+    } finally {
+      setLoadingPanel(false)
+    }
+  }
+
   return (
     <div className="location-search-page">
       <motion.header
@@ -247,6 +306,17 @@ export default function LocationSearch() {
         </AnimatePresence>
         <p>{t('locationBrowserDescription')}</p>
       </motion.header>
+
+      <DirectoryLookup
+        query={directoryQuery}
+        setQuery={setDirectoryQuery}
+        results={lookupResults}
+        loading={lookupLoading}
+        open={lookupOpen}
+        setOpen={setLookupOpen}
+        onSelect={chooseLookupResult}
+        localizedName={localizedName}
+      />
 
       <motion.section
         className="location-dashboard"
@@ -368,8 +438,149 @@ export default function LocationSearch() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {lookupSelection && (
+          <LocationDetailModal
+            result={lookupSelection}
+            onClose={() => setLookupSelection(null)}
+            localizedName={localizedName}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
+}
+
+const lookupTypeLabels = {
+  province: 'Province',
+  district: 'District',
+  ds: 'Divisional Secretariat',
+  gn: 'GN Division',
+  village: 'Village',
+}
+
+function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onSelect, localizedName }) {
+  const showResults = open && query.trim().length >= 2
+
+  return (
+    <motion.section
+      className="location-directory-lookup"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={smoothTransition}
+    >
+      <div className="location-directory-lookup__intro">
+        <span>Quick directory search</span>
+        <strong>Find any administrative location</strong>
+        <p>Search a province, district, divisional secretariat, GN division, village, or Life Location Code.</p>
+      </div>
+      <div className="location-directory-lookup__control">
+        <span className="location-directory-lookup__icon" aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          value={query}
+          onChange={event => { setQuery(event.target.value); setOpen(true) }}
+          onFocus={() => setOpen(true)}
+          placeholder="Type a location name or Life Location Code"
+          aria-label="Search all administrative locations"
+          aria-expanded={showResults}
+          autoComplete="off"
+        />
+        {loading && <span className="location-directory-lookup__spinner" aria-label="Searching" />}
+        {query && !loading && (
+          <button type="button" className="location-directory-lookup__clear" onClick={() => setQuery('')} aria-label="Clear search">×</button>
+        )}
+        <AnimatePresence>
+          {showResults && (
+            <motion.div
+              className="location-directory-results"
+              initial={{ opacity: 0, y: -6, scale: .99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: .99 }}
+              transition={smoothTransition}
+            >
+              {!loading && results.length === 0 && <div className="location-directory-results__empty">No matching locations found.</div>}
+              {results.map(result => (
+                <button type="button" key={`${result.type}-${result.id}`} onClick={() => onSelect(result)}>
+                  <span className={`location-directory-results__type is-${result.type}`}>{lookupTypeLabels[result.type]}</span>
+                  <span className="location-directory-results__copy">
+                    <strong>{localizedName(result) || result.name_english}</strong>
+                    <small>{lookupPath(result)}</small>
+                  </span>
+                  <span className="location-directory-results__code">{result.lifecode || '—'}</span>
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.section>
+  )
+}
+
+function LocationDetailModal({ result, onClose, localizedName }) {
+  useEffect(() => {
+    const closeOnEscape = event => { if (event.key === 'Escape') onClose() }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [onClose])
+
+  const levels = [
+    ['Province', result.province_name, result.province_lifecode],
+    ['District', result.district_name, result.district_lifecode],
+    ['Divisional Secretariat', result.ds_name, result.ds_lifecode],
+    ['GN Division', result.gn_name, result.gn_lifecode],
+    ['Village', result.type === 'village' ? localizedName(result) || result.name_english : null, result.type === 'village' ? result.lifecode : null],
+  ].filter(([, name]) => name)
+
+  return (
+    <motion.div className="location-detail-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={onClose}>
+      <motion.article
+        className="location-detail-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="location-detail-title"
+        initial={{ opacity: 0, y: 24, scale: .97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: .98 }}
+        transition={smoothTransition}
+        onMouseDown={event => event.stopPropagation()}
+      >
+        <div className="location-detail-modal__header">
+          <div>
+            <span>{lookupTypeLabels[result.type]} found</span>
+            <h2 id="location-detail-title">{localizedName(result) || result.name_english}</h2>
+            <p>Official administrative hierarchy and Life Location Code</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close location details">×</button>
+        </div>
+        <div className="location-detail-modal__code">
+          <span>Life Location Code</span>
+          <strong>{result.lifecode || 'Not available'}</strong>
+        </div>
+        <div className="location-detail-modal__path">
+          {levels.map(([label, name, code], index) => (
+            <div key={label} className={index === levels.length - 1 ? 'is-current' : ''}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <p><small>{label}</small><strong>{name}</strong></p>
+              <em>{code || '—'}</em>
+            </div>
+          ))}
+        </div>
+        <div className="location-detail-modal__footer">
+          <span>✓ The map and hierarchy panels have been updated to this location.</span>
+          <button type="button" onClick={onClose}>Continue browsing</button>
+        </div>
+      </motion.article>
+    </motion.div>
+  )
+}
+
+function lookupPath(result) {
+  return [result.province_name, result.district_name, result.ds_name, result.gn_name]
+    .filter(Boolean)
+    .join('  ›  ')
 }
 
 function ProvinceButtonRow({ provinces, selectedId, onSelect, localizedName }) {
