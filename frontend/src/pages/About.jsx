@@ -54,27 +54,18 @@ export default function About() {
   return (
     <div className="about-service-page">
       <motion.section
-        className="about-hero"
-        initial={{ opacity: 0, y: 12 }}
+        className="about-intro"
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: .5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: .35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="about-hero__copy">
-          <span className="about-eyebrow">National administrative location service</span>
-          <h1>About the Life Location Code Service</h1>
-          <p>
-            A trusted digital directory for identifying, searching, and maintaining Sri Lanka’s
-            official administrative locations through one clear national hierarchy.
-          </p>
-          <div className="about-hero__actions">
-            <Link to="/" className="about-button about-button--primary">Search location codes</Link>
-            <Link to="/same-gn" className="about-button about-button--secondary">View GN analysis</Link>
-          </div>
-        </div>
-        <div className="about-hero__mark" aria-hidden="true">
-          <span>LLC</span>
-          <strong>One location.<br />One official code.</strong>
-        </div>
+        <span className="about-section-number">About the service</span>
+        <h1>Life Location Code Service</h1>
+        <p>
+          The Life Location Code Service is Sri Lanka’s administrative location directory. It helps
+          the public and government officers identify official locations through the complete hierarchy
+          of province, district, divisional secretariat, GN division, and village.
+        </p>
       </motion.section>
 
       <motion.section className="about-purpose" {...reveal}>
