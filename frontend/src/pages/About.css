@@ -1,10 +1,29 @@
-.site-main:has(.about-service-page) {
-  background:
-    radial-gradient(circle at 12% 10%, rgba(196,154,66,.12), transparent 24%),
-    linear-gradient(180deg, #faf8f5, #f5f0eb);
-}
-
 .about-service-page { display: grid; gap: 26px; padding-bottom: 18px; color: #172c45; }
+
+.about-intro {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 40px) clamp(22px, 4vw, 44px);
+  background: rgba(255,255,255,.92);
+  border: 1px solid #e1d8cf;
+  border-top: 4px solid #712b31;
+  box-shadow: 0 14px 34px rgba(37,29,27,.07);
+  text-align: center;
+}
+.about-intro h1 {
+  margin-top: 7px;
+  color: #172c45;
+  font-family: 'Source Serif 4', serif;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.12;
+}
+.about-intro p {
+  max-width: 790px;
+  margin: 14px auto 0;
+  color: #5f6c79;
+  font-size: 16px;
+  line-height: 1.7;
+}
 
 .about-hero {
   position: relative;

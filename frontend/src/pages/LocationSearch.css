@@ -1,11 +1,11 @@
-.site-main:has(.location-search-page) {
+.site-main--public {
   position: relative;
   overflow-x: hidden;
   background-color: #f7f3ee;
   background-image: none;
 }
 
-.site-main:has(.location-search-page)::before {
+.site-main--public::before {
   position: absolute;
   z-index: 0;
   top: 0;
@@ -23,7 +23,7 @@
   mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
 }
 
-.site-main:has(.location-search-page)::after {
+.site-main--public::after {
   position: absolute;
   z-index: 0;
   right: 0;
@@ -41,7 +41,7 @@
   mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.18) 22%, #000 62%);
 }
 
-.site-main:has(.location-search-page) > .site-container {
+.site-main--public > .site-container {
   position: relative;
   z-index: 1;
 }

@@ -12,6 +12,7 @@ const translations = {
     locationSearch: 'Location Code Search',
     gnAnalysis: 'GN Division Analysis',
     aboutService: 'About the Service',
+    tools: 'Tools',
     dashboard: 'Dashboard',
     verification: 'DS Verification',
     reports: 'Reports',

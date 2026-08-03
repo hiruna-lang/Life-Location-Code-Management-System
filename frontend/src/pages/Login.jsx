@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import GovernmentBrand from '../components/GovernmentBrand'
 import { useLanguage } from '../context/LanguageContext'
@@ -10,7 +10,9 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [languageOpen, setLanguageOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const languageRef = useRef(null)
+  const navRef = useRef(null)
   const { language, setLanguage, t } = useLanguage()
 
   useEffect(() => {
@@ -21,6 +23,22 @@ export default function Login() {
     document.addEventListener('pointerdown', closeLanguageMenu)
     return () => document.removeEventListener('pointerdown', closeLanguageMenu)
   }, [languageOpen])
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const closeMenu = event => {
+      if (!navRef.current?.contains(event.target)) setMenuOpen(false)
+    }
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', closeMenu)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeMenu)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [menuOpen])
 
   const handleSubmit = async event => {
     event.preventDefault()
@@ -59,6 +77,27 @@ export default function Login() {
           </div>
         </div>
       </header>
+
+      <nav className="site-nav login-site-nav" aria-label="Primary navigation" ref={navRef}>
+        <div className="site-container site-nav__inner">
+          <button
+            className={`site-nav__toggle${menuOpen ? ' is-open' : ''}`}
+            onClick={() => setMenuOpen(open => !open)}
+            aria-expanded={menuOpen}
+            aria-controls="login-navigation-menu"
+          >
+            <span className="site-nav__toggle-label">{t('menu')}</span>
+            <span className="site-nav__toggle-icon" aria-hidden="true"><span /><span /><span /></span>
+          </button>
+          <div id="login-navigation-menu" className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
+            <NavLink to="/" end className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('locationDirectoryNav')}</NavLink>
+            <NavLink to="/listing" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('locationListing')}</NavLink>
+            <NavLink to="/about" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('aboutService')}</NavLink>
+            <NavLink to="/tools" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('tools')}</NavLink>
+            <NavLink to="/login" className="site-nav__link site-nav__link--account is-active" onClick={() => setMenuOpen(false)}>{t('officerLogin')}</NavLink>
+          </div>
+        </div>
+      </nav>
 
       <main className="login-main">
         <div className="login-card">

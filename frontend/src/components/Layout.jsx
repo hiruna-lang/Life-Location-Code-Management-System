@@ -9,6 +9,7 @@ const publicLinks = [
   { to: '/listing', labelKey: 'locationListing' },
   { to: '/same-gn', labelKey: 'gnAnalysis' },
   { to: '/about', labelKey: 'aboutService' },
+  { to: '/tools', labelKey: 'tools' },
 ]
 
 const adminLinks = [
@@ -144,7 +145,7 @@ export default function Layout({ children, admin = false }) {
                 <NavLink to="/ds-dashboard" end className={navClass} onClick={() => setMenuOpen(false)}>
                   DS Dashboard
                 </NavLink>
-                {publicLinks.filter(link => link.to !== '/' && link.to !== '/same-gn').map(link => (
+                {publicLinks.filter(link => link.to !== '/').map(link => (
                   <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
                     {t(link.labelKey)}
                   </NavLink>
@@ -157,7 +158,7 @@ export default function Layout({ children, admin = false }) {
               </>
             ) : (
               <>
-                {publicLinks.map(link => (
+                {publicLinks.filter(link => link.to !== '/same-gn').map(link => (
                   <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
                     {t(link.labelKey)}
                   </NavLink>
@@ -184,7 +185,7 @@ export default function Layout({ children, admin = false }) {
         </div>
       </nav>
 
-      <main className="site-main">
+      <main className={admin ? 'site-main' : 'site-main site-main--public'}>
         <div className={admin ? 'site-container site-container--wide' : 'site-container'}>
           {children}
         </div>
