@@ -223,12 +223,12 @@ export default function LocationSearch() {
   }
 
   useEffect(() => {
-    if (!selected.gn || loadingVillages || !resultTableRef.current) return
+    if (!selected.gn || loadingVillages || lookupSelection || !resultTableRef.current) return
     resultTableRef.current.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     })
-  }, [selected.gn, loadingVillages, villages])
+  }, [selected.gn, loadingVillages, villages, lookupSelection])
 
   const resetSelection = () => {
     setDistricts(allDistricts)
@@ -522,9 +522,29 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
 function LocationDetailModal({ result, onClose, localizedName }) {
   useEffect(() => {
     const closeOnEscape = event => { if (event.key === 'Escape') onClose() }
+    const scrollPosition = window.scrollY
+    const previousStyles = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+    }
+
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollPosition}px`
+    document.body.style.width = '100%'
     window.addEventListener('keydown', closeOnEscape)
-    return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [onClose])
+
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape)
+      document.body.style.overflow = previousStyles.overflow
+      document.body.style.position = previousStyles.position
+      document.body.style.top = previousStyles.top
+      document.body.style.width = previousStyles.width
+      window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' })
+    }
+  }, [])
 
   const levels = [
     ['Province', result.province_name, result.province_lifecode],
