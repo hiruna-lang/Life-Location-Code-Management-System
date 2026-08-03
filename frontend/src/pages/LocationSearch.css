@@ -279,7 +279,7 @@ html[lang='si'] .location-page-heading h1 {
   place-items: center;
   padding: 24px;
   background: rgba(15,25,37,.58);
-  backdrop-filter: blur(5px);
+  will-change: opacity;
 }
 
 .location-detail-modal {
@@ -290,6 +290,8 @@ html[lang='si'] .location-page-heading h1 {
   border: 1px solid rgba(211,165,61,.72);
   border-radius: 16px;
   box-shadow: 0 34px 90px rgba(20,13,14,.35);
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .location-detail-modal__header {

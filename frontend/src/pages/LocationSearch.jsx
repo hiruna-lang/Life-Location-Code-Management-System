@@ -253,33 +253,14 @@ export default function LocationSearch() {
 
   const selectedProvinceName = selected.province ? localizedName(selected.province) : ''
 
-  const chooseLookupResult = async result => {
+  const chooseLookupResult = result => {
     setLookupSelection(result)
     setLookupOpen(false)
     setApiError('')
+  }
 
-    const province = provinces.find(item => String(item.id) === String(result.province_id)) || null
-    const district = allDistricts.find(item => String(item.id) === String(result.district_id)) || null
-    setLoadingPanel(true)
-
-    try {
-      const nextDistricts = province ? allDistricts.filter(item => String(item.province_id) === String(province.id)) : allDistricts
-      const nextDsList = district ? await locationApi.divisionalSecretariats(district.id) : []
-      const ds = nextDsList.find(item => String(item.id) === String(result.ds_id)) || null
-      const nextGnList = ds ? await locationApi.gnDivisions(ds.id) : []
-      const gn = nextGnList.find(item => String(item.id) === String(result.gn_id)) || null
-      const nextVillages = gn ? await locationApi.villages(gn.id) : []
-
-      setDistricts(nextDistricts)
-      setDsList(nextDsList)
-      setGnList(nextGnList)
-      setVillages(nextVillages)
-      setSelected({ province, district, districtFeature: null, ds, gn })
-    } catch (error) {
-      setApiError(friendlyApiError)
-    } finally {
-      setLoadingPanel(false)
-    }
+  const closeLookupSelection = () => {
+    setLookupSelection(null)
   }
 
   return (
@@ -443,7 +424,7 @@ export default function LocationSearch() {
         {lookupSelection && (
           <LocationDetailModal
             result={lookupSelection}
-            onClose={() => setLookupSelection(null)}
+            onClose={closeLookupSelection}
             localizedName={localizedName}
           />
         )}
@@ -522,27 +503,23 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
 function LocationDetailModal({ result, onClose, localizedName }) {
   useEffect(() => {
     const closeOnEscape = event => { if (event.key === 'Escape') onClose() }
-    const scrollPosition = window.scrollY
     const previousStyles = {
       overflow: document.body.style.overflow,
-      position: document.body.style.position,
-      top: document.body.style.top,
-      width: document.body.style.width,
+      paddingRight: document.body.style.paddingRight,
+      overscrollBehavior: document.body.style.overscrollBehavior,
     }
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
 
     document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollPosition}px`
-    document.body.style.width = '100%'
+    document.body.style.overscrollBehavior = 'none'
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`
     window.addEventListener('keydown', closeOnEscape)
 
     return () => {
       window.removeEventListener('keydown', closeOnEscape)
       document.body.style.overflow = previousStyles.overflow
-      document.body.style.position = previousStyles.position
-      document.body.style.top = previousStyles.top
-      document.body.style.width = previousStyles.width
-      window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' })
+      document.body.style.paddingRight = previousStyles.paddingRight
+      document.body.style.overscrollBehavior = previousStyles.overscrollBehavior
     }
   }, [])
 
@@ -555,16 +532,23 @@ function LocationDetailModal({ result, onClose, localizedName }) {
   ].filter(([, name]) => name)
 
   return (
-    <motion.div className="location-detail-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={onClose}>
+    <motion.div
+      className="location-detail-backdrop"
+      initial={false}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 1 }}
+      transition={{ duration: 0 }}
+      onMouseDown={onClose}
+    >
       <motion.article
         className="location-detail-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="location-detail-title"
-        initial={{ opacity: 0, y: 24, scale: .97 }}
+        initial={{ opacity: 0, y: 18, scale: .985 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 16, scale: .98 }}
-        transition={smoothTransition}
+        exit={{ opacity: 0, y: 10, scale: .99 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
         onMouseDown={event => event.stopPropagation()}
       >
         <div className="location-detail-modal__header">
@@ -589,7 +573,7 @@ function LocationDetailModal({ result, onClose, localizedName }) {
           ))}
         </div>
         <div className="location-detail-modal__footer">
-          <span>✓ The map and hierarchy panels have been updated to this location.</span>
+          <span>✓ Official location hierarchy and code information.</span>
           <button type="button" onClick={onClose}>Continue browsing</button>
         </div>
       </motion.article>
