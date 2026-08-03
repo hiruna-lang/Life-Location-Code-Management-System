@@ -1,4 +1,4 @@
-.site-main:has(.location-listing-page) {
+.site-main:has(.location-listing-page)  {
   background-color: #f7f3ee;
 }
 
