@@ -728,6 +728,28 @@ html[lang='ta'] .nav-account-button {
 .site-nav__link[href='/login']::after { content: '●'; }
 .site-nav__link[href*='reports']::after { content: '▤'; }
 .site-nav__link[href*='logs']::after { content: '≡'; }
+
+html[lang='si'] .site-nav__links,
+html[lang='ta'] .site-nav__links {
+  width: min(340px, calc(100vw - 18px));
+  padding-left: 38px;
+}
+
+html[lang='si'] .site-nav__link,
+html[lang='ta'] .site-nav__link {
+  min-height: 46px;
+  padding: 7px 12px 7px 46px;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[lang='si'] .site-nav__link::after,
+html[lang='ta'] .site-nav__link::after {
+  left: 9px;
+}
+
 .site-nav__link:hover {
   color: #fff;
   text-shadow: 0 2px 8px rgba(0,0,0,.35);
