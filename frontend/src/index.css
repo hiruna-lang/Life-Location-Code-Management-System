@@ -776,6 +776,42 @@ html[lang='ta'] .site-nav__link::after {
   border-radius: 999px;
 }
 
+/* Persistent public navigation on desktop */
+@media (min-width: 1000px) {
+  .app-shell:not(.app-shell--admin) .site-nav__toggle,
+  .login-page .site-nav__toggle {
+    display: none;
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__links,
+  .login-page .site-nav__links {
+    top: 0;
+    right: 15px;
+    width: 238px;
+    padding: 14px 12px 20px 28px;
+    gap: 4px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    border-radius: 0 0 0 42%;
+    box-shadow: -7px 13px 30px rgba(26,9,13,.26), -2px 4px 12px rgba(223,172,62,.14);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link,
+  .login-page .site-nav__link {
+    min-height: 38px;
+    padding-left: 38px;
+    background: rgba(255,255,255,.035);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  .login-page .site-nav__link::after {
+    width: 25px;
+    height: 25px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-nav,
   .site-nav::before,
