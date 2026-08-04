@@ -427,13 +427,22 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
       transition={smoothTransition}
     >
       <div className="location-directory-lookup__intro">
-        <span>Quick directory search</span>
-        <strong>Find any administrative location</strong>
-        <p>Search a province, district, divisional secretariat, GN division, village, or Life Location Code.</p>
+        <span>National location directory</span>
+        <strong>Where would you like to find?</strong>
+        <p>Search Sri Lanka's official administrative locations by name or Life Location Code.</p>
+        <div className="location-directory-lookup__hierarchy" aria-label="Searchable administrative levels">
+          <small>Province</small><i aria-hidden="true" />
+          <small>District</small><i aria-hidden="true" />
+          <small>DS Division</small><i aria-hidden="true" />
+          <small>GN Division</small><i aria-hidden="true" />
+          <small>Village</small>
+        </div>
       </div>
       <div className="location-directory-lookup__control">
+        <label htmlFor="directory-search">Search the directory</label>
         <span className="location-directory-lookup__icon" aria-hidden="true">⌕</span>
         <input
+          id="directory-search"
           type="search"
           value={query}
           onChange={event => { setQuery(event.target.value); setOpen(true) }}
