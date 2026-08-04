@@ -251,8 +251,6 @@ export default function LocationSearch() {
     setVillages([])
   }
 
-  const selectedProvinceName = selected.province ? localizedName(selected.province) : ''
-
   const chooseLookupResult = result => {
     setLookupSelection(result)
     setLookupOpen(false)
@@ -265,29 +263,6 @@ export default function LocationSearch() {
 
   return (
     <div className="location-search-page">
-      <motion.header
-        className="location-page-heading"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={smoothTransition}
-      >
-        <span>{t('locationBrowser')}</span>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.h1
-            key={selectedProvinceName || 'all-districts'}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={smoothTransition}
-          >
-            {selectedProvinceName
-              ? t('districtMapSelected', { province: selectedProvinceName })
-              : t('districtMapAll')}
-          </motion.h1>
-        </AnimatePresence>
-        <p>{t('locationBrowserDescription')}</p>
-      </motion.header>
-
       <DirectoryLookup
         query={directoryQuery}
         setQuery={setDirectoryQuery}
