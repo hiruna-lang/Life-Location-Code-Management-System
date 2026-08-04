@@ -786,29 +786,34 @@ html[lang='ta'] .site-nav__link::after {
   .app-shell:not(.app-shell--admin) .site-nav__links,
   .login-page .site-nav__links {
     top: 0;
-    right: 15px;
-    width: 238px;
-    padding: 14px 12px 20px 28px;
-    gap: 4px;
+    right: min(0px, calc(50% - 50vw));
+    bottom: auto;
+    width: 230px;
+    padding: 8px 9px 10px 24px;
+    gap: 2px;
     opacity: 1;
     visibility: visible;
     transform: none;
     pointer-events: auto;
-    border-radius: 0 0 0 42%;
-    box-shadow: -7px 13px 30px rgba(26,9,13,.26), -2px 4px 12px rgba(223,172,62,.14);
+    border-radius: 18px 0 0 42%;
+    box-shadow: -8px 7px 24px rgba(26,9,13,.25), -2px 2px 10px rgba(223,172,62,.13);
   }
 
   .app-shell:not(.app-shell--admin) .site-nav__link,
   .login-page .site-nav__link {
-    min-height: 38px;
-    padding-left: 38px;
+    min-height: 28px;
+    padding: 3px 7px 3px 34px;
     background: rgba(255,255,255,.035);
+    border-radius: 6px;
+    font-size: 11px;
   }
 
   .app-shell:not(.app-shell--admin) .site-nav__link::after,
   .login-page .site-nav__link::after {
-    width: 25px;
-    height: 25px;
+    left: 5px;
+    width: 21px;
+    height: 21px;
+    font-size: 9px;
   }
 }
 
