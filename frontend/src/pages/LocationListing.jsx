@@ -354,19 +354,21 @@ export default function LocationListing() {
     return ''
   }
 
-  const handleSearch = useCallback(async (page = 1) => {
+  const handleSearch = useCallback(async (page = 1, sortOverride = null) => {
     setLoading(true)
     setHasSearched(true)
     setCurrentPage(page)
     setFilterText('')
     setActivePicker(null)
 
+    const activeSort = sortOverride !== null ? sortOverride : sortBy
+
     try {
       const params = {
         per_page: RESULTS_PER_PAGE,
         page,
         include_villages: hasNoneSelected ? '0' : (includeVillages ? '1' : '0'),
-        sort_by: sortBy,
+        sort_by: activeSort,
       }
       if (selectedProvince) params.province_id = selectedProvince
       if (selectedDistrict) params.district_id = selectedDistrict
@@ -669,7 +671,7 @@ export default function LocationListing() {
             <div className="results-top-right">
               <div className="results-sort">
                 <label>{t('sortBy')}:</label>
-                <select value={sortBy} onChange={e => { setSortBy(e.target.value); if (hasSearched) handleSearch(1) }}>
+                <select value={sortBy} onChange={e => { const val = e.target.value; setSortBy(val); if (hasSearched) handleSearch(1, val) }}>
                   <option value="name">{t('sortName')}</option>
                   <option value="code">{t('sortOrder')}</option>
                 </select>

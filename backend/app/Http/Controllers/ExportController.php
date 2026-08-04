@@ -97,7 +97,11 @@ class ExportController extends Controller
             'v.name_tamil as village_name_tamil', 'v.lifecode as village_lifecode',
         ];
 
-        if ($dsId === 'none') {
+        if ($provinceId === 'none') {
+            $level = 'none';
+        } elseif ($districtId === 'none') {
+            $level = 'province';
+        } elseif ($dsId === 'none') {
             $level = 'district';
         } elseif ($gnId === 'none') {
             $level = 'ds';
@@ -108,6 +112,12 @@ class ExportController extends Controller
         }
 
         switch ($level) {
+            case 'none':
+                return [];
+            case 'province':
+                $query = DB::table('province as p')
+                    ->select($provinceColumns);
+                break;
             case 'district':
                 $query = DB::table('district as d')
                     ->join('province as p', 'd.province_id', '=', 'p.id')
@@ -139,11 +149,38 @@ class ExportController extends Controller
         $this->applySearchFilters($query, $request);
 
         if ($sortBy === 'code') {
+            $query->reorder();
             switch ($level) {
-                case 'district': $query->reorder('d.lifecode'); break;
-                case 'ds':       $query->reorder('ds.lifecode'); break;
-                case 'village':  $query->reorder('v.lifecode'); break;
-                default:         $query->reorder('g.lifecode'); break;
+                case 'province':
+                    $query->orderBy('p.lifecode', 'asc')
+                           ->orderBy('p.name_english', 'asc');
+                    break;
+                case 'district':
+                    $query->orderBy('d.lifecode', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
+                    break;
+                case 'ds':
+                    $query->orderBy('ds.lifecode', 'asc')
+                           ->orderBy('ds.name_english', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
+                    break;
+                case 'village':
+                    $query->orderBy('v.lifecode', 'asc')
+                           ->orderBy('v.name_english', 'asc')
+                           ->orderBy('g.name_english', 'asc')
+                           ->orderBy('ds.name_english', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
+                    break;
+                default:
+                    $query->orderBy('g.lifecode', 'asc')
+                           ->orderBy('g.name_english', 'asc')
+                           ->orderBy('ds.name_english', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
+                    break;
             }
         } else {
             $query->orderBy('p.name_english');

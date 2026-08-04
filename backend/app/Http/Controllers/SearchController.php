@@ -174,21 +174,37 @@ class SearchController extends Controller
     private function applySorting($query, $sortBy, $level)
     {
         if ($sortBy === 'code') {
+            $query->reorder();
             switch ($level) {
                 case 'province':
-                    $query->reorder('p.lifecode', 'asc');
+                    $query->orderBy('p.lifecode', 'asc')
+                           ->orderBy('p.name_english', 'asc');
                     break;
                 case 'district':
-                    $query->reorder('d.lifecode', 'asc');
+                    $query->orderBy('d.lifecode', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
                     break;
                 case 'ds':
-                    $query->reorder('ds.lifecode', 'asc');
+                    $query->orderBy('ds.lifecode', 'asc')
+                           ->orderBy('ds.name_english', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
                     break;
                 case 'gn':
-                    $query->reorder('g.lifecode', 'asc');
+                    $query->orderBy('g.lifecode', 'asc')
+                           ->orderBy('g.name_english', 'asc')
+                           ->orderBy('ds.name_english', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
                     break;
                 case 'village':
-                    $query->reorder('v.lifecode', 'asc');
+                    $query->orderBy('v.lifecode', 'asc')
+                           ->orderBy('v.name_english', 'asc')
+                           ->orderBy('g.name_english', 'asc')
+                           ->orderBy('ds.name_english', 'asc')
+                           ->orderBy('d.name_english', 'asc')
+                           ->orderBy('p.name_english', 'asc');
                     break;
             }
         }
