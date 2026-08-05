@@ -439,7 +439,6 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
         </div>
       </div>
       <div className="location-directory-lookup__control">
-        <label htmlFor="directory-search">Search the directory</label>
         <span className="location-directory-lookup__icon" aria-hidden="true">⌕</span>
         <input
           id="directory-search"
@@ -456,6 +455,14 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
         {query && !loading && (
           <button type="button" className="location-directory-lookup__clear" onClick={() => setQuery('')} aria-label="Clear search">×</button>
         )}
+        <button
+          type="button"
+          className="location-directory-lookup__submit"
+          onClick={() => setOpen(true)}
+          aria-label="Search directory"
+        >
+          <span>Search</span><b aria-hidden="true">›</b>
+        </button>
         <AnimatePresence>
           {showResults && (
             <motion.div
