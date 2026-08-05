@@ -297,6 +297,21 @@ html[lang='ta'] .nav-account-button {
   line-height: 1.15;
   text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
+.government-header__service--ministry {
+  top: 45px;
+  width: 430px;
+  padding-inline: 22px;
+}
+.government-header__service--ministry .government-header__service-kicker {
+  color: #f0d894;
+  font-size: 10px;
+}
+.government-header__service--ministry strong {
+  margin-top: 6px;
+  color: #fff;
+  font-size: clamp(13px, 1.15vw, 16px);
+  line-height: 1.28;
+}
 .government-header__tools {
   position: absolute;
   z-index: 12;

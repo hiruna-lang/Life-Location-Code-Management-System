@@ -56,6 +56,10 @@ export default function Login() {
       <header className="login-header">
         <div className="site-container">
           <Link to="/"><GovernmentBrand /></Link>
+          <div className="government-header__service government-header__service--ministry">
+            <span className="government-header__service-kicker">{t('division')}</span>
+            <strong>{t('ministry')}</strong>
+          </div>
           <div className="government-header__tools">
             <div className="header-language" ref={languageRef}>
               <button

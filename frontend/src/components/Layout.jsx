@@ -82,9 +82,9 @@ export default function Layout({ children, admin = false }) {
               <GovernmentBrand />
             </Link>
           )}
-          <div className="government-header__service">
-            <span className="government-header__service-kicker">{t('nationalService')}</span>
-            <strong>{t('lifeLocationCode')}</strong>
+          <div className="government-header__service government-header__service--ministry">
+            <span className="government-header__service-kicker">{t('division')}</span>
+            <strong>{t('ministry')}</strong>
           </div>
           <div className="government-header__tools">
             <div className="header-language" ref={languageRef}>

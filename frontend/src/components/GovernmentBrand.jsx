@@ -13,8 +13,8 @@ export default function GovernmentBrand({ compact = false }) {
         />
       </div>
       <div className="government-brand__text">
-        <div className="government-brand__ministry">{t('ministry')}</div>
-        <div className="government-brand__division">{t('division')}</div>
+        <div className="government-brand__ministry">{t('lifeLocationCode')}</div>
+        <div className="government-brand__division">{t('nationalService')}</div>
       </div>
     </div>
   )
