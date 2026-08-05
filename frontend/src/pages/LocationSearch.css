@@ -102,34 +102,49 @@ html[lang='si'] .location-page-heading h1 {
   z-index: 20;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 9px;
+  gap: 11px;
   align-items: center;
-  width: min(720px, calc(100% - 48px));
-  margin: 6px auto 9px;
-  padding: 14px clamp(18px, 3vw, 30px) 17px;
+  width: min(790px, calc(100% - 48px));
+  margin: 10px auto 16px;
+  padding: 15px 18px 17px;
   overflow: visible;
-  background:
-    radial-gradient(circle at 92% 5%, rgba(239,197,90,.18), transparent 31%),
-    linear-gradient(128deg, rgba(70,13,22,.98), rgba(119,38,47,.97) 68%, rgba(91,29,34,.97));
-  border: 1px solid rgba(222,177,72,.72);
-  border-radius: 14px;
-  box-shadow: 0 13px 28px rgba(54,20,23,.16), inset 0 1px 0 rgba(255,255,255,.08);
+  background: rgba(255,252,247,.82);
+  border: 1px solid rgba(199,164,101,.45);
+  border-left: 4px solid #7b2933;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(55,30,27,.1), inset 0 1px 0 rgba(255,255,255,.75);
+  backdrop-filter: blur(8px);
 }
 
 .location-directory-lookup::after {
-  position: absolute;
-  inset: 0;
-  content: '';
-  background:
-    linear-gradient(90deg, transparent, rgba(240,202,111,.5), transparent) top / 70% 1px no-repeat,
-    radial-gradient(circle at 9% 100%, rgba(255,255,255,.06), transparent 30%);
-  border-radius: inherit;
-  pointer-events: none;
+  display: none;
 }
 
 .location-directory-lookup__intro,
 .location-directory-lookup__control { position: relative; z-index: 1; }
 .location-directory-lookup__intro { text-align: center; }
+
+.location-directory-lookup__intro--compact {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px 12px;
+  text-align: left;
+}
+.location-directory-lookup__intro.location-directory-lookup__intro--compact strong {
+  margin: 0;
+  color: #5f1d27;
+  font-family: 'Source Serif 4', serif;
+  font-size: 17px;
+  line-height: 1.25;
+}
+.location-directory-lookup__intro.location-directory-lookup__intro--compact p {
+  margin: 0;
+  color: #677382;
+  font-size: 11px;
+  line-height: 1.4;
+}
 
 .location-directory-lookup__intro span {
   color: #e8c978;

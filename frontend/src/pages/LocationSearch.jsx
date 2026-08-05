@@ -426,17 +426,9 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
       animate={{ opacity: 1, y: 0 }}
       transition={smoothTransition}
     >
-      <div className="location-directory-lookup__intro">
-        <span>National location directory</span>
-        <strong>Where would you like to find?</strong>
-        <p>Search Sri Lanka's official administrative locations by name or Life Location Code.</p>
-        <div className="location-directory-lookup__hierarchy" aria-label="Searchable administrative levels">
-          <small>Province</small><i aria-hidden="true" />
-          <small>District</small><i aria-hidden="true" />
-          <small>DS Division</small><i aria-hidden="true" />
-          <small>GN Division</small><i aria-hidden="true" />
-          <small>Village</small>
-        </div>
+      <div className="location-directory-lookup__intro location-directory-lookup__intro--compact">
+        <strong>Search the national location directory</strong>
+        <p>Find a province, district, DS division, GN division, village, or Life Location Code.</p>
       </div>
       <div className="location-directory-lookup__control">
         <span className="location-directory-lookup__icon" aria-hidden="true">⌕</span>
