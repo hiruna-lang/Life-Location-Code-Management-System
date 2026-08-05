@@ -800,12 +800,12 @@ html[lang='ta'] .site-nav__link::after {
 
   .app-shell:not(.app-shell--admin) .site-nav__links,
   .login-page .site-nav__links {
-    top: 10px;
-    right: min(0px, calc(50% - 50vw));
+    top: 18px;
+    right: 18px;
     bottom: auto;
-    width: 220px;
-    padding: 11px 10px;
-    gap: 5px;
+    width: 72px;
+    padding: 6px;
+    gap: 3px;
     opacity: 1;
     visibility: visible;
     transform: none;
@@ -813,8 +813,7 @@ html[lang='ta'] .site-nav__link::after {
     background:
       linear-gradient(145deg, rgba(104,36,45,.88), rgba(53,17,24,.91));
     border: 1px solid rgba(224,190,112,.42);
-    border-right: 0;
-    border-radius: 16px 0 0 16px;
+    border-radius: 20px;
     box-shadow: -12px 14px 32px rgba(26,9,13,.22), inset 0 1px 0 rgba(255,255,255,.08);
     backdrop-filter: blur(18px) saturate(115%);
     -webkit-backdrop-filter: blur(18px) saturate(115%);
@@ -823,9 +822,9 @@ html[lang='ta'] .site-nav__link::after {
   .app-shell:not(.app-shell--admin) .site-nav__links::before,
   .login-page .site-nav__links::before {
     top: 0;
-    right: 20px;
+    right: 12px;
     bottom: auto;
-    left: 20px;
+    left: 12px;
     width: auto;
     height: 2px;
     background: linear-gradient(90deg, transparent, #deb957, transparent);
@@ -835,14 +834,17 @@ html[lang='ta'] .site-nav__link::after {
 
   .app-shell:not(.app-shell--admin) .site-nav__link,
   .login-page .site-nav__link {
-    min-height: 38px;
-    padding: 5px 9px 5px 40px;
+    min-height: 62px;
+    padding: 34px 4px 6px;
+    justify-content: center;
+    text-align: center;
     color: rgba(255,250,238,.92);
     background: rgba(255,255,255,.045);
     border: 1px solid rgba(239,218,166,.17);
-    border-radius: 9px;
+    border-radius: 13px;
     font-family: 'Source Sans 3', 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
-    font-size: 12px;
+    font-size: 9px;
+    line-height: 1.08;
     font-weight: 700;
   }
 
@@ -853,7 +855,7 @@ html[lang='ta'] .site-nav__link::after {
     border-color: rgba(232,201,124,.5);
     text-shadow: none;
     box-shadow: none;
-    transform: translateX(-2px);
+    transform: translateY(-2px);
   }
 
   .app-shell:not(.app-shell--admin) .site-nav__link.is-active,
@@ -867,19 +869,21 @@ html[lang='ta'] .site-nav__link::after {
 
   .app-shell:not(.app-shell--admin) .site-nav__link--account,
   .login-page .site-nav__link--account {
-    margin-top: 2px;
-    border-radius: 9px;
+    margin-top: 0;
+    border-radius: 13px;
   }
 
   .app-shell:not(.app-shell--admin) .site-nav__link::after,
   .login-page .site-nav__link::after {
-    left: 6px;
+    top: 6px;
+    left: 50%;
     width: 27px;
     height: 27px;
     color: #f2d98f;
     background: rgba(35,10,15,.22);
     border-color: rgba(234,211,150,.5);
     font-size: 10px;
+    transform: translateX(-50%);
   }
 
   .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
@@ -888,7 +892,19 @@ html[lang='ta'] .site-nav__link::after {
     background: rgba(255,255,255,.56);
     border-color: rgba(101,30,40,.25);
     box-shadow: none;
+    transform: translateX(-50%);
   }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/']::after,
+  .login-page .site-nav__link[href='/']::after { content: '\2316'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/listing']::after,
+  .login-page .site-nav__link[href='/listing']::after { content: '\2637'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/about']::after,
+  .login-page .site-nav__link[href='/about']::after { content: 'i'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/tools']::after,
+  .login-page .site-nav__link[href='/tools']::after { content: '\2692'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/login']::after,
+  .login-page .site-nav__link[href='/login']::after { content: '\25CF'; }
 }
 
 @media (prefers-reduced-motion: reduce) {
