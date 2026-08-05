@@ -800,8 +800,8 @@ html[lang='ta'] .site-nav__link::after {
 
   .app-shell:not(.app-shell--admin) .site-nav__links,
   .login-page .site-nav__links {
-    top: 18px;
-    right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2);
+    top: 34px;
+    right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2 + 8px);
     bottom: auto;
     width: 72px;
     padding: 6px;
