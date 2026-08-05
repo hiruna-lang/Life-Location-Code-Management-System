@@ -195,7 +195,8 @@ export default function Layout({ children, admin = false }) {
         <div className="site-container site-footer__inner">
           <div>
             <strong>{t('footerTitle')}</strong>
-            <span>{t('footerDivision')}</span>
+            <span>{t('ministry')}</span>
+            <span>{t('division')}</span>
           </div>
           <div className="site-footer__meta">
             <span>{t('developedBy')}</span>

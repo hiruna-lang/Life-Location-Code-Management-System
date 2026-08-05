@@ -136,7 +136,11 @@ export default function Login() {
           <Link className="back-link" to="/">{t('returnPublic')}</Link>
         </div>
       </main>
-      <footer className="login-footer">{t('developedBy')}</footer>
+      <footer className="login-footer">
+        <strong>{t('ministry')}</strong>
+        <span>{t('division')}</span>
+        <small>{t('developedBy')}</small>
+      </footer>
     </div>
   )
 }
