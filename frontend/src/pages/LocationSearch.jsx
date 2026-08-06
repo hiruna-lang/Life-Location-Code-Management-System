@@ -251,8 +251,6 @@ export default function LocationSearch() {
     setVillages([])
   }
 
-  const selectedProvinceName = selected.province ? localizedName(selected.province) : ''
-
   const chooseLookupResult = result => {
     setLookupSelection(result)
     setLookupOpen(false)
@@ -265,29 +263,6 @@ export default function LocationSearch() {
 
   return (
     <div className="location-search-page">
-      <motion.header
-        className="location-page-heading"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={smoothTransition}
-      >
-        <span>{t('locationBrowser')}</span>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.h1
-            key={selectedProvinceName || 'all-districts'}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={smoothTransition}
-          >
-            {selectedProvinceName
-              ? t('districtMapSelected', { province: selectedProvinceName })
-              : t('districtMapAll')}
-          </motion.h1>
-        </AnimatePresence>
-        <p>{t('locationBrowserDescription')}</p>
-      </motion.header>
-
       <DirectoryLookup
         query={directoryQuery}
         setQuery={setDirectoryQuery}
@@ -451,14 +426,14 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
       animate={{ opacity: 1, y: 0 }}
       transition={smoothTransition}
     >
-      <div className="location-directory-lookup__intro">
-        <span>Quick directory search</span>
-        <strong>Find any administrative location</strong>
-        <p>Search a province, district, divisional secretariat, GN division, village, or Life Location Code.</p>
+      <div className="location-directory-lookup__intro location-directory-lookup__intro--compact">
+        <strong>Search the national location directory</strong>
+        <p>Find a province, district, DS division, GN division, village, or Life Location Code.</p>
       </div>
       <div className="location-directory-lookup__control">
         <span className="location-directory-lookup__icon" aria-hidden="true">⌕</span>
         <input
+          id="directory-search"
           type="search"
           value={query}
           onChange={event => { setQuery(event.target.value); setOpen(true) }}
@@ -472,6 +447,14 @@ function DirectoryLookup({ query, setQuery, results, loading, open, setOpen, onS
         {query && !loading && (
           <button type="button" className="location-directory-lookup__clear" onClick={() => setQuery('')} aria-label="Clear search">×</button>
         )}
+        <button
+          type="button"
+          className="location-directory-lookup__submit"
+          onClick={() => setOpen(true)}
+          aria-label="Search directory"
+        >
+          <span>Search</span><b aria-hidden="true">›</b>
+        </button>
         <AnimatePresence>
           {showResults && (
             <motion.div

@@ -297,6 +297,21 @@ html[lang='ta'] .nav-account-button {
   line-height: 1.15;
   text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
+.government-header__service--ministry {
+  top: 45px;
+  width: 430px;
+  padding-inline: 22px;
+}
+.government-header__service--ministry .government-header__service-kicker {
+  color: #f0d894;
+  font-size: 10px;
+}
+.government-header__service--ministry strong {
+  margin-top: 6px;
+  color: #fff;
+  font-size: clamp(13px, 1.15vw, 16px);
+  line-height: 1.28;
+}
 .government-header__tools {
   position: absolute;
   z-index: 12;
@@ -776,6 +791,122 @@ html[lang='ta'] .site-nav__link::after {
   border-radius: 999px;
 }
 
+/* Persistent public navigation on desktop */
+@media (min-width: 1000px) {
+  .app-shell:not(.app-shell--admin) .site-nav__toggle,
+  .login-page .site-nav__toggle {
+    display: none;
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__links,
+  .login-page .site-nav__links {
+    top: 34px;
+    right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2 + 8px);
+    bottom: auto;
+    width: 72px;
+    padding: 6px;
+    gap: 3px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    background:
+      linear-gradient(145deg, rgba(104,36,45,.88), rgba(53,17,24,.91));
+    border: 1px solid rgba(224,190,112,.42);
+    border-radius: 20px;
+    box-shadow: -12px 14px 32px rgba(26,9,13,.22), inset 0 1px 0 rgba(255,255,255,.08);
+    backdrop-filter: blur(18px) saturate(115%);
+    -webkit-backdrop-filter: blur(18px) saturate(115%);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__links::before,
+  .login-page .site-nav__links::before {
+    top: 0;
+    right: 12px;
+    bottom: auto;
+    left: 12px;
+    width: auto;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #deb957, transparent);
+    border: 0;
+    transform: none;
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link,
+  .login-page .site-nav__link {
+    min-height: 62px;
+    padding: 34px 4px 6px;
+    justify-content: center;
+    text-align: center;
+    color: rgba(255,250,238,.92);
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(239,218,166,.17);
+    border-radius: 13px;
+    font-family: 'Source Sans 3', 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
+    font-size: 9px;
+    line-height: 1.08;
+    font-weight: 700;
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link:hover,
+  .login-page .site-nav__link:hover {
+    color: #fff;
+    background: rgba(255,255,255,.1);
+    border-color: rgba(232,201,124,.5);
+    text-shadow: none;
+    box-shadow: none;
+    transform: translateY(-2px);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link.is-active,
+  .login-page .site-nav__link.is-active {
+    color: #4d1720;
+    background: linear-gradient(135deg, #f8e7ad, #d9b653);
+    border-color: #e2c36e;
+    text-shadow: none;
+    box-shadow: 0 7px 16px rgba(25,8,11,.2);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link--account,
+  .login-page .site-nav__link--account {
+    margin-top: 0;
+    border-radius: 13px;
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  .login-page .site-nav__link::after {
+    top: 6px;
+    left: 50%;
+    width: 27px;
+    height: 27px;
+    color: #f2d98f;
+    background: rgba(35,10,15,.22);
+    border-color: rgba(234,211,150,.5);
+    font-size: 10px;
+    transform: translateX(-50%);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
+  .login-page .site-nav__link.is-active::after {
+    color: #651e28;
+    background: rgba(255,255,255,.56);
+    border-color: rgba(101,30,40,.25);
+    box-shadow: none;
+    transform: translateX(-50%);
+  }
+
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/']::after,
+  .login-page .site-nav__link[href='/']::after { content: '\2316'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/listing']::after,
+  .login-page .site-nav__link[href='/listing']::after { content: '\2637'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/about']::after,
+  .login-page .site-nav__link[href='/about']::after { content: 'i'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/tools']::after,
+  .login-page .site-nav__link[href='/tools']::after { content: '\2692'; }
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/login']::after,
+  .login-page .site-nav__link[href='/login']::after { content: '\25CF'; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-nav,
   .site-nav::before,
@@ -1164,6 +1295,10 @@ html[data-theme='dark'] .app-shell--admin .site-main {
 .login-card__help p { margin-top: 3px; color: var(--text-muted); font-size: 13px; }
 .back-link { display: inline-block; margin-top: 22px; color: var(--primary); font-size: 14px; font-weight: 700; }
 .login-footer { padding: 17px 24px; color: rgba(255,255,255,.75); background: var(--navy); border-top: 4px solid var(--gold); text-align: center; font-size: 12px; }
+.login-footer strong, .login-footer span, .login-footer small { display: block; }
+.login-footer strong { color: #fff; font-family: 'Source Serif 4', 'Noto Sans Sinhala', 'Noto Sans Tamil', serif; font-size: 14px; }
+.login-footer span { margin-top: 2px; color: #e9cc78; }
+.login-footer small { margin-top: 5px; color: rgba(255,255,255,.58); font-size: 10px; }
 
 /* Existing application content */
 .app-shell h2 { color: var(--navy) !important; font-family: 'Source Serif 4', serif; }
