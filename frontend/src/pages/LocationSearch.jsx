@@ -535,29 +535,43 @@ function LocationDetailModal({ result, onClose, localizedName }) {
         onMouseDown={event => event.stopPropagation()}
       >
         <div className="location-detail-modal__header">
-          <div>
-            <span>{lookupTypeLabels[result.type]} found</span>
-            <h2 id="location-detail-title">{localizedName(result) || result.name_english}</h2>
-            <div className="location-detail-modal__header-code">
-              <small>Life Location Code</small>
-              <strong>{result.lifecode || 'Not available'}</strong>
+          <div className="location-detail-modal__header-main">
+            <span className="location-detail-modal__location-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/><path d="M7.5 18.5h9"/></svg>
+            </span>
+            <div>
+              <span className="location-detail-modal__eyebrow">{lookupTypeLabels[result.type]} found</span>
+              <h2 id="location-detail-title">{localizedName(result) || result.name_english}</h2>
+              <div className="location-detail-modal__header-code">
+                <small>Life Location Code</small>
+                <strong>{result.lifecode || 'Not available'}</strong>
+              </div>
+              <p>Official administrative hierarchy and Life Location Code</p>
             </div>
-            <p>Official administrative hierarchy and Life Location Code</p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close location details">×</button>
         </div>
         <div className="location-detail-modal__path">
           {levels.map(([label, name, code], index) => (
             <div key={label} className={index === levels.length - 1 ? 'is-current' : ''}>
-              <span>{String(index + 1).padStart(2, '0')}</span>
+              <span className="location-detail-modal__step-icon" aria-hidden="true">
+                {index === levels.length - 1 ? (
+                  <svg viewBox="0 0 24 24"><path d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/><path d="M7.5 18.5h9"/></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24"><path d="M3 9h18L12 3 3 9Z"/><path d="M5 10v7M9 10v7M15 10v7M19 10v7M3 19h18M2 21h20"/></svg>
+                )}
+              </span>
               <p><small>{label}</small><strong>{name}</strong></p>
               <em>{code || '—'}</em>
             </div>
           ))}
         </div>
         <div className="location-detail-modal__footer">
-          <span>✓ Official location hierarchy and code information.</span>
-          <button type="button" onClick={onClose}>Continue browsing</button>
+          <div className="location-detail-modal__notice">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 7.7 7.5 9.5 4.4-1.8 7.5-4.9 7.5-9.5V6L12 3Z"/><path d="m9 12 2 2 4-5"/></svg>
+            <span>This is the official location hierarchy and Life Location Code maintained by the National Administrative Data Service.</span>
+          </div>
+          <button type="button" onClick={onClose}>Continue browsing <span aria-hidden="true">›</span></button>
         </div>
       </motion.article>
     </motion.div>
