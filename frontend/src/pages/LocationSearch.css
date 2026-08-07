@@ -375,17 +375,37 @@ html[lang='si'] .location-page-heading h1 {
   line-height: 1.15;
   text-shadow: 0 2px 8px rgba(20,4,7,.32);
 }
+.location-detail-modal__header-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 6px 11px;
+  color: #fff8e5;
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(242,213,128,.48);
+  border-radius: 7px;
+}
+.location-detail-modal__header-code small {
+  color: #f2d580;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.location-detail-modal__header-code strong {
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+}
 .location-detail-modal__header p { margin-top: 7px; color: rgba(255,255,255,.88); font-size: 14px; font-weight: 500; }
 .location-detail-modal__header > button { flex: 0 0 36px; width: 36px; height: 36px; color: #fff; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.35); border-radius: 50%; font-size: 24px; cursor: pointer; }
 
-.location-detail-modal__code { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 20px 26px 12px; padding: 15px 18px; background: #fff3d6; border: 1px solid #e1bd65; border-radius: 9px; }
-.location-detail-modal__code span { color: #712b31; font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-.location-detail-modal__code strong { color: #172c45; font-size: 22px; }
 .location-detail-modal__path {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 20px;
-  padding: 8px 26px 14px;
+  padding: 22px 26px 14px;
 }
 .location-detail-modal__path > div {
   position: relative;

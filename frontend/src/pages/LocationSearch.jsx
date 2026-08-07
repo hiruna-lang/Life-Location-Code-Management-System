@@ -538,13 +538,13 @@ function LocationDetailModal({ result, onClose, localizedName }) {
           <div>
             <span>{lookupTypeLabels[result.type]} found</span>
             <h2 id="location-detail-title">{localizedName(result) || result.name_english}</h2>
+            <div className="location-detail-modal__header-code">
+              <small>Life Location Code</small>
+              <strong>{result.lifecode || 'Not available'}</strong>
+            </div>
             <p>Official administrative hierarchy and Life Location Code</p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close location details">×</button>
-        </div>
-        <div className="location-detail-modal__code">
-          <span>Life Location Code</span>
-          <strong>{result.lifecode || 'Not available'}</strong>
         </div>
         <div className="location-detail-modal__path">
           {levels.map(([label, name, code], index) => (
