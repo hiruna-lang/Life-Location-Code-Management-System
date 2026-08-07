@@ -549,6 +549,21 @@ function LocationDetailModal({ result, onClose, localizedName }) {
               <p>Official administrative hierarchy and Life Location Code</p>
             </div>
           </div>
+          <div className="location-detail-modal__header-ornament" aria-hidden="true">
+            <svg viewBox="0 0 360 160" preserveAspectRatio="xMidYMid slice">
+              <path d="M20 152C91 104 143 103 221 129s112 3 152-31" />
+              <path d="M-8 166C76 108 145 117 216 143s111 8 157-24" />
+              <g transform="translate(250 42)">
+                <path d="M36 61C19 49 17 28 35 13c13 16 15 32 1 48Z" />
+                <path d="M39 61C56 49 58 28 40 13c-13 16-15 32-1 48Z" />
+                <path d="M35 62C16 62 4 49 7 31c17 5 27 15 28 31Z" />
+                <path d="M40 62c19 0 31-13 28-31-17 5-27 15-28 31Z" />
+                <path d="M37 63C19 72 4 68 0 52c16-3 28 1 37 11Z" />
+                <path d="M38 63c18 9 33 5 37-11-16-3-28 1-37 11Z" />
+                <path d="M8 72h59" />
+              </g>
+            </svg>
+          </div>
           <button type="button" onClick={onClose} aria-label="Close location details">×</button>
         </div>
         <div className="location-detail-modal__path">
