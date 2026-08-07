@@ -384,7 +384,7 @@ html[lang='si'] .location-page-heading h1 {
 .location-detail-modal__path {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
+  gap: 20px;
   padding: 8px 26px 14px;
 }
 .location-detail-modal__path > div {
@@ -399,6 +399,26 @@ html[lang='si'] .location-page-heading h1 {
   background: #fff;
   border: 1px solid #e4d9ce;
   border-radius: 10px;
+}
+.location-detail-modal__path > div:not(:last-child)::after {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: -16px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  content: '\2192';
+  color: #6f202a;
+  background: #f4d77f;
+  border: 2px solid #fffdfa;
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(83,31,36,.18);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateY(-50%);
 }
 .location-detail-modal__path > div > span { display: grid; place-items: center; width: 30px; height: 30px; color: #7a2c34; background: #f7eee7; border: 1px solid #dfcdbd; border-radius: 50%; font-size: 10px; font-weight: 900; }
 .location-detail-modal__path p small { display: block; color: #755f55; font-size: 11px; font-weight: 900; letter-spacing: .85px; text-transform: uppercase; }
@@ -435,6 +455,7 @@ html[lang='ta'] .location-detail-modal__path p strong {
     min-height: 66px;
   }
   .location-detail-modal__path em { grid-column: auto; justify-self: auto; }
+  .location-detail-modal__path > div:not(:last-child)::after { display: none; }
 }
 
 html[lang='ta'] .location-page-heading h1 {
