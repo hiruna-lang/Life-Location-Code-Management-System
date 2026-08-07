@@ -8,7 +8,7 @@ const letterTranslations = {
     p4: 'Your prompt action in this regard is highly appreciated.',
     closing: 'Thanking you,',
     senderName: 'Director - ICT',
-    senderMinistry: 'Ministry of Public Administration, Home Affairs, Provincial Councils & Local Government - Home Affairs Division',
+    senderMinistry: 'Ministry of Public Administration, Provincial Councils & Local Government - Home Affairs Division',
   },
   si: {
     subject: 'ඔබගේ පරිපාලනය යටතේ ඇති ග්‍රාම නිලධාරී කොට්ඨාශ පිළිබඳ තහවුරු කිරීම සම්බන්ධයෙන්',
@@ -19,7 +19,7 @@ const letterTranslations = {
     p4: 'මේ සම්බන්ධයෙන් ඔබගේ කඩිනම් ක්‍රියාමාර්ගය බෙහෙවින් අගය කරනු ලැබේ.',
     closing: 'ස්තූතියි,',
     senderName: 'අධ්‍යක්ෂ - තොරතුරු හා සන්නිවේදන තාක්ෂණ',
-    senderMinistry: 'රාජ්‍ය පරිපාලන, ස්වදේශ කටයුතු, පළාත් සභා සහ පළාත් පාලන අමාත්‍යාංශය - ස්වදේශ කටයුතු අංශය.',
+    senderMinistry: 'රාජ්‍ය පරිපාලන, පළාත් සභා සහ පළාත් පාලන අමාත්‍යාංශය - ස්වදේශ කටයුතු අංශය.',
   },
   ta: {
     subject: 'உங்கள் நிர்வாகத்தின் கீழ் கிராம அலுவலர் பிரிவுகளை உறுதிப்படுத்துவது தொடர்பாக',
@@ -30,7 +30,7 @@ const letterTranslations = {
     p4: 'இது தொடர்பாக நீங்கள் எடுத்த உடனடி நடவடிக்கை பெரிதும் பாராட்டப்படுகிறது.',
     closing: 'நன்றி,',
     senderName: 'இயக்குநர் - தகவல் மற்றும் தொடர்பு தொழில்நுட்பம்',
-    senderMinistry: 'பொது நிர்வாகம், உள்துறை, மாகாண சபைகள் மற்றும் உள்ளூராட்சி அமைச்சு - உள்துறைப் பிரிவு.',
+    senderMinistry: 'பொது நிர்வாகம், மாகாண சபைகள் மற்றும் உள்ளூராட்சி அமைச்சு - உள்துறைப் பிரிவு.',
   },
 }
 

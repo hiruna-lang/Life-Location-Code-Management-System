@@ -56,7 +56,7 @@ const renderHtml = ({ dsName, finalAt, gns }) => {
 
   <div class="header">
     <img src="${window.location.origin}/government-logo.jpg" alt="Government Logo" />
-    <div class="ministry">Ministry of Public Administration, Home Affairs,<br />Provincial Councils &amp; Local Government</div>
+    <div class="ministry">Ministry of Public Administration,<br />Provincial Councils &amp; Local Government</div>
     <div class="division">- Life Location Code Management System -</div>
   </div>
   <div class="divider"></div>
@@ -120,7 +120,7 @@ export default function PrintOfficialRecordsModal({ dsName, finalAt, gns, show, 
             <div style={{textAlign:'center',marginBottom:14}}>
               <img src="/government-logo.jpg" alt="Government Logo" style={{width:50,height:50,objectFit:'contain',marginBottom:4}} />
               <div style={{fontWeight:700,fontSize:10,textTransform:'uppercase',letterSpacing:0.5}}>
-                Ministry of Public Administration, Home Affairs,<br />Provincial Councils &amp; Local Government
+                Ministry of Public Administration,<br />Provincial Councils &amp; Local Government
               </div>
               <div style={{fontWeight:600,fontSize:9,marginTop:2}}>- Life Location Code Management System -</div>
             </div>

@@ -3,7 +3,8 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 const translations = {
   en: {
     officialService: 'Official Life Location Code Service',
-    ministry: 'Ministry of Public Administration, Home Affairs, Provincial Councils & Local Government',
+    ministry: 'Ministry of Public Administration, Provincial Councils & Local Government',
+    ministryHeader: 'Ministry of Public Administration, Provincial Councils & Local Government',
     division: 'Home Affairs Division',
     nationalService: 'National Administrative Data Service',
     lifeLocationCode: 'Life Location Code',
@@ -115,7 +116,8 @@ const translations = {
   },
   si: {
     officialService: 'නිල ලයිෆ් ස්ථාන කේත සේවාව',
-    ministry: 'රාජ්‍ය පරිපාලන, ස්වදේශ කටයුතු, පළාත් සභා හා පළාත් පාලන අමාත්‍යාංශය',
+    ministry: 'රාජ්‍ය පරිපාලන, පළාත් සභා හා පළාත් පාලන අමාත්‍යාංශය',
+    ministryHeader: 'රාජ්‍ය පරිපාලන, පළාත් සභා හා පළාත් පාලන අමාත්‍යාංශය',
     division: 'ස්වදේශ කටයුතු අංශය',
     nationalService: 'ජාතික පරිපාලන දත්ත සේවාව',
     lifeLocationCode: 'ලයිෆ් ස්ථාන කේතය',
@@ -226,7 +228,8 @@ const translations = {
   },
   ta: {
     officialService: 'அதிகாரப்பூர்வ லைஃப் இருப்பிடக் குறியீட்டு சேவை',
-    ministry: 'பொது நிர்வாக, உள்நாட்டலுவல்கள், மாகாண சபைகள் மற்றும் உள்ளூராட்சி அமைச்சு',
+    ministry: 'பொது நிர்வாக, மாகாண சபைகள் மற்றும் உள்ளூராட்சி அமைச்சு',
+    ministryHeader: 'பொது நிர்வாக, மாகாண சபைகள் மற்றும் உள்ளூராட்சி அமைச்சு',
     division: 'உள்நாட்டலுவல்கள் பிரிவு',
     nationalService: 'தேசிய நிர்வாகத் தரவுச் சேவை',
     lifeLocationCode: 'லைஃப் இருப்பிடக் குறியீடு',
