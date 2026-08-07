@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ApiAccessLog;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,11 @@ class LogApiAccess
                 'ip_address'    => $request->ip(),
                 'query_params'  => json_encode($request->query()),
                 'response_code' => $response->getStatusCode(),
-                'user_id'       => $request->user()?->id,
+                // Guest tokens belong to ApiClient records, not users. Avoid
+                // recording an unrelated user that happens to share the ID.
+                'user_id'       => $request->user() instanceof User
+                    ? $request->user()->id
+                    : null,
                 'accessed_at'   => now(),
             ]);
         } catch (\Throwable $e) {

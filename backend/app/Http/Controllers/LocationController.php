@@ -20,27 +20,36 @@ class LocationController extends Controller
 
     public function districts(Request $request)
     {
+        $validated = $request->validate([
+            'province_id' => 'nullable|integer|exists:province,id',
+        ]);
         $query = District::orderBy('name_english');
-        if ($request->filled('province_id')) {
-            $query->where('province_id', $request->province_id);
+        if (!empty($validated['province_id'])) {
+            $query->where('province_id', $validated['province_id']);
         }
         return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'district_code', 'lifecode', 'province_id']));
     }
 
     public function divisionalSecretariats(Request $request)
     {
+        $validated = $request->validate([
+            'district_id' => 'nullable|integer|exists:district,id',
+        ]);
         $query = DivisionalSecretariat::orderBy('name_english');
-        if ($request->filled('district_id')) {
-            $query->where('district_id', $request->district_id);
+        if (!empty($validated['district_id'])) {
+            $query->where('district_id', $validated['district_id']);
         }
         return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil', 'divisional_secretariat_code', 'lifecode', 'district_id']));
     }
 
     public function gnDivisions(Request $request)
     {
+        $validated = $request->validate([
+            'ds_id' => 'nullable|integer|exists:divisional_secretariat,id',
+        ]);
         $query = GramaNiladhariDivision::orderBy('name_english');
-        if ($request->filled('ds_id')) {
-            $query->where('divisional_secretariat_id', $request->ds_id);
+        if (!empty($validated['ds_id'])) {
+            $query->where('divisional_secretariat_id', $validated['ds_id']);
         }
         return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil',
             'grama_niladhari_division_code', 'lifecode', 'mpa_code', 'divisional_secretariat_id']));
@@ -48,9 +57,12 @@ class LocationController extends Controller
 
     public function villages(Request $request)
     {
+        $validated = $request->validate([
+            'gn_id' => 'nullable|integer|exists:grama_niladhari_division,id',
+        ]);
         $query = Village::orderBy('name_english');
-        if ($request->filled('gn_id')) {
-            $query->where('grama_niladhari_division_id', $request->gn_id);
+        if (!empty($validated['gn_id'])) {
+            $query->where('grama_niladhari_division_id', $validated['gn_id']);
         }
         return response()->json($query->get(['id', 'name_english', 'name_sinhala', 'name_tamil',
             'village_code', 'lifecode', 'grama_niladhari_division_id']));

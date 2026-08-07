@@ -20,31 +20,31 @@ const warnEmpty = (label, data) => {
 
 export const locationApi = {
   async provinces() {
-    const { data } = await api.get('/provinces')
+    const { data } = await api.get('/v1/locations/provinces')
     warnEmpty('provinces', data)
     return Array.isArray(data) ? data : []
   },
 
   async districts(provinceId) {
-    const { data } = await api.get('/districts', { params: { province_id: provinceId } })
+    const { data } = await api.get('/v1/locations/districts', { params: { province_id: provinceId } })
     warnEmpty('districts', data)
     return Array.isArray(data) ? data : []
   },
 
   async divisionalSecretariats(districtId) {
-    const { data } = await api.get('/divisional-secretariats', { params: { district_id: districtId } })
+    const { data } = await api.get('/v1/locations/divisional-secretariats', { params: { district_id: districtId } })
     warnEmpty('divisional secretariats', data)
     return Array.isArray(data) ? data : []
   },
 
   async gnDivisions(dsId) {
-    const { data } = await api.get('/gn-divisions', { params: { ds_id: dsId } })
+    const { data } = await api.get('/v1/locations/gn-divisions', { params: { ds_id: dsId } })
     warnEmpty('GN divisions', data)
     return Array.isArray(data) ? data : []
   },
 
   async villages(gnId) {
-    const { data } = await api.get('/villages', { params: { gn_id: gnId } })
+    const { data } = await api.get('/v1/locations/villages', { params: { gn_id: gnId } })
     warnEmpty('villages', data)
     return Array.isArray(data) ? data : []
   },

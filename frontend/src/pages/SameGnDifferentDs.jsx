@@ -25,12 +25,12 @@ export default function SameGnDifferentDs() {
   const [filters, setFilters]   = useState({ province_id:'', district_id:'' })
   const [keyword, setKeyword]   = useState('')
 
-  useEffect(() => { api.get('/provinces').then(r => setProvinces(r.data)) }, [])
+  useEffect(() => { api.get('/v1/locations/provinces').then(r => setProvinces(r.data)) }, [])
 
   useEffect(() => {
     setFilters(p=>({...p, district_id:''}))
     setDistricts([])
-    if (filters.province_id) api.get('/districts',{params:{province_id:filters.province_id}}).then(r=>setDistricts(r.data))
+    if (filters.province_id) api.get('/v1/locations/districts',{params:{province_id:filters.province_id}}).then(r=>setDistricts(r.data))
   }, [filters.province_id])
 
   const load = async () => {

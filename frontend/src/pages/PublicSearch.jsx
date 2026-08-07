@@ -41,30 +41,30 @@ export default function PublicSearch() {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
 
-  useEffect(() => { api.get('/provinces').then(r => setProvinces(r.data)) }, [])
+  useEffect(() => { api.get('/v1/locations/provinces').then(r => setProvinces(r.data)) }, [])
 
   useEffect(() => {
     setFilters(p => ({ ...p, district_id: '', ds_id: '', gn_id: '', village_id: '' }))
     setDistricts([]); setDsList([]); setGnList([]); setVillages([])
-    if (filters.province_id) api.get('/districts', { params: { province_id: filters.province_id } }).then(r => setDistricts(r.data))
+    if (filters.province_id) api.get('/v1/locations/districts', { params: { province_id: filters.province_id } }).then(r => setDistricts(r.data))
   }, [filters.province_id])
 
   useEffect(() => {
     setFilters(p => ({ ...p, ds_id: '', gn_id: '', village_id: '' }))
     setDsList([]); setGnList([]); setVillages([])
-    if (filters.district_id) api.get('/divisional-secretariats', { params: { district_id: filters.district_id } }).then(r => setDsList(r.data))
+    if (filters.district_id) api.get('/v1/locations/divisional-secretariats', { params: { district_id: filters.district_id } }).then(r => setDsList(r.data))
   }, [filters.district_id])
 
   useEffect(() => {
     setFilters(p => ({ ...p, gn_id: '', village_id: '' }))
     setGnList([]); setVillages([])
-    if (filters.ds_id) api.get('/gn-divisions', { params: { ds_id: filters.ds_id } }).then(r => setGnList(r.data))
+    if (filters.ds_id) api.get('/v1/locations/gn-divisions', { params: { ds_id: filters.ds_id } }).then(r => setGnList(r.data))
   }, [filters.ds_id])
 
   useEffect(() => {
     setFilters(p => ({ ...p, village_id: '' }))
     setVillages([])
-    if (filters.gn_id) api.get('/villages', { params: { gn_id: filters.gn_id } }).then(r => setVillages(r.data))
+    if (filters.gn_id) api.get('/v1/locations/villages', { params: { gn_id: filters.gn_id } }).then(r => setVillages(r.data))
   }, [filters.gn_id])
 
   const doSearch = useCallback(async (page = 1) => {

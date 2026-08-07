@@ -28,7 +28,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'Account is disabled.'], 403);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $expiresAt = now()->addHours(8);
+        $token = $user->createToken('auth_token', ['location:read'], $expiresAt)->plainTextToken;
 
         $dsId = null;
         if ($user->isOfficer()) {
@@ -38,6 +39,8 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
+            'token_type' => 'Bearer',
+            'expires_at' => $expiresAt->toIso8601String(),
             'user'  => [
                 'id'    => $user->id,
                 'name'  => $user->name,

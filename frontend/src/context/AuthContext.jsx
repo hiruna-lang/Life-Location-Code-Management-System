@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
-import api from '../api/axios'
+import api, { clearGuestToken, getGuestAccessToken } from '../api/axios'
 
 const AuthContext = createContext(null)
 
@@ -13,7 +13,9 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const { data } = await api.post('/login', { email, password })
+      clearGuestToken()
       localStorage.setItem('llcms_token', data.token)
+      localStorage.setItem('llcms_token_expires_at', data.expires_at)
       localStorage.setItem('llcms_user', JSON.stringify(data.user))
       setUser(data.user)
       return data.user
@@ -25,8 +27,10 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try { await api.post('/logout') } catch {}
     localStorage.removeItem('llcms_token')
+    localStorage.removeItem('llcms_token_expires_at')
     localStorage.removeItem('llcms_user')
     setUser(null)
+    try { await getGuestAccessToken() } catch {}
   }, [])
 
   return (

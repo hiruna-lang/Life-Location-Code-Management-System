@@ -29,7 +29,7 @@ export default function AdminDashboard() {
     Promise.all([
       api.get('/dashboard/stats'),
       api.get('/admin/users'),
-      api.get('/divisional-secretariats'),
+      api.get('/v1/locations/divisional-secretariats'),
     ]).then(([s, u, ds]) => {
       setStats(s.data);
       setUsers(u.data);

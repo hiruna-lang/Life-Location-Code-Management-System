@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ApiLogController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GuestTokenController;
 use App\Http\Middleware\LogApiAccess;
 
 /*
@@ -22,12 +23,7 @@ Route::middleware([LogApiAccess::class])->group(function () {
     // Auth
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Location lookups
-    Route::get('/provinces',               [LocationController::class, 'provinces']);
-    Route::get('/districts',               [LocationController::class, 'districts']);
-    Route::get('/divisional-secretariats', [LocationController::class, 'divisionalSecretariats']);
-    Route::get('/gn-divisions',            [LocationController::class, 'gnDivisions']);
-    Route::get('/villages',                [LocationController::class, 'villages']);
+    // Public lookup remains unchanged in this phase.
     Route::get('/location-lookup',          [LocationController::class, 'lookup']);
 
     // Search
@@ -43,6 +39,26 @@ Route::middleware([LogApiAccess::class])->group(function () {
     Route::get('/export/listing/pdf',        [ExportController::class, 'exportListingPdf']);
     Route::get('/export/duplicate-gn/excel', [ExportController::class, 'exportDuplicateGnExcel']);
     Route::get('/export/duplicate-gn/pdf',   [ExportController::class, 'exportDuplicateGnPdf']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Versioned Sanctum API
+|--------------------------------------------------------------------------
+*/
+Route::prefix('v1')->group(function () {
+    Route::post('/auth/guest-token', [GuestTokenController::class, 'store'])
+        ->middleware('throttle:10,1');
+
+    Route::middleware(['auth:sanctum', 'abilities:location:read', LogApiAccess::class])
+        ->prefix('locations')
+        ->group(function () {
+            Route::get('/provinces',               [LocationController::class, 'provinces']);
+            Route::get('/districts',               [LocationController::class, 'districts']);
+            Route::get('/divisional-secretariats', [LocationController::class, 'divisionalSecretariats']);
+            Route::get('/gn-divisions',            [LocationController::class, 'gnDivisions']);
+            Route::get('/villages',                [LocationController::class, 'villages']);
+        });
 });
 
 /*

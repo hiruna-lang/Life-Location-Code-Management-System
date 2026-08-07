@@ -48,11 +48,11 @@ export default function Reports() {
     } finally { setLoading(false) }
   }
 
-  useEffect(() => { api.get('/provinces').then(r=>setProvs(r.data)) }, [])
+  useEffect(() => { api.get('/v1/locations/provinces').then(r=>setProvs(r.data)) }, [])
   useEffect(() => { api.get('/dashboard/recent-logs').then(r=>setLogs(r.data)) }, [])
   useEffect(() => {
     setFilter(p=>({...p,district_id:''})); setDists([])
-    if (filter.province_id) api.get('/districts',{params:{province_id:filter.province_id}}).then(r=>setDists(r.data))
+    if (filter.province_id) api.get('/v1/locations/districts',{params:{province_id:filter.province_id}}).then(r=>setDists(r.data))
   }, [filter.province_id])
   useEffect(() => { load() }, [filter.province_id, filter.district_id])
 

@@ -4,11 +4,12 @@ import './Tools.css'
 
 const apiEndpoints = [
   ['POST', '/api/login', 'Public', 'Authenticate an authorised officer', '{ email, password }', '{ token, user }'],
-  ['GET', '/api/provinces', 'Public', 'List all provinces', 'None', 'Province[]'],
-  ['GET', '/api/districts', 'Public', 'List districts; optionally filter by province', 'province_id', 'District[]'],
-  ['GET', '/api/divisional-secretariats', 'Public', 'List DS divisions; optionally filter by district', 'district_id', 'DivisionalSecretariat[]'],
-  ['GET', '/api/gn-divisions', 'Public', 'List GN divisions; optionally filter by DS division', 'ds_id', 'GnDivision[]'],
-  ['GET', '/api/villages', 'Public', 'List villages; optionally filter by GN division', 'gn_id', 'Village[]'],
+  ['POST', '/api/v1/auth/guest-token', 'Public', 'Issue a 60-minute read-only guest token', 'None', '{ token, token_type, expires_at, abilities }'],
+  ['GET', '/api/v1/locations/provinces', 'Authenticated', 'List all provinces', 'Bearer token with location:read', 'Province[]'],
+  ['GET', '/api/v1/locations/districts', 'Authenticated', 'List districts; optionally filter by province', 'Bearer token with location:read; province_id', 'District[]'],
+  ['GET', '/api/v1/locations/divisional-secretariats', 'Authenticated', 'List DS divisions; optionally filter by district', 'Bearer token with location:read; district_id', 'DivisionalSecretariat[]'],
+  ['GET', '/api/v1/locations/gn-divisions', 'Authenticated', 'List GN divisions; optionally filter by DS division', 'Bearer token with location:read; ds_id', 'GnDivision[]'],
+  ['GET', '/api/v1/locations/villages', 'Authenticated', 'List villages; optionally filter by GN division', 'Bearer token with location:read; gn_id', 'Village[]'],
   ['GET', '/api/location-lookup', 'Public', 'Look up the administrative hierarchy for a location', 'Location identifier or Life Location Code', 'Location hierarchy object'],
   ['GET', '/api/search', 'Public', 'Search locations by name or Life Location Code', 'q and optional filters', 'Search result[]'],
   ['GET', '/api/duplicate-gn', 'Public', 'Find duplicate GN names across DS divisions', 'Optional province, district, DS and GN filters', 'Paginated analysis rows'],
