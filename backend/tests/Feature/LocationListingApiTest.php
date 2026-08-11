@@ -26,6 +26,29 @@ class LocationListingApiTest extends TestCase
     public function test_listing_requires_a_token(): void
     {
         $this->getJson('/api/v1/locations/provinces')->assertUnauthorized();
+        $this->getJson('/api/v1/search')->assertUnauthorized();
+        $this->getJson('/api/v1/duplicate-gn')->assertUnauthorized();
+
+        // API clients such as Postman must receive JSON even when they omit
+        // an explicit Accept: application/json header.
+        $this->get('/api/v1/locations/provinces')
+            ->assertUnauthorized()
+            ->assertHeader('content-type', 'application/json');
+    }
+
+    public function test_guest_token_can_access_search_and_duplicate_analysis(): void
+    {
+        $token = $this->guestToken(['location:read']);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/search?province_id=none')
+            ->assertOk()
+            ->assertJsonPath('data', []);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/duplicate-gn')
+            ->assertOk()
+            ->assertJsonStructure(['data', 'summary']);
     }
 
     public function test_guest_token_can_read_every_listing_and_filter_children(): void

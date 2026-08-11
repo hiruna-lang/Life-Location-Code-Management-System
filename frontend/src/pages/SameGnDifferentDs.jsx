@@ -36,7 +36,7 @@ export default function SameGnDifferentDs() {
   const load = async () => {
     setLoading(true)
     try {
-      const { data: res } = await api.get('/duplicate-gn', { params: filters })
+      const { data: res } = await api.get('/v1/duplicate-gn', { params: filters })
       setData(res.data); setSummary(res.summary)
     } finally { setLoading(false) }
   }

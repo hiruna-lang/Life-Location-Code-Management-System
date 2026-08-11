@@ -26,12 +26,6 @@ Route::middleware([LogApiAccess::class])->group(function () {
     // Public lookup remains unchanged in this phase.
     Route::get('/location-lookup',          [LocationController::class, 'lookup']);
 
-    // Search
-    Route::get('/search', [SearchController::class, 'search']);
-
-    // Duplicate GN analysis (public read)
-    Route::get('/duplicate-gn', [DuplicateGnAnalysisController::class, 'index']);
-
     // Exports (public)
     Route::get('/export/search/excel',       [ExportController::class, 'exportSearchExcel']);
     Route::get('/export/search/pdf',         [ExportController::class, 'exportSearchPdf']);
@@ -51,13 +45,17 @@ Route::prefix('v1')->group(function () {
         ->middleware('throttle:10,1');
 
     Route::middleware(['auth:sanctum', 'abilities:location:read', LogApiAccess::class])
-        ->prefix('locations')
         ->group(function () {
+            Route::get('/search', [SearchController::class, 'search']);
+            Route::get('/duplicate-gn', [DuplicateGnAnalysisController::class, 'index']);
+
+            Route::prefix('locations')->group(function () {
             Route::get('/provinces',               [LocationController::class, 'provinces']);
             Route::get('/districts',               [LocationController::class, 'districts']);
             Route::get('/divisional-secretariats', [LocationController::class, 'divisionalSecretariats']);
             Route::get('/gn-divisions',            [LocationController::class, 'gnDivisions']);
             Route::get('/villages',                [LocationController::class, 'villages']);
+            });
         });
 });
 

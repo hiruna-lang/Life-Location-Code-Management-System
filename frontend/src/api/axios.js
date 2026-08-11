@@ -17,8 +17,9 @@ const tokenIssuer = axios.create({
   headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
 })
 
-function isLocationListingRequest(config) {
-  return String(config.url || '').startsWith('/v1/locations/')
+function isGuestReadableRequest(config) {
+  const url = String(config.url || '').split('?')[0]
+  return url.startsWith('/v1/locations/') || url === '/v1/search' || url === '/v1/duplicate-gn'
 }
 
 function hasExpired(expiry) {
@@ -53,7 +54,7 @@ api.interceptors.request.use(async cfg => {
   const userToken = localStorage.getItem(USER_TOKEN_KEY)
   if (userToken) {
     cfg.headers.Authorization = `Bearer ${userToken}`
-  } else if (isLocationListingRequest(cfg)) {
+  } else if (isGuestReadableRequest(cfg)) {
     cfg.headers.Authorization = `Bearer ${await getGuestAccessToken()}`
     cfg._usedGuestToken = true
   }

@@ -375,7 +375,7 @@ export default function LocationListing() {
       if (selectedDs) params.ds_id = selectedDs
       if (selectedGn) params.gn_id = selectedGn
 
-      const { data } = await api.get('/search', { params })
+      const { data } = await api.get('/v1/search', { params })
       setResults(data.data || [])
       setTotalPages(data.last_page || 1)
       setTotalCount(data.total || 0)

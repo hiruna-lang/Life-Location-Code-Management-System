@@ -73,7 +73,7 @@ export default function PublicSearch() {
     try {
       const params = { ...filters, page, per_page: 25 }
       delete params.village_id
-      const { data } = await api.get('/search', { params })
+      const { data } = await api.get('/v1/search', { params })
       const rows = filters.village_id ? data.data.filter(row => String(row.village_id) === String(filters.village_id)) : data.data
       setResults(rows)
       setMeta(filters.village_id ? { ...data, total: rows.length, last_page: 1, current_page: 1 } : data)
