@@ -6,6 +6,39 @@ import './LocationListing.css'
 
 const RESULTS_PER_PAGE = 10
 
+const hierarchyCache = {
+  districts: null,
+  ds: null,
+  gn: null,
+  promise: null,
+  url: null,
+}
+
+const memoizedFetch = (key, url, extractor) => {
+  if (hierarchyCache[key]) return Promise.resolve(hierarchyCache[key])
+  if (hierarchyCache.promise && hierarchyCache.url === url) return hierarchyCache.promise
+  hierarchyCache.url = url
+  hierarchyCache.promise = api.get(url)
+    .then(({ data }) => {
+      hierarchyCache[key] = extractor(data)
+      return hierarchyCache[key]
+    })
+    .finally(() => {
+      hierarchyCache.promise = null
+      hierarchyCache.url = null
+    })
+  return hierarchyCache.promise
+}
+
+const fetchAllDistricts = () =>
+  memoizedFetch('districts', '/districts', data => (Array.isArray(data) ? data : []))
+
+const fetchAllDs = () =>
+  memoizedFetch('ds', '/divisional-secretariats', data => (Array.isArray(data) ? data : []))
+
+const fetchAllGn = () =>
+  memoizedFetch('gn', '/gn-divisions', data => (Array.isArray(data) ? data : []))
+
 export default function LocationListing() {
   const { t, localizedName } = useLanguage()
 
@@ -57,24 +90,22 @@ export default function LocationListing() {
   const loadAllDistricts = useCallback(async () => {
     setLoadingPicker(true)
     try {
-      const groups = await Promise.all(
-        provinces.map(p => locationApi.districts(p.id).catch(() => []))
-      )
-      setDistricts(groups.flat())
+      const data = await fetchAllDistricts()
+      setDistricts(data)
     } catch {
       setDistricts([])
     } finally {
       setLoadingPicker(false)
     }
-  }, [provinces])
+  }, [])
 
   const loadAllDs = useCallback(async (districtScope) => {
     setLoadingPicker(true)
     try {
-      const groups = await Promise.all(
-        districtScope.map(d => locationApi.divisionalSecretariats(d.id).catch(() => []))
-      )
-      setDsList(groups.flat())
+      const all = await fetchAllDs()
+      const scope = districtScope || []
+      const allowed = scope.length ? new Set(scope.map(d => String(d.id))) : null
+      setDsList(all.filter(ds => !allowed || allowed.has(String(ds.district_id))))
     } catch {
       setDsList([])
     } finally {
@@ -85,10 +116,10 @@ export default function LocationListing() {
   const loadAllGn = useCallback(async (dsScope) => {
     setLoadingPicker(true)
     try {
-      const groups = await Promise.all(
-        dsScope.map(ds => locationApi.gnDivisions(ds.id).catch(() => []))
-      )
-      setGnList(groups.flat())
+      const all = await fetchAllGn()
+      const scope = dsScope || []
+      const allowed = scope.length ? new Set(scope.map(ds => String(ds.id))) : null
+      setGnList(all.filter(gn => !allowed || allowed.has(String(gn.divisional_secretariat_id))))
     } catch {
       setGnList([])
     } finally {
