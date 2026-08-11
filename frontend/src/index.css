@@ -793,12 +793,12 @@ html[lang='ta'] .site-nav__link::after {
 
 /* Persistent public navigation on desktop */
 @media (min-width: 1000px) {
-  .app-shell:not(.app-shell--admin) .site-nav__toggle,
+  .app-shell .site-nav__toggle,
   .login-page .site-nav__toggle {
     display: none;
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__links,
+  .app-shell .site-nav__links,
   .login-page .site-nav__links {
     top: 34px;
     right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2 + 8px);
@@ -819,7 +819,7 @@ html[lang='ta'] .site-nav__link::after {
     -webkit-backdrop-filter: blur(18px) saturate(115%);
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__links::before,
+  .app-shell .site-nav__links::before,
   .login-page .site-nav__links::before {
     top: 0;
     right: 12px;
@@ -832,7 +832,7 @@ html[lang='ta'] .site-nav__link::after {
     transform: none;
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link,
+  .app-shell .site-nav__link,
   .login-page .site-nav__link {
     min-height: 62px;
     padding: 34px 4px 6px;
@@ -848,7 +848,7 @@ html[lang='ta'] .site-nav__link::after {
     font-weight: 700;
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link:hover,
+  .app-shell .site-nav__link:hover,
   .login-page .site-nav__link:hover {
     color: #fff;
     background: rgba(255,255,255,.1);
@@ -858,7 +858,7 @@ html[lang='ta'] .site-nav__link::after {
     transform: translateY(-2px);
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link.is-active,
+  .app-shell .site-nav__link.is-active,
   .login-page .site-nav__link.is-active {
     color: #4d1720;
     background: linear-gradient(135deg, #f8e7ad, #d9b653);
@@ -867,13 +867,13 @@ html[lang='ta'] .site-nav__link::after {
     box-shadow: 0 7px 16px rgba(25,8,11,.2);
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link--account,
+  .app-shell .site-nav__link--account,
   .login-page .site-nav__link--account {
     margin-top: 0;
     border-radius: 13px;
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  .app-shell .site-nav__link::after,
   .login-page .site-nav__link::after {
     top: 6px;
     left: 50%;
@@ -886,7 +886,7 @@ html[lang='ta'] .site-nav__link::after {
     transform: translateX(-50%);
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
+  .app-shell .site-nav__link.is-active::after,
   .login-page .site-nav__link.is-active::after {
     color: #651e28;
     background: rgba(255,255,255,.56);
@@ -895,16 +895,23 @@ html[lang='ta'] .site-nav__link::after {
     transform: translateX(-50%);
   }
 
-  .app-shell:not(.app-shell--admin) .site-nav__link[href='/']::after,
+  .app-shell .site-nav__link[href='/']::after,
   .login-page .site-nav__link[href='/']::after { content: '\2316'; }
-  .app-shell:not(.app-shell--admin) .site-nav__link[href='/listing']::after,
+  .app-shell .site-nav__link[href='/listing']::after,
   .login-page .site-nav__link[href='/listing']::after { content: '\2637'; }
-  .app-shell:not(.app-shell--admin) .site-nav__link[href='/about']::after,
+  .app-shell .site-nav__link[href='/about']::after,
   .login-page .site-nav__link[href='/about']::after { content: 'i'; }
-  .app-shell:not(.app-shell--admin) .site-nav__link[href='/tools']::after,
+  .app-shell .site-nav__link[href='/tools']::after,
   .login-page .site-nav__link[href='/tools']::after { content: '\2692'; }
-  .app-shell:not(.app-shell--admin) .site-nav__link[href='/login']::after,
+  .app-shell .site-nav__link[href='/login']::after,
   .login-page .site-nav__link[href='/login']::after { content: '\25CF'; }
+
+  /* Keep admin page content clear of the persistent side nav */
+  @media (max-width: 1580px) {
+    .app-shell--admin .site-container--wide {
+      padding-right: 65px;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
