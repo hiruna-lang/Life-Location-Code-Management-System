@@ -298,7 +298,7 @@ html[lang='ta'] .nav-account-button {
   text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .government-header__service--ministry {
-  top: 45px;
+  top: 35px;
   width: 430px;
   padding-inline: 22px;
 }
@@ -374,7 +374,7 @@ html[lang='ta'] .nav-account-button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2px;
-  width: 168px;
+  width: 85px;
   padding: 5px;
   color: #fff8e8;
   background: linear-gradient(160deg, rgba(79,22,30,.98), rgba(38,13,18,.98));
