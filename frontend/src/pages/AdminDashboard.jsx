@@ -198,7 +198,7 @@ export default function AdminDashboard() {
         <h2 style={{ margin: 0, color: 'var(--primary)', fontWeight: 700, fontSize: '28px', letterSpacing: '-0.02em' }}>
           Admin Dashboard
         </h2>
-        <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+        <div style={{ fontSize: '14px', color: 'var(--navy)', fontWeight: 700 }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
