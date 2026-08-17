@@ -94,11 +94,11 @@ export default function Login() {
             <span className="site-nav__toggle-icon" aria-hidden="true"><span /><span /><span /></span>
           </button>
           <div id="login-navigation-menu" className={`site-nav__links${menuOpen ? ' is-open' : ''}`}>
-            <NavLink to="/" end className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('locationDirectoryNav')}</NavLink>
-            <NavLink to="/listing" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('locationListing')}</NavLink>
-            <NavLink to="/about" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('aboutService')}</NavLink>
-            <NavLink to="/tools" className="site-nav__link" onClick={() => setMenuOpen(false)}>{t('tools')}</NavLink>
-            <NavLink to="/login" className="site-nav__link site-nav__link--account is-active" onClick={() => setMenuOpen(false)}>{t('officerLogin')}</NavLink>
+            <NavLink to="/" end className="site-nav__link" onClick={() => setMenuOpen(false)}><span className="site-nav__label">{t('locationDirectoryNav')}</span></NavLink>
+            <NavLink to="/listing" className="site-nav__link" onClick={() => setMenuOpen(false)}><span className="site-nav__label">{t('locationListing')}</span></NavLink>
+            <NavLink to="/about" className="site-nav__link" onClick={() => setMenuOpen(false)}><span className="site-nav__label">{t('aboutService')}</span></NavLink>
+            <NavLink to="/tools" className="site-nav__link" onClick={() => setMenuOpen(false)}><span className="site-nav__label">{t('tools')}</span></NavLink>
+            <NavLink to="/login" className="site-nav__link site-nav__link--account is-active" onClick={() => setMenuOpen(false)}><span className="site-nav__label">{t('officerLogin')}</span></NavLink>
           </div>
         </div>
       </nav>

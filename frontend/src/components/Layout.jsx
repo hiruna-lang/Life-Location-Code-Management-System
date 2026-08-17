@@ -160,7 +160,7 @@ export default function Layout({ children, admin = false }) {
               <>
                 {publicLinks.filter(link => link.to !== '/same-gn').map(link => (
                   <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
-                    {t(link.labelKey)}
+                    <span className="site-nav__label">{t(link.labelKey)}</span>
                   </NavLink>
                 ))}
                 <NavLink
@@ -168,7 +168,7 @@ export default function Layout({ children, admin = false }) {
                   className={({ isActive }) => `site-nav__link site-nav__link--account${isActive ? ' is-active' : ''}`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {t('officerLogin')}
+                  <span className="site-nav__label">{t('officerLogin')}</span>
                 </NavLink>
               </>
             )}

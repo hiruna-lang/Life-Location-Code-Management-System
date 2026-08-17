@@ -579,6 +579,11 @@ html[lang='ta'] .nav-account-button {
   border-radius: 0 0 9px 9px;
   font-weight: 800;
 }
+.site-nav__label {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
 .site-nav__links.is-open .site-nav__link {
   animation: nav-link-enter .42s both cubic-bezier(.22,1,.36,1);
 }
@@ -800,6 +805,10 @@ html[lang='ta'] .site-nav__link::after {
 
   .app-shell:not(.app-shell--admin) .site-nav__links,
   .login-page .site-nav__links {
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: 62px;
+    align-items: stretch;
     top: 34px;
     right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2 + 8px);
     bottom: auto;
@@ -834,7 +843,10 @@ html[lang='ta'] .site-nav__link::after {
 
   .app-shell:not(.app-shell--admin) .site-nav__link,
   .login-page .site-nav__link {
-    min-height: 62px;
+    box-sizing: border-box;
+    block-size: 62px;
+    min-block-size: 0;
+    max-block-size: 62px;
     padding: 34px 4px 6px;
     justify-content: center;
     text-align: center;
@@ -905,6 +917,86 @@ html[lang='ta'] .site-nav__link::after {
   .login-page .site-nav__link[href='/tools']::after { content: '\2692'; }
   .app-shell:not(.app-shell--admin) .site-nav__link[href='/login']::after,
   .login-page .site-nav__link[href='/login']::after { content: '\25CF'; }
+
+  /* Keep the standalone login-page rail compact in Sinhala and Tamil too. */
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='si'] .login-page .site-nav__links,
+  html[lang='ta'] .login-page .site-nav__links {
+    width: 72px;
+    padding: 6px;
+    gap: 3px;
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='si'] .login-page .site-nav__link,
+  html[lang='ta'] .login-page .site-nav__link {
+    block-size: 62px;
+    min-block-size: 0;
+    max-block-size: 62px;
+    padding: 34px 4px 6px;
+    font-size: 9px;
+    line-height: 1.08;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: hidden;
+  }
+
+  /* Sinhala and Tamil use the same compact icon-above-label rail as English. */
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='si'] .login-page .site-nav__links,
+  html[lang='ta'] .login-page .site-nav__links {
+    box-sizing: content-box;
+    width: 72px;
+    grid-auto-rows: 62px;
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='si'] .login-page .site-nav__link,
+  html[lang='ta'] .login-page .site-nav__link {
+    block-size: 62px;
+    max-block-size: 62px;
+    padding: 34px 4px 5px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 8px;
+    line-height: 1.25;
+  }
+
+  html[lang='si'] .site-nav__label,
+  html[lang='ta'] .site-nav__label {
+    width: 100%;
+    min-width: 0;
+    padding-block: 1px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-break: auto;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  html[lang='si'] .login-page .site-nav__link::after,
+  html[lang='ta'] .login-page .site-nav__link::after {
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
+  html[lang='si'] .login-page .site-nav__link.is-active::after,
+  html[lang='ta'] .login-page .site-nav__link.is-active::after {
+    transform: translateX(-50%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
