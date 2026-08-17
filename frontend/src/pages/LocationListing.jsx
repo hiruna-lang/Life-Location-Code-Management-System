@@ -6,6 +6,39 @@ import './LocationListing.css'
 
 const RESULTS_PER_PAGE = 10
 
+const hierarchyCache = {
+  districts: null,
+  ds: null,
+  gn: null,
+  promise: null,
+  url: null,
+}
+
+const memoizedFetch = (key, url, extractor) => {
+  if (hierarchyCache[key]) return Promise.resolve(hierarchyCache[key])
+  if (hierarchyCache.promise && hierarchyCache.url === url) return hierarchyCache.promise
+  hierarchyCache.url = url
+  hierarchyCache.promise = api.get(url)
+    .then(({ data }) => {
+      hierarchyCache[key] = extractor(data)
+      return hierarchyCache[key]
+    })
+    .finally(() => {
+      hierarchyCache.promise = null
+      hierarchyCache.url = null
+    })
+  return hierarchyCache.promise
+}
+
+const fetchAllDistricts = () =>
+  memoizedFetch('districts', '/districts', data => (Array.isArray(data) ? data : []))
+
+const fetchAllDs = () =>
+  memoizedFetch('ds', '/divisional-secretariats', data => (Array.isArray(data) ? data : []))
+
+const fetchAllGn = () =>
+  memoizedFetch('gn', '/gn-divisions', data => (Array.isArray(data) ? data : []))
+
 export default function LocationListing() {
   const { t, localizedName } = useLanguage()
 
@@ -57,24 +90,22 @@ export default function LocationListing() {
   const loadAllDistricts = useCallback(async () => {
     setLoadingPicker(true)
     try {
-      const groups = await Promise.all(
-        provinces.map(p => locationApi.districts(p.id).catch(() => []))
-      )
-      setDistricts(groups.flat())
+      const data = await fetchAllDistricts()
+      setDistricts(data)
     } catch {
       setDistricts([])
     } finally {
       setLoadingPicker(false)
     }
-  }, [provinces])
+  }, [])
 
   const loadAllDs = useCallback(async (districtScope) => {
     setLoadingPicker(true)
     try {
-      const groups = await Promise.all(
-        districtScope.map(d => locationApi.divisionalSecretariats(d.id).catch(() => []))
-      )
-      setDsList(groups.flat())
+      const all = await fetchAllDs()
+      const scope = districtScope || []
+      const allowed = scope.length ? new Set(scope.map(d => String(d.id))) : null
+      setDsList(all.filter(ds => !allowed || allowed.has(String(ds.district_id))))
     } catch {
       setDsList([])
     } finally {
@@ -85,10 +116,10 @@ export default function LocationListing() {
   const loadAllGn = useCallback(async (dsScope) => {
     setLoadingPicker(true)
     try {
-      const groups = await Promise.all(
-        dsScope.map(ds => locationApi.gnDivisions(ds.id).catch(() => []))
-      )
-      setGnList(groups.flat())
+      const all = await fetchAllGn()
+      const scope = dsScope || []
+      const allowed = scope.length ? new Set(scope.map(ds => String(ds.id))) : null
+      setGnList(all.filter(gn => !allowed || allowed.has(String(gn.divisional_secretariat_id))))
     } catch {
       setGnList([])
     } finally {
@@ -448,6 +479,33 @@ export default function LocationListing() {
     })
   }, [results, filterText])
 
+  const tableColumns = useMemo(() => {
+    if (filteredResults.length === 0) return []
+    const first = filteredResults[0]
+    const cols = []
+    if (first.province_name) {
+      cols.push({ key: 'province_name', label: t('province'), nameFields: ['province_name', 'province_name_sinhala', 'province_name_tamil'] })
+      cols.push({ key: 'province_lifecode', label: t('province') + ' (LC)', raw: 'province_lifecode' })
+    }
+    if (first.district_name) {
+      cols.push({ key: 'district_name', label: t('district'), nameFields: ['district_name', 'district_name_sinhala', 'district_name_tamil'] })
+      cols.push({ key: 'district_lifecode', label: t('district') + ' (LC)', raw: 'district_lifecode' })
+    }
+    if (first.ds_name) {
+      cols.push({ key: 'ds_name', label: t('ds'), nameFields: ['ds_name', 'ds_name_sinhala', 'ds_name_tamil'] })
+      cols.push({ key: 'ds_lifecode', label: t('ds') + ' (LC)', raw: 'ds_lifecode' })
+    }
+    if (first.gn_name) {
+      cols.push({ key: 'gn_name', label: t('gn'), nameFields: ['gn_name', 'gn_name_sinhala', 'gn_name_tamil'] })
+      cols.push({ key: 'gn_lifecode', label: t('gn') + ' (LC)', raw: 'gn_lifecode' })
+    }
+    if (first.village_name) {
+      cols.push({ key: 'village_name', label: t('village'), nameFields: ['village_name', 'village_name_sinhala', 'village_name_tamil'] })
+      cols.push({ key: 'village_lifecode', label: t('village') + ' (LC)', raw: 'village_lifecode' })
+    }
+    return cols
+  }, [filteredResults, t])
+
   const handleResultClick = useCallback((row) => {
     if (row.province_id) setSelectedProvince(String(row.province_id))
     if (row.district_id) setSelectedDistrict(String(row.district_id))
@@ -710,30 +768,38 @@ export default function LocationListing() {
             )}
 
             {!loading && filteredResults.length > 0 && (
-              <ul className="results-list">
-                {filteredResults.map((row, idx) => {
-                  const pathParts = formatResultPath(row)
-                  return (
-                    <li key={row.village_id || row.gn_id || row.ds_id || row.district_id || row.province_id || idx}>
-                      <button
-                        type="button"
-                        className="result-item"
+              <div className="results-table-wrap">
+                <table className="results-table">
+                  <thead>
+                    <tr>
+                      {tableColumns.map(col => (
+                        <th key={col.key}>{col.label}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredResults.map((row, idx) => (
+                      <tr
+                        key={row.village_id || row.gn_id || row.ds_id || row.district_id || row.province_id || idx}
+                        className="results-table-row"
                         onClick={() => handleResultClick(row)}
                       >
-                        <span className="result-path">
-                          {pathParts.map((part, i) => (
-                            <span key={i} className="result-path-segment">
-                              {i > 0 && <span className="result-path-sep" aria-hidden="true">{'>'}</span>}
-                              <span className="result-path-name">{part.name}</span>
-                              {part.code && <span className="result-path-code">({part.code})</span>}
-                            </span>
-                          ))}
-                        </span>
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
+                        {tableColumns.map(col => (
+                          <td key={col.key}>
+                            {col.nameFields
+                              ? localizedName({
+                                  name_english: row[col.nameFields[0]],
+                                  name_sinhala: row[col.nameFields[1]],
+                                  name_tamil: row[col.nameFields[2]],
+                                }) || row[col.nameFields[0]]
+                              : row[col.raw] || '—'}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
 
