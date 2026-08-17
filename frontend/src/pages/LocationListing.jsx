@@ -175,16 +175,12 @@ export default function LocationListing() {
     if (level === 'ds') {
       setLoadingPicker(true)
       try {
+        await loadAllDistricts()
         if (selectedDistrict && selectedDistrict !== 'all' && selectedDistrict !== 'none') {
           const data = await locationApi.divisionalSecretariats(selectedDistrict)
           setDsList(data)
         } else if (selectedProvince && selectedProvince !== 'all' && selectedProvince !== 'none') {
-          let provDistricts = districts.filter(d => String(d.province_id) === String(selectedProvince))
-          if (provDistricts.length === 0) {
-            const data = await locationApi.districts(selectedProvince)
-            setDistricts(data)
-            provDistricts = data
-          }
+          const provDistricts = districts.filter(d => String(d.province_id) === String(selectedProvince))
           if (provDistricts.length > 0) await loadAllDs(provDistricts)
           else setDsList([])
         } else if (dsList.length === 0) {
@@ -198,16 +194,12 @@ export default function LocationListing() {
     if (level === 'gn') {
       setLoadingPicker(true)
       try {
+        await loadAllDs([])
         if (selectedDs && selectedDs !== 'all' && selectedDs !== 'none') {
           const data = await locationApi.gnDivisions(selectedDs)
           setGnList(data)
         } else if (selectedDistrict && selectedDistrict !== 'all' && selectedDistrict !== 'none') {
-          let distDs = dsList.filter(ds => String(ds.district_id) === String(selectedDistrict))
-          if (distDs.length === 0) {
-            const data = await locationApi.divisionalSecretariats(selectedDistrict)
-            setDsList(data)
-            distDs = data
-          }
+          const distDs = dsList.filter(ds => String(ds.district_id) === String(selectedDistrict))
           if (distDs.length > 0) await loadAllGn(distDs)
           else setGnList([])
         } else if (gnList.length === 0) {
