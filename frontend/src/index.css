@@ -802,6 +802,12 @@ html[lang='ta'] .site-nav__link::after {
   .login-page .site-nav__toggle {
     display: none;
   }
+  /**
+   * Admin layout padding right to accommodate the persistent navigation panel on desktop.
+   */
+  .app-shell--admin .site-main {
+    padding-right: 70px;
+  }
 
   .app-shell .site-nav__links,
   .login-page .site-nav__links {
