@@ -31,13 +31,13 @@ const memoizedFetch = (key, url, extractor) => {
 }
 
 const fetchAllDistricts = () =>
-  memoizedFetch('districts', '/districts', data => (Array.isArray(data) ? data : []))
+  memoizedFetch('districts', '/v1/locations/districts', data => (Array.isArray(data) ? data : []))
 
 const fetchAllDs = () =>
-  memoizedFetch('ds', '/divisional-secretariats', data => (Array.isArray(data) ? data : []))
+  memoizedFetch('ds', '/v1/locations/divisional-secretariats', data => (Array.isArray(data) ? data : []))
 
 const fetchAllGn = () =>
-  memoizedFetch('gn', '/gn-divisions', data => (Array.isArray(data) ? data : []))
+  memoizedFetch('gn', '/v1/locations/gn-divisions', data => (Array.isArray(data) ? data : []))
 
 export default function LocationListing() {
   const { t, localizedName } = useLanguage()
@@ -179,7 +179,12 @@ export default function LocationListing() {
           const data = await locationApi.divisionalSecretariats(selectedDistrict)
           setDsList(data)
         } else if (selectedProvince && selectedProvince !== 'all' && selectedProvince !== 'none') {
-          const provDistricts = districts.filter(d => String(d.province_id) === String(selectedProvince))
+          let provDistricts = districts.filter(d => String(d.province_id) === String(selectedProvince))
+          if (provDistricts.length === 0) {
+            const data = await locationApi.districts(selectedProvince)
+            setDistricts(data)
+            provDistricts = data
+          }
           if (provDistricts.length > 0) await loadAllDs(provDistricts)
           else setDsList([])
         } else if (dsList.length === 0) {
@@ -197,7 +202,12 @@ export default function LocationListing() {
           const data = await locationApi.gnDivisions(selectedDs)
           setGnList(data)
         } else if (selectedDistrict && selectedDistrict !== 'all' && selectedDistrict !== 'none') {
-          const distDs = dsList.filter(ds => String(ds.district_id) === String(selectedDistrict))
+          let distDs = dsList.filter(ds => String(ds.district_id) === String(selectedDistrict))
+          if (distDs.length === 0) {
+            const data = await locationApi.divisionalSecretariats(selectedDistrict)
+            setDsList(data)
+            distDs = data
+          }
           if (distDs.length > 0) await loadAllGn(distDs)
           else setGnList([])
         } else if (gnList.length === 0) {
