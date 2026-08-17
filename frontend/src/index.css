@@ -374,7 +374,7 @@ html[lang='ta'] .nav-account-button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2px;
-  width: 168px;
+  width: 85px;
   padding: 5px;
   color: #fff8e8;
   background: linear-gradient(160deg, rgba(79,22,30,.98), rgba(38,13,18,.98));
