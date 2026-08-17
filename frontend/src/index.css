@@ -298,7 +298,7 @@ html[lang='ta'] .nav-account-button {
   text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .government-header__service--ministry {
-  top: 35px;
+  top: 45px;
   width: 430px;
   padding-inline: 22px;
 }
@@ -374,7 +374,7 @@ html[lang='ta'] .nav-account-button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2px;
-  width: 85px;
+  width: 168px;
   padding: 5px;
   color: #fff8e8;
   background: linear-gradient(160deg, rgba(79,22,30,.98), rgba(38,13,18,.98));
@@ -578,6 +578,11 @@ html[lang='ta'] .nav-account-button {
   border-top: 1px solid rgba(113,43,49,.16);
   border-radius: 0 0 9px 9px;
   font-weight: 800;
+}
+.site-nav__label {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
 }
 .site-nav__links.is-open .site-nav__link {
   animation: nav-link-enter .42s both cubic-bezier(.22,1,.36,1);
@@ -793,13 +798,17 @@ html[lang='ta'] .site-nav__link::after {
 
 /* Persistent public navigation on desktop */
 @media (min-width: 1000px) {
-  .app-shell .site-nav__toggle,
+  .app-shell:not(.app-shell--admin) .site-nav__toggle,
   .login-page .site-nav__toggle {
     display: none;
   }
 
-  .app-shell .site-nav__links,
+  .app-shell:not(.app-shell--admin) .site-nav__links,
   .login-page .site-nav__links {
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: 62px;
+    align-items: stretch;
     top: 34px;
     right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2 + 8px);
     bottom: auto;
@@ -819,7 +828,7 @@ html[lang='ta'] .site-nav__link::after {
     -webkit-backdrop-filter: blur(18px) saturate(115%);
   }
 
-  .app-shell .site-nav__links::before,
+  .app-shell:not(.app-shell--admin) .site-nav__links::before,
   .login-page .site-nav__links::before {
     top: 0;
     right: 12px;
@@ -832,9 +841,12 @@ html[lang='ta'] .site-nav__link::after {
     transform: none;
   }
 
-  .app-shell .site-nav__link,
+  .app-shell:not(.app-shell--admin) .site-nav__link,
   .login-page .site-nav__link {
-    min-height: 62px;
+    box-sizing: border-box;
+    block-size: 62px;
+    min-block-size: 0;
+    max-block-size: 62px;
     padding: 34px 4px 6px;
     justify-content: center;
     text-align: center;
@@ -848,7 +860,7 @@ html[lang='ta'] .site-nav__link::after {
     font-weight: 700;
   }
 
-  .app-shell .site-nav__link:hover,
+  .app-shell:not(.app-shell--admin) .site-nav__link:hover,
   .login-page .site-nav__link:hover {
     color: #fff;
     background: rgba(255,255,255,.1);
@@ -858,7 +870,7 @@ html[lang='ta'] .site-nav__link::after {
     transform: translateY(-2px);
   }
 
-  .app-shell .site-nav__link.is-active,
+  .app-shell:not(.app-shell--admin) .site-nav__link.is-active,
   .login-page .site-nav__link.is-active {
     color: #4d1720;
     background: linear-gradient(135deg, #f8e7ad, #d9b653);
@@ -867,13 +879,13 @@ html[lang='ta'] .site-nav__link::after {
     box-shadow: 0 7px 16px rgba(25,8,11,.2);
   }
 
-  .app-shell .site-nav__link--account,
+  .app-shell:not(.app-shell--admin) .site-nav__link--account,
   .login-page .site-nav__link--account {
     margin-top: 0;
     border-radius: 13px;
   }
 
-  .app-shell .site-nav__link::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link::after,
   .login-page .site-nav__link::after {
     top: 6px;
     left: 50%;
@@ -886,7 +898,7 @@ html[lang='ta'] .site-nav__link::after {
     transform: translateX(-50%);
   }
 
-  .app-shell .site-nav__link.is-active::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
   .login-page .site-nav__link.is-active::after {
     color: #651e28;
     background: rgba(255,255,255,.56);
@@ -895,22 +907,95 @@ html[lang='ta'] .site-nav__link::after {
     transform: translateX(-50%);
   }
 
-  .app-shell .site-nav__link[href='/']::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/']::after,
   .login-page .site-nav__link[href='/']::after { content: '\2316'; }
-  .app-shell .site-nav__link[href='/listing']::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/listing']::after,
   .login-page .site-nav__link[href='/listing']::after { content: '\2637'; }
-  .app-shell .site-nav__link[href='/about']::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/about']::after,
   .login-page .site-nav__link[href='/about']::after { content: 'i'; }
-  .app-shell .site-nav__link[href='/tools']::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/tools']::after,
   .login-page .site-nav__link[href='/tools']::after { content: '\2692'; }
-  .app-shell .site-nav__link[href='/login']::after,
+  .app-shell:not(.app-shell--admin) .site-nav__link[href='/login']::after,
   .login-page .site-nav__link[href='/login']::after { content: '\25CF'; }
 
-  /* Keep admin page content clear of the persistent side nav */
-  @media (max-width: 1580px) {
-    .app-shell--admin .site-container--wide {
-      padding-right: 65px;
-    }
+  /* Keep the standalone login-page rail compact in Sinhala and Tamil too. */
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='si'] .login-page .site-nav__links,
+  html[lang='ta'] .login-page .site-nav__links {
+    width: 72px;
+    padding: 6px;
+    gap: 3px;
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='si'] .login-page .site-nav__link,
+  html[lang='ta'] .login-page .site-nav__link {
+    block-size: 62px;
+    min-block-size: 0;
+    max-block-size: 62px;
+    padding: 34px 4px 6px;
+    font-size: 9px;
+    line-height: 1.08;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: hidden;
+  }
+
+  /* Sinhala and Tamil use the same compact icon-above-label rail as English. */
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__links,
+  html[lang='si'] .login-page .site-nav__links,
+  html[lang='ta'] .login-page .site-nav__links {
+    box-sizing: content-box;
+    width: 72px;
+    grid-auto-rows: 62px;
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link,
+  html[lang='si'] .login-page .site-nav__link,
+  html[lang='ta'] .login-page .site-nav__link {
+    block-size: 62px;
+    max-block-size: 62px;
+    padding: 34px 4px 5px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 8px;
+    line-height: 1.25;
+  }
+
+  html[lang='si'] .site-nav__label,
+  html[lang='ta'] .site-nav__label {
+    width: 100%;
+    min-width: 0;
+    padding-block: 1px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-break: auto;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link::after,
+  html[lang='si'] .login-page .site-nav__link::after,
+  html[lang='ta'] .login-page .site-nav__link::after {
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  html[lang='si'] .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
+  html[lang='ta'] .app-shell:not(.app-shell--admin) .site-nav__link.is-active::after,
+  html[lang='si'] .login-page .site-nav__link.is-active::after,
+  html[lang='ta'] .login-page .site-nav__link.is-active::after {
+    transform: translateX(-50%);
   }
 }
 
@@ -1312,50 +1397,6 @@ html[data-theme='dark'] .app-shell--admin .site-main {
 .app-shell h3, .app-shell h4 { color: var(--navy); }
 .app-shell input, .app-shell select, .app-shell textarea { border-radius: 2px !important; }
 .app-shell--admin .site-main { background: #f2f4f6; }
-
-/* Same background imagery as the public/listing pages for the admin screens */
-.app-shell--admin .site-main {
-  position: relative;
-  overflow-x: hidden;
-}
-.app-shell--admin .site-main::before {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: clamp(145px, 13vw, 205px);
-  content: '';
-  background-image: url('/location-search-top-ornament.png');
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-  opacity: .58;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
-}
-.app-shell--admin .site-main::after {
-  position: absolute;
-  z-index: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: clamp(190px, 25vw, 360px);
-  content: '';
-  background-image: url('/location-search-background-v2.png');
-  background-position: center bottom;
-  background-repeat: no-repeat;
-  background-size: cover;
-  opacity: .72;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.18) 22%, #000 62%);
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.18) 22%, #000 62%);
-}
-.app-shell--admin .site-main > .site-container--wide {
-  position: relative;
-  z-index: 1;
-}
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #ece9e6; }
