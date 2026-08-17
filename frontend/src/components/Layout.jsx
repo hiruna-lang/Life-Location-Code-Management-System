@@ -18,11 +18,6 @@ const adminLinks = [
   { to: '/admin/api-logs', labelKey: 'apiLogs', adminOnly: true },
 ]
 
-const officerLinks = [
-  { to: '/ds-dashboard', label: 'DS Dashboard', end: true },
-  { to: '/ds-gn-verification', label: 'GN Division Modification' },
-]
-
 export default function Layout({ children, admin = false }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -129,32 +124,42 @@ export default function Layout({ children, admin = false }) {
                 <NavLink to="/admin" end className={navClass} onClick={() => setMenuOpen(false)}>
                   {t('dashboard')}
                 </NavLink>
-                {publicLinks.filter(link => link.to !== '/').map(link => (
-                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
-                    {t(link.labelKey)}
-                  </NavLink>
-                ))}
-                {adminLinks.filter(link => link.to !== '/admin').map(link => (
-                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
-                    {t(link.labelKey)}
-                  </NavLink>
-                ))}
+                <NavLink to="/listing" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('locationListing')}
+                </NavLink>
+                <NavLink to="/same-gn" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('gnAnalysis')}
+                </NavLink>
+                <NavLink to="/admin/reports" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('reports')}
+                </NavLink>
+                <NavLink to="/admin/api-logs" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('apiLogs')}
+                </NavLink>
+                <NavLink to="/tools" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('tools')}
+                </NavLink>
+                <NavLink to="/about" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('aboutService')}
+                </NavLink>
               </>
             ) : user?.role === 'officer' ? (
               <>
                 <NavLink to="/ds-dashboard" end className={navClass} onClick={() => setMenuOpen(false)}>
                   DS Dashboard
                 </NavLink>
-                {publicLinks.filter(link => link.to !== '/').map(link => (
-                  <NavLink key={link.to} {...link} className={navClass} onClick={() => setMenuOpen(false)}>
-                    {t(link.labelKey)}
-                  </NavLink>
-                ))}
-                {officerLinks.filter(link => link.to !== '/ds-dashboard').map(link => (
-                  <NavLink key={link.to} to={link.to} end={link.end} className={navClass} onClick={() => setMenuOpen(false)}>
-                    {link.label}
-                  </NavLink>
-                ))}
+                <NavLink to="/ds-gn-verification" className={navClass} onClick={() => setMenuOpen(false)}>
+                  GN Division Modification
+                </NavLink>
+                <NavLink to="/listing" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('locationListing')}
+                </NavLink>
+                <NavLink to="/tools" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('tools')}
+                </NavLink>
+                <NavLink to="/about" className={navClass} onClick={() => setMenuOpen(false)}>
+                  {t('aboutService')}
+                </NavLink>
               </>
             ) : (
               <>
