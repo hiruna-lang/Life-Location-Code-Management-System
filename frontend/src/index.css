@@ -1041,6 +1041,10 @@ html[data-theme='dark'] .page-heading h1 {
 html[data-theme='dark'] .app-shell--admin .site-main {
   background: var(--bg);
 }
+html[data-theme='dark'] .app-shell--admin .site-main::before,
+html[data-theme='dark'] .app-shell--admin .site-main::after {
+  opacity: .18;
+}
 .service-title-band {
   position: relative;
   min-height: 220px;
@@ -1396,7 +1400,49 @@ html[data-theme='dark'] .app-shell--admin .site-main {
 .app-shell h2 { color: var(--navy) !important; font-family: 'Source Serif 4', serif; }
 .app-shell h3, .app-shell h4 { color: var(--navy); }
 .app-shell input, .app-shell select, .app-shell textarea { border-radius: 2px !important; }
-.app-shell--admin .site-main { background: #f2f4f6; }
+.app-shell--admin .site-main {
+  position: relative;
+  overflow-x: hidden;
+  background: #f2f4f6;
+}
+.app-shell--admin .site-main::before {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: clamp(145px, 13vw, 205px);
+  content: '';
+  background-image: url('/location-search-top-ornament.png');
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  opacity: .58;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.5) 42%, transparent 100%);
+}
+.app-shell--admin .site-main::after {
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: clamp(190px, 25vw, 360px);
+  content: '';
+  background-image: url('/location-search-background-v2.png');
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: .72;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.18) 22%, #000 62%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.18) 22%, #000 62%);
+}
+.app-shell--admin .site-main > .site-container {
+  position: relative;
+  z-index: 1;
+}
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #ece9e6; }
