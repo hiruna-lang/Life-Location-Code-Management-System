@@ -812,7 +812,10 @@ html[lang='ta'] .site-nav__link::after {
     top: 34px;
     right: calc((min(1180px, calc(100vw - 48px)) - 100vw) / 2 + 8px);
     bottom: auto;
+    box-sizing: content-box;
     width: 72px;
+    min-width: 72px;
+    max-width: 72px;
     padding: 6px;
     gap: 3px;
     opacity: 1;
@@ -844,6 +847,9 @@ html[lang='ta'] .site-nav__link::after {
   .app-shell:not(.app-shell--admin) .site-nav__link,
   .login-page .site-nav__link {
     box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     block-size: 62px;
     min-block-size: 0;
     max-block-size: 62px;
@@ -950,6 +956,8 @@ html[lang='ta'] .site-nav__link::after {
   html[lang='ta'] .login-page .site-nav__links {
     box-sizing: content-box;
     width: 72px;
+    min-width: 72px;
+    max-width: 72px;
     grid-auto-rows: 62px;
   }
 
